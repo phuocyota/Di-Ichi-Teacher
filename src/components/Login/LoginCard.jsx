@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
 import logo from '../../assets/logo/LOGO_Diichi.webp'
 import { Button } from '../Common/Button.jsx'
+import { LanguageSwitcher } from '../Common/LanguageSwitcher.jsx'
 
 const defaultAccount = {
   email: 'teacher@di-ichi.edu.vn',
@@ -34,8 +35,12 @@ export const LoginCard = () => {
 
   return (
     <section className="mx-auto w-full max-w-md rounded-3xl border border-white/60 bg-white/90 p-6 shadow-2xl shadow-orange-950/20 backdrop-blur md:p-8">
+      <div className="mb-5 flex justify-end">
+        <LanguageSwitcher />
+      </div>
+
       <div className="text-center">
-        <img className="mx-auto h-20 w-20 object-contain" src={logo} alt="Di-Ichi" />
+        <img className="mx-auto h-24 w-24 object-contain md:h-28 md:w-28" src={logo} alt="Di-Ichi" />
         <h1 className="mt-5 text-2xl font-black text-slate-950">Đăng nhập giáo viên</h1>
         <p className="mt-2 text-sm text-slate-500">Truy cập Di-Ichi Teacher để quản lý lớp học và lịch giảng dạy.</p>
       </div>

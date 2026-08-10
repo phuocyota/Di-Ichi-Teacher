@@ -1,5 +1,6 @@
 import { Bell, Menu, Search } from 'lucide-react'
 import { teacher } from '../../datas/portalData.js'
+import { LanguageSwitcher } from '../Common/LanguageSwitcher.jsx'
 
 export const Header = ({ onMenu }) => (
   <header className="sticky top-0 z-30 border-b border-orange-100 bg-white/85 px-4 py-3 shadow-sm shadow-orange-950/5 backdrop-blur-xl lg:px-6">
@@ -30,6 +31,8 @@ export const Header = ({ onMenu }) => (
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
+        <LanguageSwitcher compact />
+
         <button className="relative grid h-11 w-11 place-items-center rounded-2xl border border-orange-100 bg-white text-slate-600 shadow-sm transition hover:bg-orange-50 hover:text-orange-700" aria-label="Thông báo">
           <Bell size={19} />
           <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-orange-500 ring-2 ring-white" />
