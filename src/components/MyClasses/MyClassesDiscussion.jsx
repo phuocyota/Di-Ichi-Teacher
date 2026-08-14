@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MessageSquare, Paperclip, Reply, Send } from 'lucide-react'
 import { toast } from 'sonner'
 import { discussionThreads } from '../../datas/myClassExtras.js'
@@ -6,8 +6,9 @@ import { Badge } from '../Common/Badge.jsx'
 import { Button } from '../Common/Button.jsx'
 import { Card } from '../Common/Card.jsx'
 
-export const MyClassesDiscussion = ({ selectedClass }) => {
-  const [threads, setThreads] = useState(discussionThreads)
+export const MyClassesDiscussion = ({ selectedClass, selectedSession }) => {
+  const sessionThreads = selectedSession?.discussions || discussionThreads
+  const [threads, setThreads] = useState(sessionThreads)
   const [message, setMessage] = useState('')
   const [attachmentName, setAttachmentName] = useState('')
 
@@ -36,6 +37,10 @@ export const MyClassesDiscussion = ({ selectedClass }) => {
       description: `Thông báo đã được gửi tới lớp ${selectedClass.name}.`,
     })
   }
+
+  useEffect(() => {
+    setThreads(sessionThreads)
+  }, [sessionThreads])
 
   return (
     <div className="grid gap-5 xl:grid-cols-[380px_1fr]">

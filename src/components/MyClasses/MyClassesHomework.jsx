@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Clock, Download, Eye, FilePlus2, FileText, Paperclip, Send, Upload, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Badge } from '../Common/Badge.jsx'
@@ -31,8 +31,9 @@ const formatDueDate = (value) => {
   }).format(new Date(value))
 }
 
-export const MyClassesHomework = ({ selectedClass }) => {
-  const [homeworkList, setHomeworkList] = useState(selectedClass.homework)
+export const MyClassesHomework = ({ selectedClass, selectedSession }) => {
+  const sessionHomework = selectedSession?.homework || selectedClass.homework
+  const [homeworkList, setHomeworkList] = useState(sessionHomework)
   const [form, setForm] = useState({
     title: '',
     due: '',
@@ -43,6 +44,10 @@ export const MyClassesHomework = ({ selectedClass }) => {
   const handleChange = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }))
   }
+
+  useEffect(() => {
+    setHomeworkList(sessionHomework)
+  }, [sessionHomework])
 
   const handleFilesChange = (event) => {
     const selectedFiles = Array.from(event.target.files || [])
@@ -172,7 +177,7 @@ export const MyClassesHomework = ({ selectedClass }) => {
 
           <Button className="w-full" type="submit">
             <Send size={18} />
-            Đăng bài tập cho lớp
+            Đăng bài tập cho {selectedSession?.title || 'lớp'}
           </Button>
         </form>
       </Card>

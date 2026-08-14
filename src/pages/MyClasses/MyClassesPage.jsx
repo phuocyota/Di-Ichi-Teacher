@@ -24,7 +24,7 @@ export const MyClassesPage = () => {
       <SearchBar placeholder="Tìm lớp: IELTS Foundation 01, Elementary Kids, Speaking Club, TOEIC 550..." />
       <MyClassesCards selectedId={selectedId} onSelect={setSelectedId} />
       <MyClassesTabs activeTab={activeTab} onChange={setActiveTab} />
-      <MyClassesDetail selectedClass={selectedClass} activeTab={activeTab} />
+      <MyClassesDetail key={selectedClass.id} selectedClass={selectedClass} activeTab={activeTab} />
     </div>
   )
 }
