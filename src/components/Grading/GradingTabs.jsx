@@ -1,8 +1,7 @@
-import { BarChart3, CheckCircle2, ClipboardCheck, FileSearch, LayoutDashboard } from 'lucide-react'
+import { BarChart3, CheckCircle2, ClipboardCheck, FileSearch } from 'lucide-react'
 import { cn } from '../../utils/cn.js'
 
 const tabs = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'queue', label: 'Bài cần chấm', icon: ClipboardCheck },
   { id: 'detail', label: 'Chi tiết chấm bài', icon: FileSearch },
   { id: 'history', label: 'Đã chấm', icon: CheckCircle2 },

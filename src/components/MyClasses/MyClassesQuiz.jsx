@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BellRing, PlayCircle, Plus, Radio, Timer, UsersRound } from 'lucide-react'
 import { toast } from 'sonner'
 import { quizTemplates } from '../../datas/myClassExtras.js'
@@ -6,14 +6,19 @@ import { Badge } from '../Common/Badge.jsx'
 import { Button } from '../Common/Button.jsx'
 import { Card } from '../Common/Card.jsx'
 
-export const MyClassesQuiz = ({ selectedClass }) => {
-  const [quizzes, setQuizzes] = useState(quizTemplates)
+export const MyClassesQuiz = ({ selectedClass, selectedSession }) => {
+  const sessionQuizzes = selectedSession?.quizzes || quizTemplates
+  const [quizzes, setQuizzes] = useState(sessionQuizzes)
   const [form, setForm] = useState({ title: 'Quiz Vocabulary', questions: 10, duration: 15 })
   const activeQuiz = quizzes[0]
 
   const handleChange = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }))
   }
+
+  useEffect(() => {
+    setQuizzes(sessionQuizzes)
+  }, [sessionQuizzes])
 
   const handleCreateQuiz = (event) => {
     event.preventDefault()

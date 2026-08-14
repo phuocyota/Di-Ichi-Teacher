@@ -1,4 +1,4 @@
-import { CheckCircle2, PenLine, RotateCcw, Save, Send } from 'lucide-react'
+import { CheckCircle2, ChevronLeft, ChevronRight, PenLine, RotateCcw, Save, Send } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { studentSubmissionData } from '../../datas/studentSubmissionData.js'
@@ -12,7 +12,7 @@ const InfoRow = ({ label, value }) => (
   </div>
 )
 
-export const GradingDetail = ({ mode = 'view', submission, savedDraft, onStartGrading, onSaveDraft, onReturnSubmission }) => {
+export const GradingDetail = ({ mode = 'view', pagination, submission, savedDraft, onNavigateDetail, onStartGrading, onSaveDraft, onReturnSubmission }) => {
   const [score, setScore] = useState(savedDraft?.score || '')
   const [comment, setComment] = useState(savedDraft?.comment || '')
   const content = studentSubmissionData[submission.id] || studentSubmissionData['SUB-1001']
@@ -61,7 +61,34 @@ export const GradingDetail = ({ mode = 'view', submission, savedDraft, onStartGr
   }
 
   return (
-    <div className={gradingMode || reviewMode ? 'grid gap-5 xl:grid-cols-[280px_1fr_320px]' : 'grid gap-5 xl:grid-cols-[280px_1fr]'}>
+    <div className="space-y-4">
+      <div className="flex flex-col justify-between gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center">
+        <p className="text-sm font-black text-slate-700">
+          Bài {pagination?.current || 1}/{pagination?.total || 1}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <button
+            className="inline-flex h-9 items-center gap-2 rounded-xl border border-gray-200 px-3 text-xs font-black text-slate-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={!pagination?.canPrevious}
+            onClick={() => onNavigateDetail?.(-1)}
+            type="button"
+          >
+            <ChevronLeft size={15} />
+            Bài trước
+          </button>
+          <button
+            className="inline-flex h-9 items-center gap-2 rounded-xl border border-gray-200 px-3 text-xs font-black text-slate-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={!pagination?.canNext}
+            onClick={() => onNavigateDetail?.(1)}
+            type="button"
+          >
+            Bài sau
+            <ChevronRight size={15} />
+          </button>
+        </div>
+      </div>
+
+      <div className={gradingMode || reviewMode ? 'grid gap-5 xl:grid-cols-[280px_1fr_320px]' : 'grid gap-5 xl:grid-cols-[280px_1fr]'}>
       <aside className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-black text-slate-950">Thông tin bài</h2>
@@ -173,6 +200,7 @@ export const GradingDetail = ({ mode = 'view', submission, savedDraft, onStartGr
           </button>
         </aside>
       )}
+      </div>
     </div>
   )
 }

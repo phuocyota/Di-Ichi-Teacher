@@ -1,7 +1,8 @@
 import { DataTable } from '../Common/DataTable.jsx'
 import { Badge } from '../Common/Badge.jsx'
 
-export const MyClassesStudents = ({ selectedClass }) => {
+export const MyClassesStudents = ({ selectedClass, selectedSession }) => {
+  const students = selectedSession?.students || selectedClass.students
   const columns = [
     {
       accessorKey: 'name',
@@ -38,5 +39,5 @@ export const MyClassesStudents = ({ selectedClass }) => {
     },
   ]
 
-  return <DataTable columns={columns} data={selectedClass.students} />
+  return <DataTable columns={columns} data={students} />
 }

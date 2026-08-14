@@ -2,7 +2,6 @@ import { CheckCircle2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { PageHeader } from '../../components/Common/PageHeader.jsx'
-import { GradingDashboard } from '../../components/Grading/GradingDashboard.jsx'
 import { GradingDetail } from '../../components/Grading/GradingDetail.jsx'
 import { GradingHistory } from '../../components/Grading/GradingHistory.jsx'
 import { GradingStatistics } from '../../components/Grading/GradingStatistics.jsx'
@@ -10,19 +9,6 @@ import { GradingTable } from '../../components/Grading/GradingTable.jsx'
 import { GradingTabs } from '../../components/Grading/GradingTabs.jsx'
 import { gradingHistoryData } from '../../datas/gradingHistoryData.js'
 import { gradingListData } from '../../datas/gradingListData.js'
-
-const gradingFlow = [
-  'Học viên nộp bài',
-  'Bài vào hàng đợi',
-  'Giáo viên mở bài',
-  'Xem nội dung',
-  'Nhập điểm',
-  'Nhập nhận xét',
-  'Lưu',
-  'Trả bài',
-  'Thông báo LMS',
-  'Cập nhật kết quả',
-]
 
 const fallbackReviewedSubmission = {
   id: 'SUB-1001',
@@ -48,7 +34,7 @@ const buildReviewedSubmission = (historyItem) => ({
 })
 
 export const GradingPage = () => {
-  const [activeTab, setActiveTab] = useState('dashboard')
+  const [activeTab, setActiveTab] = useState('queue')
   const [detailMode, setDetailMode] = useState('view')
   const [selectedSubmission, setSelectedSubmission] = useState(gradingListData[0])
   const [selectedHistoryItem, setSelectedHistoryItem] = useState(null)
@@ -144,6 +130,31 @@ export const GradingPage = () => {
   const reviewedGrade = selectedHistoryItem
     ? { score: selectedHistoryItem.score, comment: selectedHistoryItem.comment }
     : null
+  const detailItems = selectedHistoryItem ? historyItems : queueItems
+  const currentDetailIndex = detailItems.findIndex((item) => (
+    selectedHistoryItem
+      ? item.id === selectedHistoryItem.id
+      : item.id === currentSubmission.id
+  ))
+  const detailPagination = {
+    current: currentDetailIndex >= 0 ? currentDetailIndex + 1 : 1,
+    total: detailItems.length,
+    canPrevious: currentDetailIndex > 0,
+    canNext: currentDetailIndex >= 0 && currentDetailIndex < detailItems.length - 1,
+  }
+
+  const handleNavigateDetail = (direction) => {
+    const nextIndex = currentDetailIndex + direction
+    const nextItem = detailItems[nextIndex]
+    if (!nextItem) return
+
+    if (selectedHistoryItem) {
+      openHistoryDetail(nextItem, detailMode === 'edit' ? 'edit' : 'review')
+      return
+    }
+
+    openDetail(nextItem, detailMode === 'grade' ? 'grade' : 'view')
+  }
 
   return (
     <div className="space-y-5">
@@ -156,18 +167,14 @@ export const GradingPage = () => {
 
       <GradingTabs activeTab={activeTab} onChange={setActiveTab} />
 
-      {activeTab === 'dashboard' && (
-        <>
-          <GradingDashboard />
-          <GradingWorkflow />
-        </>
-      )}
       {activeTab === 'queue' && <GradingTable submissions={queueItems} onViewSubmission={(submission) => openDetail(submission, 'view')} onGradeSubmission={(submission) => openDetail(submission, 'grade')} />}
       {activeTab === 'detail' && (
         <GradingDetail
           mode={detailMode}
+          pagination={detailPagination}
           submission={currentSubmission}
           savedDraft={reviewedGrade || draftGrades[currentSubmission.id]}
+          onNavigateDetail={handleNavigateDetail}
           onStartGrading={() => setDetailMode(selectedHistoryItem ? 'edit' : 'grade')}
           onSaveDraft={selectedHistoryItem ? handleUpdateHistoryGrade : handleSaveDraft}
           onReturnSubmission={handleReturnSubmission}
@@ -178,22 +185,3 @@ export const GradingPage = () => {
     </div>
   )
 }
-
-const GradingWorkflow = () => (
-  <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-    <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-      <div>
-        <h2 className="text-lg font-black text-slate-950">Luồng hoạt động</h2>
-        <p className="text-sm text-slate-500">Từ lúc học viên nộp bài đến khi điểm hiển thị trong mục Kết quả học tập.</p>
-      </div>
-    </div>
-    <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-      {gradingFlow.map((step, index) => (
-        <div key={step} className="rounded-xl border border-gray-200 bg-gray-50 p-3">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-white text-xs font-black text-orange-700 shadow-sm">{index + 1}</span>
-          <p className="mt-3 text-sm font-black text-slate-800">{step}</p>
-        </div>
-      ))}
-    </div>
-  </section>
-)

@@ -1,27 +1,43 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { QrCode, UserCheck } from 'lucide-react'
 import { Badge } from '../Common/Badge.jsx'
 import { Button } from '../Common/Button.jsx'
 import { Card } from '../Common/Card.jsx'
 
-const attendanceOptions = ['Có mặt', 'Muộn', 'Nghỉ phép', 'Vắng']
+const presentStatus = 'Có mặt'
+const attendanceOptions = [presentStatus, 'Muộn', 'Nghỉ phép', 'Vắng']
 
 const toneByStatus = {
   'Có mặt': 'green',
-  'Muộn': 'amber',
+  Muộn: 'amber',
   'Nghỉ phép': 'orange',
-  'Vắng': 'rose',
+  Vắng: 'rose',
 }
 
-export const MyClassesAttendance = ({ selectedClass }) => {
+export const MyClassesAttendance = ({ selectedClass, selectedSession }) => {
+  const students = selectedSession?.students || selectedClass.students
   const initialAttendance = useMemo(
-    () => Object.fromEntries(selectedClass.students.map((student) => [student.id, student.attendanceStatus])),
-    [selectedClass],
+    () => Object.fromEntries(students.map((student) => [student.id, student.attendanceStatus])),
+    [students],
   )
   const [attendance, setAttendance] = useState(initialAttendance)
+  const allPresent = students.length > 0 && students.every((student) => attendance[student.id] === presentStatus)
+
+  useEffect(() => {
+    setAttendance(initialAttendance)
+  }, [initialAttendance])
 
   const handleMark = (studentId, status) => {
     setAttendance((current) => ({ ...current, [studentId]: status }))
+  }
+
+  const handleMarkAll = (checked) => {
+    if (!checked) {
+      setAttendance(initialAttendance)
+      return
+    }
+
+    setAttendance(Object.fromEntries(students.map((student) => [student.id, presentStatus])))
   }
 
   return (
@@ -48,15 +64,26 @@ export const MyClassesAttendance = ({ selectedClass }) => {
       </Card>
 
       <Card>
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
           <div>
             <h3 className="text-lg font-black text-slate-950">Điểm danh thủ công</h3>
             <p className="text-sm text-slate-500">Đánh dấu trạng thái từng học viên.</p>
           </div>
-          <Badge>{selectedClass.students.length} học viên</Badge>
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border border-orange-100 bg-orange-50 px-3 text-sm font-bold text-orange-700">
+              <input
+                checked={allPresent}
+                className="h-4 w-4 accent-orange-600"
+                onChange={(event) => handleMarkAll(event.target.checked)}
+                type="checkbox"
+              />
+              Điểm danh tất cả
+            </label>
+            <Badge>{students.length} học viên</Badge>
+          </div>
         </div>
         <div className="mt-4 space-y-3">
-          {selectedClass.students.map((student) => (
+          {students.map((student) => (
             <div key={student.id} className="rounded-2xl border border-orange-100 p-3">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-center gap-3">

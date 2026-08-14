@@ -1,5 +1,4 @@
 import {
-  Bell,
   BookOpen,
   CalendarDays,
   CheckSquare,
@@ -18,6 +17,5 @@ export const menuItems = [
   { label: 'Ngân hàng đề thi', path: '/ngan-hang-de-thi', icon: ClipboardList, badge: null },
   { label: 'Chấm điểm', path: '/cham-diem', icon: CheckSquare, badge: '12' },
   { label: 'Kết quả học tập', path: '/ket-qua-hoc-tap', icon: NotebookTabs, badge: null },
-  { label: 'Thông báo', path: '/thong-bao', icon: Bell, badge: '5' },
   { label: 'Hồ sơ cá nhân', path: '/ho-so-ca-nhan', icon: UserRound, badge: null },
 ]

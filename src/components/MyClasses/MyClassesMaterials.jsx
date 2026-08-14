@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Download, Eye, EyeOff, FileText, Share2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { classMaterials } from '../../datas/myClassExtras.js'
@@ -6,8 +6,13 @@ import { Badge } from '../Common/Badge.jsx'
 import { Button } from '../Common/Button.jsx'
 import { Card } from '../Common/Card.jsx'
 
-export const MyClassesMaterials = () => {
-  const [materials, setMaterials] = useState(classMaterials)
+export const MyClassesMaterials = ({ selectedSession }) => {
+  const sessionMaterials = selectedSession?.materials || classMaterials
+  const [materials, setMaterials] = useState(sessionMaterials)
+
+  useEffect(() => {
+    setMaterials(sessionMaterials)
+  }, [sessionMaterials])
 
   const updateMaterial = (id, field, value) => {
     setMaterials((current) => current.map((item) => (item.id === id ? { ...item, [field]: value } : item)))

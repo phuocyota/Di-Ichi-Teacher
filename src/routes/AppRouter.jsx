@@ -7,7 +7,6 @@ import { AssignmentBankPage } from '../pages/AssignmentBank/AssignmentBankPage.j
 import { ExamBankPage } from '../pages/ExamBank/ExamBankPage.jsx'
 import { GradingPage } from '../pages/Grading/GradingPage.jsx'
 import { LearningResultsPage } from '../pages/LearningResults/LearningResultsPage.jsx'
-import { NotificationsPage } from '../pages/Notifications/NotificationsPage.jsx'
 import { ProfilePage } from '../pages/Profile/ProfilePage.jsx'
 import { LoginPage } from '../pages/Login/LoginPage.jsx'
 
@@ -24,7 +23,6 @@ export const router = createBrowserRouter([
       { path: '/ngan-hang-de-thi', element: <ExamBankPage /> },
       { path: '/cham-diem', element: <GradingPage /> },
       { path: '/ket-qua-hoc-tap', element: <LearningResultsPage /> },
-      { path: '/thong-bao', element: <NotificationsPage /> },
       { path: '/ho-so-ca-nhan', element: <ProfilePage /> },
     ],
   },
