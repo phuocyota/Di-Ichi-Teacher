@@ -1,8 +1,13 @@
 import { Bell, Menu, Search } from 'lucide-react'
 import { teacher } from '../../datas/portalData.js'
+import { getAuthSession } from '../../services/authSession.js'
 import { LanguageSwitcher } from '../Common/LanguageSwitcher.jsx'
 
-export const Header = ({ onMenu }) => (
+export const Header = ({ onMenu }) => {
+  const session = getAuthSession()
+  const teacherName = session?.fullName || teacher.name
+
+  return (
   <header className="sticky top-0 z-30 border-b border-orange-100 bg-white/85 px-4 py-3 shadow-sm shadow-orange-950/5 backdrop-blur-xl lg:px-6">
     <div className="flex items-center justify-between gap-4">
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -18,7 +23,7 @@ export const Header = ({ onMenu }) => (
 
         <div className="hidden lg:block">
           <p className="text-xs font-black uppercase tracking-wide text-orange-600">Di-Ichi Teacher</p>
-          <h1 className="text-xl font-black text-slate-950">Chào mừng quay lại, {teacher.name}</h1>
+          <h1 className="text-xl font-black text-slate-950">Chào mừng quay lại, {teacherName}</h1>
         </div>
 
         <label className="relative hidden w-full max-w-xl md:block">
@@ -39,13 +44,14 @@ export const Header = ({ onMenu }) => (
         </button>
 
         <button className="flex min-h-12 items-center gap-3 rounded-2xl border border-orange-100 bg-white px-2 py-1.5 shadow-sm transition hover:bg-orange-50">
-          <img className="h-9 w-9 rounded-xl object-cover ring-2 ring-orange-100" src={teacher.avatar} alt={teacher.name} />
+          <img className="h-9 w-9 rounded-xl object-cover ring-2 ring-orange-100" src={teacher.avatar} alt={teacherName} />
           <div className="hidden max-w-40 text-left sm:block">
-            <p className="truncate text-sm font-black text-slate-900">{teacher.name}</p>
+            <p className="truncate text-sm font-black text-slate-900">{teacherName}</p>
             <p className="truncate text-xs font-medium text-slate-500">{teacher.role}</p>
           </div>
         </button>
       </div>
     </div>
   </header>
-)
+  )
+}

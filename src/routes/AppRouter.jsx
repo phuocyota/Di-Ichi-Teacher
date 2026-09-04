@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { MainLayout } from '../layouts/MainLayout.jsx'
 import { DashboardPage } from '../pages/Dashboard/DashboardPage.jsx'
 import { TeachingSchedulePage } from '../pages/TeachingSchedule/TeachingSchedulePage.jsx'
@@ -9,12 +9,13 @@ import { GradingPage } from '../pages/Grading/GradingPage.jsx'
 import { LearningResultsPage } from '../pages/LearningResults/LearningResultsPage.jsx'
 import { ProfilePage } from '../pages/Profile/ProfilePage.jsx'
 import { LoginPage } from '../pages/Login/LoginPage.jsx'
+import { ProtectedRoute } from './ProtectedRoute.jsx'
 
 export const router = createBrowserRouter([
   { path: '/', element: <LoginPage /> },
   { path: '/login', element: <LoginPage /> },
   {
-    element: <MainLayout />,
+    element: <ProtectedRoute><MainLayout /></ProtectedRoute>,
     children: [
       { path: '/dashboard', element: <DashboardPage /> },
       { path: '/lich-giang-day', element: <TeachingSchedulePage /> },
@@ -26,4 +27,5 @@ export const router = createBrowserRouter([
       { path: '/ho-so-ca-nhan', element: <ProfilePage /> },
     ],
   },
+  { path: '*', element: <Navigate to="/dashboard" replace /> },
 ])
