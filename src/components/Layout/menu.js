@@ -7,11 +7,13 @@ import {
   LayoutDashboard,
   NotebookTabs,
   UserRound,
+  Video,
 } from 'lucide-react'
 
 export const menuItems = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, badge: null },
   { label: 'Lịch giảng dạy', path: '/lich-giang-day', icon: CalendarDays, badge: '3' },
+  { label: 'Lớp học Online', path: '/lop-hoc-online', icon: Video, badge: null },
   { label: 'Lớp học của tôi', path: '/lop-hoc-cua-toi', icon: GraduationCap, badge: null },
   { label: 'Ngân hàng bài tập', path: '/ngan-hang-bai-tap', icon: BookOpen, badge: null },
   { label: 'Ngân hàng đề thi', path: '/ngan-hang-de-thi', icon: ClipboardList, badge: null },

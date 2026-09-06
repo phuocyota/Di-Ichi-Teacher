@@ -10,6 +10,8 @@ import { LearningResultsPage } from '../pages/LearningResults/LearningResultsPag
 import { ProfilePage } from '../pages/Profile/ProfilePage.jsx'
 import { LoginPage } from '../pages/Login/LoginPage.jsx'
 import { ProtectedRoute } from './ProtectedRoute.jsx'
+import { OnlineClassesPage } from '../pages/OnlineClassroom/OnlineClassesPage.jsx'
+import { TeacherClassroomPage } from '../pages/OnlineClassroom/TeacherClassroomPage.jsx'
 
 export const router = createBrowserRouter([
   { path: '/', element: <LoginPage /> },
@@ -25,7 +27,9 @@ export const router = createBrowserRouter([
       { path: '/cham-diem', element: <GradingPage /> },
       { path: '/ket-qua-hoc-tap', element: <LearningResultsPage /> },
       { path: '/ho-so-ca-nhan', element: <ProfilePage /> },
+      { path: '/lop-hoc-online', element: <OnlineClassesPage /> },
     ],
   },
+  { path: '/lop-hoc-online/:scheduleId', element: <ProtectedRoute><TeacherClassroomPage /></ProtectedRoute> },
   { path: '*', element: <Navigate to="/dashboard" replace /> },
 ])
