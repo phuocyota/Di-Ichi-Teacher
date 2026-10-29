@@ -1,14 +1,21 @@
+import React from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ChevronRight, Headphones, LogOut } from 'lucide-react'
 import logo from '../../assets/logo/LOGO_Diichi.webp'
 import { cn } from '../../utils/cn.js'
 import { menuItems } from './menu.js'
+import { clearAuthSession } from '../../services/authSession.js'
+import { usePortal } from '../../portal/portalStore.js'
 
 export const Sidebar = ({ open, onClose }) => {
   const navigate = useNavigate()
+  const { data } = usePortal()
+  const today = new Date().toLocaleDateString('en-CA')
+  const todayClasses = data.schedules.filter(s => new Date(s.startAt).toLocaleDateString('en-CA') === today && s.status !== 'cancelled').length
 
   const handleLogout = () => {
+    clearAuthSession()
     onClose()
     toast.success('Đăng xuất thành công', {
       description: 'Bạn đã quay về màn hình đăng nhập.',
@@ -44,10 +51,7 @@ export const Sidebar = ({ open, onClose }) => {
           </div>
           <div className="mt-5 rounded-2xl border border-orange-100 bg-white/80 p-3">
             <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Hôm nay</p>
-            <p className="mt-1 text-sm font-black text-slate-900">3 lớp, 48 học viên</p>
-            <div className="mt-3 h-2 rounded-full bg-orange-100">
-              <div className="h-2 w-[72%] rounded-full bg-gradient-to-r from-orange-500 to-amber-400" />
-            </div>
+            <p className="mt-1 text-sm font-black text-slate-900">{todayClasses} buổi học · {data.students.length} học sinh</p>
           </div>
         </div>
 

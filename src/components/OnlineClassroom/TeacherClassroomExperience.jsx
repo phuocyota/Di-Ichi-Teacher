@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react'
-import { ControlBar, GridLayout, ParticipantTile, RoomAudioRenderer, StartAudio, useTracks } from '@livekit/components-react'
-import { Track } from 'livekit-client'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { ControlBar, GridLayout, ParticipantTile, RoomAudioRenderer, StartAudio, useRoomContext, useTracks } from '@livekit/components-react'
+import { RoomEvent, Track } from 'livekit-client'
 import { toast } from 'sonner'
-import { getClassroomParticipants, updateClassroomPermissions } from '../../services/classroomApi.js'
+import { getClassroomErrorMessage, getClassroomParticipants, kickClassroomParticipant, updateClassroomPermissions } from '../../services/classroomApi.js'
 import { useClassroomSocket } from '../../hooks/useClassroomSocket.js'
 import { ClassroomBoard } from './ClassroomBoard.jsx'
 import { ParticipantPanel } from './ParticipantPanel.jsx'
@@ -11,7 +11,19 @@ export const TeacherClassroomExperience = ({ joinData, onLeave, onDeviceError })
   const [participants, setParticipants] = useState([])
   const [raisedHands, setRaisedHands] = useState(new Set())
   const [saving, setSaving] = useState('')
-  const loadParticipants = useCallback(() => getClassroomParticipants(joinData.scheduleId).then(setParticipants).catch((error) => toast.error(error.message)), [joinData.scheduleId])
+  const [kicking, setKicking] = useState(new Set())
+  const kickRequests = useRef(new Set())
+  const rosterRequest = useRef(0)
+  const room = useRoomContext()
+  const loadParticipants = useCallback(async () => {
+    const request = ++rosterRequest.current
+    try {
+      const result = await getClassroomParticipants(joinData.scheduleId)
+      if (request === rosterRequest.current) setParticipants(result)
+    } catch (error) {
+      if (request === rosterRequest.current) toast.error('Không thể tải danh sách học sinh', { description: getClassroomErrorMessage(error) })
+    }
+  }, [joinData.scheduleId])
   const onEvent = useCallback((eventName, event) => {
     if (eventName === 'classroom:raise-hand' || eventName === 'classroom:lower-hand') {
       setRaisedHands((current) => {
@@ -21,10 +33,7 @@ export const TeacherClassroomExperience = ({ joinData, onLeave, onDeviceError })
         return next
       })
     }
-    if (eventName === 'classroom:participant-joined' && event.studentId) {
-      setParticipants((current) => current.map((item) => item.studentId === event.studentId ? { ...item, connected: true } : item))
-    }
-    if (eventName === 'classroom:participant-left') void loadParticipants()
+    if (eventName === 'classroom:participant-joined' || eventName === 'classroom:participant-left') void loadParticipants()
     if (eventName === 'classroom:permission-changed') {
       setParticipants((current) => current.map((item) => item.identity === event.identity ? { ...item, permissions: event.permissions } : item))
     }
@@ -38,8 +47,41 @@ export const TeacherClassroomExperience = ({ joinData, onLeave, onDeviceError })
   useEffect(() => {
     void loadParticipants()
     const timer = window.setInterval(loadParticipants, 15000)
-    return () => window.clearInterval(timer)
-  }, [loadParticipants])
+    const refresh = () => { void loadParticipants() }
+    const events = [RoomEvent.ParticipantConnected, RoomEvent.ParticipantDisconnected, RoomEvent.Reconnected]
+    events.forEach((event) => room.on(event, refresh))
+    return () => {
+      window.clearInterval(timer)
+      events.forEach((event) => room.off(event, refresh))
+      // This is a request counter, not a DOM ref: invalidate outstanding fetches on cleanup.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      rosterRequest.current++
+    }
+  }, [loadParticipants, room])
+
+  const kickParticipant = async (participant) => {
+    const { identity } = participant
+    if (!identity || !participant.connected || kickRequests.current.has(identity)) return
+    kickRequests.current.add(identity)
+    setKicking(new Set(kickRequests.current))
+    try {
+      const result = await kickClassroomParticipant(joinData.scheduleId, identity)
+      rosterRequest.current++
+      setParticipants((current) => current.map((item) => item.identity === identity ? { ...item, connected: false } : item))
+      setRaisedHands((current) => {
+        const next = new Set(current)
+        next.delete(participant.studentId)
+        return next
+      })
+      toast.success(result.removed ? 'Đã mời học sinh ra khỏi lớp' : 'Học sinh đã rời lớp')
+      await loadParticipants()
+    } catch (error) {
+      toast.error('Không thể mời học sinh ra khỏi lớp', { description: getClassroomErrorMessage(error) })
+    } finally {
+      kickRequests.current.delete(identity)
+      setKicking(new Set(kickRequests.current))
+    }
+  }
 
   const changePermission = async (participant, key, value) => {
     const savingKey = `${participant.studentId}:${key}`
@@ -48,7 +90,7 @@ export const TeacherClassroomExperience = ({ joinData, onLeave, onDeviceError })
       const result = await updateClassroomPermissions(joinData.scheduleId, participant.studentId, { [key]: value })
       setParticipants((current) => current.map((item) => item.studentId === participant.studentId ? { ...item, permissions: result.permissions } : item))
     } catch (error) {
-      toast.error('Không thể cập nhật quyền', { description: error.message })
+      toast.error('Không thể cập nhật quyền', { description: getClassroomErrorMessage(error) })
     } finally {
       setSaving('')
     }
@@ -70,7 +112,7 @@ export const TeacherClassroomExperience = ({ joinData, onLeave, onDeviceError })
             <ControlBar variation="minimal" controls={{ microphone: true, camera: true, screenShare: true, chat: false, settings: true, leave: false }} onDeviceError={({ error }) => onDeviceError(error.message)} />
           </div>
         </main>
-        <ParticipantPanel participants={participants} raisedHands={raisedHands} saving={saving} onPermission={changePermission} />
+        <ParticipantPanel participants={participants} raisedHands={raisedHands} saving={saving} onPermission={changePermission} kicking={kicking} onKick={kickParticipant} />
       </div>
     </div>
   )

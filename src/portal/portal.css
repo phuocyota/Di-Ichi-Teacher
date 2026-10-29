@@ -1,0 +1,150 @@
+.portal {
+  color: #1e293b;
+  display: grid;
+  gap: 20px;
+}
+.portal h1 {
+  font-size: 1.8rem;
+  font-weight: 850;
+}
+.portal h2 {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+.portal p {
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+.portal-toolbar,
+.portal-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.portal button,
+.portal-status button {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  padding: 9px 15px;
+  font-weight: 700;
+  color: #9a3412;
+  cursor: pointer;
+}
+.portal button.primary {
+  background: #ea580c;
+  color: white;
+  border-color: #ea580c;
+}
+.portal button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.portal input,
+.portal select,
+.portal textarea {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px;
+  width: 100%;
+  min-width: 0;
+}
+.portal label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+.portal textarea {
+  min-height: 100px;
+}
+.portal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 16px;
+}
+.portal-card {
+  background: white;
+  border: 1px solid #ffedd5;
+  border-radius: 20px;
+  padding: 20px;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  box-shadow: 0 5px 15px #9a341205;
+}
+.portal-muted {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+.portal-empty,
+.portal-loading {
+  padding: 35px;
+  text-align: center;
+  color: #64748b;
+  background: white;
+  border-radius: 18px;
+}
+.portal-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  padding: 14px;
+  border-radius: 12px;
+  margin: 10px;
+}
+.portal-notice {
+  background: #f0fdf4;
+  color: #166534;
+  padding: 12px;
+  border-radius: 12px;
+  margin: 10px;
+}
+.portal-stat {
+  font-size: 2rem;
+  font-weight: 850;
+  color: #ea580c;
+}
+.portal form {
+  display: grid;
+  gap: 14px;
+}
+.portal-table {
+  overflow: auto;
+}
+.portal table {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+}
+.portal td,
+.portal th {
+  padding: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.portal a {
+  color: #c2410c;
+  text-decoration: underline;
+}
+.portal progress {
+  width: 100%;
+  accent-color: #ea580c;
+}
+.portal input[type="radio"],
+.portal input[type="checkbox"] {
+  width: auto;
+}
+.portal-option {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: #fff7ed;
+  border-radius: 12px;
+}
+.portal .portal-toolbar input,
+.portal .portal-toolbar select {
+  width: auto;
+  max-width: 100%;
+}

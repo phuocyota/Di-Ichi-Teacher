@@ -1,14 +1,16 @@
+import React from 'react'
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Header } from '../components/Layout/Header.jsx'
 import { Sidebar } from '../components/Layout/Sidebar.jsx'
+import { PortalProvider } from '../portal/PortalContext.jsx'
 
 export const MainLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <div className="min-h-screen">
+    <PortalProvider><div className="min-h-screen">
       <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
       <div className="lg:pl-72">
         <Header onMenu={() => setMenuOpen(true)} />
@@ -18,6 +20,6 @@ export const MainLayout = () => {
           </motion.div>
         </main>
       </div>
-    </div>
+    </div></PortalProvider>
   )
 }

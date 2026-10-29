@@ -8,7 +8,7 @@ const permissionItems = [
   ['canControlBoard', MousePointer2, 'Điều khiển'],
 ]
 
-export const ParticipantPanel = ({ participants, raisedHands, saving, onPermission }) => (
+export const ParticipantPanel = ({ participants, raisedHands, saving, onPermission, kicking, onKick }) => (
   <aside className="w-full shrink-0 overflow-y-auto border-l border-white/10 bg-slate-900 p-4 xl:w-80">
     <h2 className="text-lg font-black">Học sinh ({participants.length})</h2>
     <div className="mt-4 space-y-3">
@@ -36,6 +36,11 @@ export const ParticipantPanel = ({ participants, raisedHands, saving, onPermissi
               </button>
             ))}
           </div>
+          {participant.identity && participant.connected && (
+            <button type="button" disabled={kicking.has(participant.identity)} onClick={() => onKick(participant)} className="mt-3 w-full rounded-xl bg-red-500/15 px-2 py-2 text-xs font-bold text-red-300 disabled:opacity-40">
+              {kicking.has(participant.identity) ? 'Đang mời ra...' : 'Mời ra khỏi lớp'}
+            </button>
+          )}
         </article>
       ))}
     </div>

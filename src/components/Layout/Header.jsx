@@ -1,11 +1,12 @@
-import { Bell, Menu, Search } from 'lucide-react'
-import { teacher } from '../../datas/portalData.js'
-import { getAuthSession } from '../../services/authSession.js'
+import React from 'react'
+import { Bell, Menu } from 'lucide-react'
+import { usePortal } from '../../portal/portalStore.js'
+import { Link } from 'react-router-dom'
 import { LanguageSwitcher } from '../Common/LanguageSwitcher.jsx'
 
 export const Header = ({ onMenu }) => {
-  const session = getAuthSession()
-  const teacherName = session?.fullName || teacher.name
+  const { data } = usePortal()
+  const teacherName = data.profile.name
 
   return (
   <header className="sticky top-0 z-30 border-b border-orange-100 bg-white/85 px-4 py-3 shadow-sm shadow-orange-950/5 backdrop-blur-xl lg:px-6">
@@ -26,30 +27,23 @@ export const Header = ({ onMenu }) => {
           <h1 className="text-xl font-black text-slate-950">Chào mừng quay lại, {teacherName}</h1>
         </div>
 
-        <label className="relative hidden w-full max-w-xl md:block">
-          <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-orange-400" size={18} />
-          <input
-            className="h-12 w-full rounded-2xl border border-orange-100 bg-orange-50/70 pl-11 pr-4 text-sm font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-orange-300 focus:bg-white focus:ring-4 focus:ring-orange-100"
-            placeholder="Tìm lớp học, học viên, bài tập, đề thi..."
-          />
-        </label>
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
         <LanguageSwitcher compact />
 
-        <button className="relative grid h-11 w-11 place-items-center rounded-2xl border border-orange-100 bg-white text-slate-600 shadow-sm transition hover:bg-orange-50 hover:text-orange-700" aria-label="Thông báo">
+        <Link to="/dashboard" className="relative grid h-11 w-11 place-items-center rounded-2xl border border-orange-100 bg-white text-slate-600 shadow-sm transition hover:bg-orange-50 hover:text-orange-700" aria-label="Thông báo">
           <Bell size={19} />
-          <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-orange-500 ring-2 ring-white" />
-        </button>
+          {data.notifications.some(n => !n.readAt) && <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-orange-500 ring-2 ring-white" />}
+        </Link>
 
-        <button className="flex min-h-12 items-center gap-3 rounded-2xl border border-orange-100 bg-white px-2 py-1.5 shadow-sm transition hover:bg-orange-50">
-          <img className="h-9 w-9 rounded-xl object-cover ring-2 ring-orange-100" src={teacher.avatar} alt={teacherName} />
+        <Link to="/ho-so-ca-nhan" className="flex min-h-12 items-center gap-3 rounded-2xl border border-orange-100 bg-white px-2 py-1.5 shadow-sm transition hover:bg-orange-50">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-orange-100">{teacherName?.slice(0, 1)}</span>
           <div className="hidden max-w-40 text-left sm:block">
             <p className="truncate text-sm font-black text-slate-900">{teacherName}</p>
-            <p className="truncate text-xs font-medium text-slate-500">{teacher.role}</p>
+            <p className="truncate text-xs font-medium text-slate-500">Giáo viên</p>
           </div>
-        </button>
+        </Link>
       </div>
     </div>
   </header>

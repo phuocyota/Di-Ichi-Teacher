@@ -1,3 +1,4 @@
+import React from 'react'
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -30,6 +31,7 @@ export const LoginCard = () => {
     try {
       const session = await loginStaff({ email: normalizedEmail, password })
       if (!session?.accessToken) throw new Error('INVALID_LOGIN_RESPONSE')
+      if (session.userType !== 'TEACHER') throw new Error('TEACHER_REQUIRED')
 
       saveAuthSession(session, rememberLogin)
       toast.success('Đăng nhập thành công', {
@@ -40,7 +42,7 @@ export const LoginCard = () => {
       const backendMessage = error.response?.data?.error?.message || error.response?.data?.message
       const description = error.response?.status === 401
         ? 'Email hoặc mật khẩu không đúng.'
-        : backendMessage || (error.message === 'INVALID_LOGIN_RESPONSE'
+        : error.message === 'TEACHER_REQUIRED' ? 'Vui lòng dùng tài khoản giáo viên.' : backendMessage || (error.message === 'INVALID_LOGIN_RESPONSE'
           ? 'Phản hồi đăng nhập không có access token.'
           : error.response ? 'Không thể đăng nhập. Vui lòng thử lại.' : 'Không thể kết nối máy chủ.')
       toast.error('Đăng nhập thất bại', { description })
