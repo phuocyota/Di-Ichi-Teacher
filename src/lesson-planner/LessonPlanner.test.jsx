@@ -65,6 +65,24 @@ function mount() {
   return { ...view, router };
 }
 const ready = async () => screen.findByLabelText("Tên giáo án *");
+it("presents the current unsaved games as slides and returns to the editor", async () => {
+  mount();
+  fireEvent.change(await ready(), { target: { value: "Bài đang soạn" } });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Thêm mẫu Matching Pairs" }),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Trình chiếu" }));
+  const dialog = screen.getByRole("dialog", { name: "Trình chiếu bài học" });
+  expect(within(dialog).getByText("Slide 1/1")).toBeInTheDocument();
+  expect(
+    within(dialog).getAllByRole("button", { name: /Lật thẻ/ }),
+  ).toHaveLength(6);
+  fireEvent.click(
+    within(dialog).getByRole("button", { name: "Đóng trình chiếu" }),
+  );
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  expect(screen.getByLabelText("Tên giáo án *")).toHaveValue("Bài đang soạn");
+});
 
 it("adds content by drag and drop and reorders blocks without losing content", async () => {
   const { container } = mount();

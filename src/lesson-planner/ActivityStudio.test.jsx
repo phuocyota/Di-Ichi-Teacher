@@ -61,6 +61,22 @@ function mount(path = "/tao-hoat-dong") {
   );
   return render(<RouterProvider router={router} />);
 }
+it("presents the current e-learning page and retains its draft after closing", async () => {
+  mount();
+  await screen.findByLabelText("Tên bài e-learning");
+  fireEvent.click(screen.getByRole("button", { name: /Nối cặp kiến thức/ }));
+  fireEvent.click(screen.getByRole("button", { name: "+ Thêm trang" }));
+  fireEvent.click(screen.getByRole("button", { name: "Trình chiếu" }));
+  expect(screen.getByText("Slide 2/2")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "← Slide trước" }));
+  expect(
+    screen.getByRole("button", { name: "Kiểm tra ghép cặp" }),
+  ).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Đóng trình chiếu" }));
+  fireEvent.click(screen.getByRole("button", { name: "Lưu bài e-learning" }));
+  await waitFor(() => expect(saved?.pages).toHaveLength(2));
+  expect(saved.blocks).toHaveLength(1);
+});
 it("inserts a dragged template at the drop point and moves/resizes with keyboard and pointer", async () => {
   const { container } = mount();
   await screen.findByLabelText("Tên bài e-learning");

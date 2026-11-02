@@ -9,6 +9,7 @@ import { BLOCKS, createBlock, newPlan } from "./blocks.js";
 import { clampLayout, moveLayout } from "./activityLayout.js";
 import BlockFields from "./BlockFields.jsx";
 import BlockPlayer from "./BlockPlayer.jsx";
+import SlidePresentation from "./SlidePresentation.jsx";
 import { normalizeAppearance } from "./appearance.js";
 import { validatedImageBlob } from "./appearance.js";
 import LessonAppearance, { LessonScene } from "./LessonAppearance.jsx";
@@ -25,6 +26,7 @@ export default function ActivityStudio() {
   const { planId } = useParams();
   const navigate = useNavigate();
   const [savedId, setSavedId] = useState(null);
+  const [presenting, setPresenting] = useState(false);
   const [courses, setCourses] = useState([]);
   const [plan, setPlan] = useState(null),
     [classes, setClasses] = useState([]),
@@ -400,6 +402,13 @@ export default function ActivityStudio() {
     );
   return (
     <section className="activity-studio lesson-planner">
+      {presenting && (
+        <SlidePresentation
+          plan={plan}
+          startIndex={pageIndex}
+          onClose={() => setPresenting(false)}
+        />
+      )}
       <header className="as-top">
         <div>
           <p>BỘ SOẠN BÀI E-LEARNING</p>
@@ -407,6 +416,9 @@ export default function ActivityStudio() {
         </div>
         <div>
           <Link to="/giao-an">Bài đã lưu</Link>
+          <button disabled={busy} onClick={() => setPresenting(true)}>
+            Trình chiếu
+          </button>
           <button
             aria-pressed={preview}
             onClick={() => {

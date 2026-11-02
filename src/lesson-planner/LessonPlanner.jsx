@@ -9,7 +9,7 @@ import {
   newPlan,
 } from "./blocks.js";
 import BlockPlayer from "./BlockPlayer.jsx";
-import SlidePresentation from './SlidePresentation.jsx';
+import SlidePresentation from "./SlidePresentation.jsx";
 import BlockFields from "./BlockFields.jsx";
 import LessonAppearance, { LessonScene } from "./LessonAppearance.jsx";
 import { normalizeAppearance, validatedImageBlob } from "./appearance.js";
@@ -39,7 +39,7 @@ export default function LessonPlanner() {
     [playSession, setPlaySession] = useState(0);
   const [collapsed, setCollapsed] = useState({});
   const [motionPaused, setMotionPaused] = useState(false);
-  const [presenting,setPresenting]=useState(false);
+  const [presenting, setPresenting] = useState(false);
   const lock = useRef(false);
   const blocker = useBlocker(dirty);
   useEffect(() => {
@@ -273,10 +273,10 @@ export default function LessonPlanner() {
       </div>
     );
   return (
-    <section
-      className={"lesson-planner " + (mode === "present" ? "lp-present" : "")}
-      aria-busy={busy}
-    >
+    <section className="lesson-planner" aria-busy={busy}>
+      {presenting && (
+        <SlidePresentation plan={plan} onClose={() => setPresenting(false)} />
+      )}
       <header className="lp-top">
         <div>
           <p className="lp-eyebrow">XƯỞNG GIÁO ÁN</p>
@@ -296,9 +296,12 @@ export default function LessonPlanner() {
           ].map(([value, label]) => (
             <button
               key={value}
-              aria-pressed={mode === value}
+              aria-pressed={value === "present" ? presenting : mode === value}
               onClick={() => {
-                if(value==='present'){setPresenting(true);return;}
+                if (value === "present") {
+                  setPresenting(true);
+                  return;
+                }
                 setMode(value);
                 setPlaySession((v) => v + 1);
               }}
@@ -768,9 +771,7 @@ export default function LessonPlanner() {
             <LessonScene appearance={plan.appearance} paused={motionPaused}>
               <div className="lp-play-area">
                 <header>
-                  <span className="lp-eyebrow">
-                    {mode === "present" ? "TRÌNH CHIẾU" : "CHƠI THỬ BÀI HỌC"}
-                  </span>
+                  <span className="lp-eyebrow">CHƠI THỬ BÀI HỌC</span>
                   <h2>{plan.title || "Giáo án chưa đặt tên"}</h2>
                   <p>
                     {[
