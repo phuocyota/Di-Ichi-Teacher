@@ -4,6 +4,7 @@ import "./portal.css";
 
 import { PortalContext as Context } from "./portalStore.js";
 import { portalRequest, validateSnapshot } from "../services/portalApi.js";
+import { useScheduleReminders } from "./useScheduleReminders.js";
 export function PortalProvider({ children }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
@@ -11,6 +12,7 @@ export function PortalProvider({ children }) {
   const [notice, setNotice] = useState("");
   const lock = useRef(false);
   const revision = useRef(0);
+  useScheduleReminders(data);
   const reload = useCallback(async (signal) => {
     const request = ++revision.current;
     try {
@@ -31,6 +33,22 @@ export function PortalProvider({ children }) {
     reload(controller.signal).catch(() => {});
     return () => controller.abort();
   }, [reload]);
+  useEffect(() => {
+    // Refresh the teacher's timetable so reminders include newly created/changed lessons.
+    if (data?.profile?.userType !== "TEACHER") return;
+    const controller = new AbortController();
+    const refresh = () => {
+      if (document.visibilityState !== "hidden" && !lock.current)
+        reload(controller.signal).catch(() => {});
+    };
+    const timer = setInterval(refresh, 60000);
+    window.addEventListener("focus", refresh);
+    return () => {
+      clearInterval(timer);
+      controller.abort();
+      window.removeEventListener("focus", refresh);
+    };
+  }, [data?.profile?.userId, data?.profile?.userType, reload]);
   const act = async (path, options = {}) => {
     if (lock.current) return null;
     lock.current = true;
