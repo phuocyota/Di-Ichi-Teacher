@@ -63,6 +63,10 @@ export function PortalScreen({ mode = "dashboard" }) {
     data.profile.userType === "TEACHER" ? "students" : "lesson",
   );
   const teacher = data.profile.userType === "TEACHER";
+  useEffect(() => {
+    if (classId && !data.classes.some((item) => item.id === classId))
+      setClassId("");
+  }, [classId, data.classes]);
   const title =
     mode === "dashboard" && teacher ? "Tổng quan giảng dạy" : titles[mode];
   const className = (id) => data.classes.find((c) => c.id === id)?.name || "—";
