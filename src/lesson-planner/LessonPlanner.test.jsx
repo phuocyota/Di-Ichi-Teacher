@@ -65,6 +65,32 @@ function mount() {
   return { ...view, router };
 }
 const ready = async () => screen.findByLabelText("Tên giáo án *");
+it("shares a draft directly with the selected class", async () => {
+  mount();
+  fireEvent.change(await ready(), { target: { value: "Bài chia sẻ" } });
+  fireEvent.change(screen.getByLabelText("Lớp học (không bắt buộc khi lưu nháp)"), {
+    target: { value: "class-1" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Chia sẻ cho lớp" }));
+  expect(await screen.findByRole("status")).toHaveTextContent("Học viên trong lớp đã có thể xem");
+  expect(portalRequest).toHaveBeenCalledWith("/lesson-plans", expect.objectContaining({
+    method: "POST",
+    body: expect.objectContaining({ title: "Bài chia sẻ", classId: "class-1", status: "ready" }),
+  }));
+  expect(screen.getByRole("button", { name: "Cập nhật chia sẻ" })).toBeEnabled();
+});
+
+it("does not share a lesson without a selected class", async () => {
+  mount();
+  fireEvent.change(await ready(), { target: { value: "Bài chưa chọn lớp" } });
+  fireEvent.change(screen.getByLabelText("Lớp học (không bắt buộc khi lưu nháp)"), {
+    target: { value: "" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Chia sẻ cho lớp" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("chọn lớp");
+  expect(portalRequest.mock.calls.some(([, options]) => options?.method === "POST" || options?.method === "PUT")).toBe(false);
+});
+
 it("presents the current unsaved games as slides and returns to the editor", async () => {
   mount();
   fireEvent.change(await ready(), { target: { value: "Bài đang soạn" } });

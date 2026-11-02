@@ -346,6 +346,9 @@ export default function LessonPlanner() {
           <button className="lp-primary" disabled={busy} onClick={() => save()}>
             {busy ? "Đang xử lý…" : "Lưu giáo án"}
           </button>
+          <button className="lp-primary" disabled={busy} onClick={() => save("ready")}>
+            {plan.status === "ready" && plan.id ? "Cập nhật chia sẻ" : "Chia sẻ cho lớp"}
+          </button>
         </div>
       </div>
       {error && (
