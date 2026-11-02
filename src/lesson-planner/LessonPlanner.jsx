@@ -207,7 +207,9 @@ export default function LessonPlanner() {
         appearance: normalizeAppearance(data.appearance),
       });
       setDirty(false);
-      setNotice("Đã lưu giáo án vào tài khoản của bạn");
+      setNotice(data.status === "ready" && data.classId
+        ? "Đã lưu giáo án. Học viên trong lớp đã có thể xem."
+        : "Đã lưu giáo án vào tài khoản của bạn");
       setSaved((prev) => [
         {
           id: data.id,
@@ -563,7 +565,7 @@ export default function LessonPlanner() {
                         onChange={(e) => update({ status: e.target.value })}
                       >
                         <option value="draft">Bản nháp</option>
-                        <option value="ready">Sẵn sàng</option>
+                        <option value="ready">Sẵn sàng — chia sẻ cho lớp</option>
                       </select>
                     </label>
                   </div>
@@ -807,7 +809,7 @@ export default function LessonPlanner() {
           <footer className="lp-footer">
             <span>
               {plan.id
-                ? "Giáo án riêng của bạn · Bản " + plan.revision
+                ? (plan.status === "ready" && plan.classId ? "Chia sẻ cho lớp · Bản " : "Giáo án riêng của bạn · Bản ") + plan.revision
                 : "Chưa lưu vào tài khoản"}
             </span>
             <div>
