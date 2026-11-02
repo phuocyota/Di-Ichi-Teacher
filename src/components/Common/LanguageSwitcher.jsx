@@ -9,7 +9,7 @@ export const LanguageSwitcher = ({ compact = false }) => {
       <Languages size={18} className="text-orange-600" />
       {!compact && <span>{t('language.label')}</span>}
       <select
-        className="bg-transparent text-sm font-black outline-none"
+        className="teacher-select-compact bg-transparent text-sm font-black outline-none"
         value={i18n.language}
         onChange={(event) => i18n.changeLanguage(event.target.value)}
         aria-label={t('language.label')}

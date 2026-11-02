@@ -1,24 +1,34 @@
-# React + Vite
+# Di-Ichi Teacher
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Portal giáo viên dùng React/Vite. Các màn tổng quan, lịch, lớp, bài tập, đề thi, chấm điểm, kết quả và hồ sơ lấy dữ liệu từ `/portal/*`; không dùng dữ liệu mẫu khi API lỗi hoặc trống.
 
-Currently, two official plugins are available:
+## Chạy local
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```sh
+npm install
+npm run dev
+```
 
-## React Compiler
+`.env.development` mặc định dùng backend thật `https://be.di-ichi.edu.vn`, không yêu cầu chạy backend local. Đăng nhập và portal dùng chung cấu hình tại `src/services/apiConfig.js`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Nếu cần phát triển cùng backend local, tạo `.env.development.local` với `VITE_API_URL=/api` và `VITE_API_PROXY_TARGET=http://localhost:3004`, sau đó khởi động lại Vite. Vite sẽ chuyển `/api/*` sang backend local. Không bật cấu hình này khi backend local chưa chạy.
 
-## Expanding the Oxlint configuration
+## Build production
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```sh
+npm run build
+```
 
-## API portal
+`.env.production` trỏ tới backend chung `https://be.di-ichi.edu.vn`. Các biến `VITE_*` là cấu hình công khai được đưa vào bundle lúc build; không đặt mật khẩu/token tại đây. Thay `VITE_API_URL` trước khi build nếu triển khai cho môi trường khác.
 
-C?c m?n nghi?p v? d?ng /portal/* tr?n VITE_API_URL, c? JWT, kh?ng d?ng mock fallback.
-C?n backend module portal, migration 1793318400000-AddPortalRecord v? th? m?c PORTAL_UPLOAD_DIR b?n v?ng.
-Teacher ??ng nh?p b?ng t?i kho?n TEACHER v? c?n class_staff ?? th?y l?p.
-Contract chi ti?t: PORTAL_API.md ? repo di-ichi-crm-services.
-Test: npm test -- --configLoader runner. C?c component demo c? kh?ng n?m trong c?y import c?a app.
+Giáo viên cần tài khoản `TEACHER` đang hoạt động và liên kết `class_staff` để thấy lớp. Backend cần module portal, migration `AddPortalRecord` và `PORTAL_UPLOAD_DIR` bền vững. Hợp đồng nguồn nằm ở `PORTAL_API.md` và controllers/DTO trong repo `di-ichi-crm-services`.
+
+## Kiểm tra
+
+```sh
+npm run lint
+npm test -- src/portal/PortalScreen.test.jsx src/services/portalApi.test.js src/components/Layout/Sidebar.test.jsx
+npm run build
+```
+
+Xem [TEACHER_PORTAL_AUDIT.md](./TEACHER_PORTAL_AUDIT.md) để biết phạm vi rà soát, file sửa, bằng chứng kiểm tra và các phần chưa được xác minh trực tiếp. LiveKit tiếp tục nằm ngoài đợt thay đổi này.

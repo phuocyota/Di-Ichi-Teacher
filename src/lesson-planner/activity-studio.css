@@ -1,0 +1,617 @@
+.activity-studio {
+  color: #354965;
+}
+.as-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.as-top > div:first-child > p {
+  font-size: 10px;
+  letter-spacing: 1.7px;
+  color: #6686ba;
+  font-weight: 700;
+  margin-bottom: 7px;
+}
+.as-top h1 {
+  font-size: 26px;
+  font-weight: 750;
+  letter-spacing: -0.7px;
+}
+.as-top > div:last-child {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+.as-top a {
+  font-size: 12px;
+  color: #6c89af;
+  padding: 9px 10px;
+}
+.as-info {
+  display: flex;
+  align-items: end;
+  gap: 16px;
+  background: white;
+  border: 1px solid #dfe7f2;
+  border-radius: 13px;
+  padding: 17px;
+  margin-bottom: 18px;
+}
+.as-info > label:first-child {
+  flex: 2;
+}
+.as-info > label:nth-child(2) {
+  flex: 1;
+}
+.as-save-state {
+  font-size: 10px;
+  color: #92a0b5;
+  padding-bottom: 12px;
+  white-space: nowrap;
+}
+.as-workspace {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr) 290px;
+  gap: 14px;
+  align-items: start;
+}
+.as-palette,
+.as-properties {
+  background: #fff;
+  border: 1px solid #dfe7f2;
+  border-radius: 13px;
+  padding: 15px;
+  min-width: 0;
+}
+.as-palette h2,
+.as-properties h2 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 9px;
+}
+.as-palette > p {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #94a1b7;
+  margin-bottom: 16px;
+}
+.activity-studio .as-palette > button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-align: left;
+  min-height: 46px;
+  width: 100%;
+  border: 1px solid #e8edf5;
+  background: #fcfdff;
+  border-radius: 9px;
+  margin: 7px 0;
+  padding: 10px 8px;
+  cursor: grab;
+}
+.as-palette strong {
+  font-size: 11px;
+  display: block;
+}
+.as-palette small {
+  display: block;
+  font-size: 10px;
+  color: #9daabe;
+  margin-top: 4px;
+}
+.as-add-heading {
+  margin-top: 25px;
+}
+.as-canvas-panel {
+  min-width: 0;
+  background: #eaf0f8;
+  border: 1px solid #d8e3f2;
+  border-radius: 13px;
+  padding: 16px;
+}
+.as-canvas-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  color: #8b9db7;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  margin-bottom: 10px;
+}
+.as-canvas-bar > span:first-child {
+  font-weight: 700;
+  color: #5877a3;
+}
+.as-hint {
+  color: #97a4b8;
+  font-size: 11px;
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+.as-canvas-scroll {
+  overflow: auto;
+  border-radius: 9px;
+  border: 1px solid #cfdbec;
+  background: white;
+  max-height: 76vh;
+}
+.as-stage {
+  position: relative;
+  width: 1000px;
+  height: 700px;
+  background: #fff;
+  isolation: isolate;
+}
+.as-stage-grid {
+  background-color: #fbfcff;
+  background-image: radial-gradient(#cfd9e9 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.as-stage-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #9caec7;
+  pointer-events: none;
+}
+.as-stage-empty > span {
+  font-size: 40px;
+}
+.as-stage-empty h2 {
+  font-size: 20px;
+  color: #6d88af;
+  margin: 15px 0;
+}
+.as-stage-empty p {
+  font-size: 12px;
+}
+.as-object {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #dce5f2;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px #203c6510;
+  overflow: hidden;
+  min-width: 0;
+}
+.as-object-selected {
+  border-color: #88a9e3;
+  box-shadow: 0 0 0 2px #bdd1f973;
+}
+.activity-studio .as-object-handle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  padding: 8px 11px;
+  min-height: 34px;
+  font-size: 10px;
+  background: #f0f5fc;
+  color: #7390b7;
+  flex-shrink: 0;
+  cursor: grab;
+  touch-action: none;
+}
+.as-object-handle small {
+  font-size: 9px;
+  color: #a3b2c7;
+}
+.as-object-content {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+}
+.as-object-content[inert] {
+  pointer-events: none;
+  user-select: none;
+}
+.as-object-content .lp-play-block {
+  padding: 16px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  font-size: 12px;
+  min-height: 100%;
+  background: white;
+}
+.as-object-content .lp-play-block h3 {
+  font-size: 16px;
+}
+.as-object-content .lp-play-caption {
+  font-size: 9px;
+}
+.as-object-content .lp-choice {
+  font-size: 12px;
+  padding: 10px;
+  gap: 6px;
+}
+.as-object-content .lp-wheel-layout {
+  gap: 12px;
+  justify-content: center;
+}
+.as-object-content .lp-wheel-entries {
+  font-size: 11px;
+}
+.as-object-content .lp-game-actions {
+  gap: 5px;
+}
+.as-object-content .lp-game-actions button {
+  font-size: 10px;
+  padding: 6px 8px;
+}
+.activity-studio .as-resize {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 2;
+  border: 0;
+  border-radius: 6px 0 0 0;
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  background: #e5eefc;
+  color: #7093c9;
+  font-size: 23px;
+  line-height: 1;
+  cursor: nwse-resize;
+  touch-action: none;
+}
+.as-properties {
+  max-height: 86vh;
+  overflow: auto;
+}
+.as-properties .lp-block-fields {
+  padding: 0;
+}
+.as-properties .lp-two {
+  grid-template-columns: 1fr;
+}
+.as-properties label {
+  font-size: 11px;
+}
+.as-properties input,
+.as-properties textarea {
+  font-size: 12px;
+}
+.as-properties .lp-block-fields fieldset {
+  padding: 8px;
+}
+.as-properties .lp-pair-edit {
+  gap: 4px;
+}
+.as-properties .lp-pair-edit input {
+  padding: 7px;
+}
+.as-properties .lp-option-edit button,
+.as-properties .lp-pair-edit button {
+  padding: 5px 7px;
+}
+.as-position-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  border-top: 1px solid #e5ebf5;
+  margin-top: 18px;
+  padding-top: 16px;
+}
+.as-object-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 18px;
+}
+.as-object-actions button {
+  font-size: 11px;
+}
+.as-preview {
+  grid-template-columns: 1fr;
+}
+.as-preview .as-canvas-scroll {
+  max-height: none;
+}
+.as-preview .as-stage {
+  margin: auto;
+}
+.as-preview .as-object {
+  box-shadow: none;
+}
+.as-preview .as-canvas-panel {
+  padding: 18px;
+}
+.as-error,
+.as-notice {
+  padding: 14px 18px;
+  font-size: 12px;
+  border-radius: 9px;
+  margin: 12px 0;
+}
+.as-error {
+  background: #fff0f3;
+  color: #b94f65;
+}
+.as-notice {
+  background: #eaf7ee;
+  color: #508669;
+}
+.as-loading {
+  padding: 60px;
+  text-align: center;
+  color: #91a1b7;
+}
+.as-error button {
+  margin-left: 15px;
+}
+@media (min-width: 1800px) {
+  .as-workspace {
+    grid-template-columns: 210px minmax(0, 1fr) 320px;
+  }
+}
+@media (max-width: 1100px) {
+  .as-workspace {
+    grid-template-columns: 170px minmax(0, 1fr);
+  }
+  .as-properties {
+    grid-column: 1/-1;
+    max-height: none;
+  }
+  .as-properties .lp-block-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .as-preview {
+    grid-template-columns: 1fr;
+  }
+  .as-top {
+    align-items: start;
+    flex-direction: column;
+  }
+  .as-properties .lp-two {
+    grid-template-columns: minmax(0, 1fr) 130px;
+  }
+}
+@media (max-width: 700px) {
+  .as-workspace {
+    grid-template-columns: 1fr;
+  }
+  .as-palette {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+  .as-palette h2,
+  .as-palette > p {
+    grid-column: 1/-1;
+    margin-bottom: 0;
+  }
+  .activity-studio .as-palette > button {
+    margin: 0;
+  }
+  .as-info {
+    flex-wrap: wrap;
+  }
+  .as-info > label {
+    flex-basis: 100% !important;
+  }
+  .as-top > div:last-child {
+    flex-wrap: wrap;
+  }
+  .as-properties .lp-block-fields,
+  .as-properties .lp-two {
+    grid-template-columns: 1fr;
+  }
+  .as-canvas-panel {
+    padding: 10px;
+  }
+  .as-stage-empty h2 {
+    font-size: 18px;
+  }
+  .as-canvas-scroll {
+    max-height: 65vh;
+  }
+}
+
+.as-stage-sizing {
+  position: relative;
+  margin: auto;
+}
+.as-stage {
+  transform-origin: 0 0;
+}
+.activity-studio .as-zoom {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.activity-studio.lesson-planner .as-canvas-bar .as-zoom select {
+  min-block-size: 30px;
+  padding-block: 4px;
+  padding-inline: 8px;
+  font-size: 10px;
+  min-inline-size: 92px;
+  border-radius: 7px;
+}
+.as-canvas-bar {
+  flex-wrap: wrap;
+}
+
+.as-pages {
+  border-bottom: 1px solid #e4ebf5;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+}
+.as-pages h2 {
+  display: flex;
+  justify-content: space-between;
+}
+.as-pages h2 > span {
+  color: #91a5c0;
+  font-weight: 500;
+}
+.activity-studio .as-pages > button {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  text-align: left;
+  gap: 4px 8px;
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border: 1px solid #e1e8f4;
+  border-radius: 8px;
+  background: #fbfcff;
+}
+.as-pages > button > span {
+  grid-row: span 2;
+  background: #edf3fc;
+  color: #7696c3;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+}
+.as-pages > button > strong {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.as-pages > button > small {
+  font-size: 9px;
+  color: #a4b2c6;
+}
+.activity-studio .as-pages > button[aria-current="page"] {
+  background: #edf4ff;
+  border-color: #a4bee7;
+}
+.as-page-actions {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.activity-studio .as-page-actions button {
+  font-size: 10px;
+  padding: 6px 7px;
+}
+.as-property-tabs {
+  display: flex;
+  gap: 5px;
+  background: #f1f5fb;
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 17px;
+}
+.activity-studio .as-property-tabs > button {
+  font-size: 10px;
+  padding: 7px 9px;
+  flex: 1;
+  border: 0;
+  background: transparent;
+}
+.activity-studio .as-property-tabs > button[aria-pressed="true"] {
+  background: white;
+  color: #5a80bb;
+  box-shadow: 0 1px 5px #37578012;
+}
+.activity-studio .as-properties .lp-appearance-settings {
+  padding: 12px;
+  margin-top: 16px;
+  border-radius: 10px;
+}
+.as-properties .lp-background-options {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.as-properties .lp-mascot-options {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.as-properties .lp-appearance-controls {
+  grid-template-columns: 1fr;
+}
+.as-properties .lp-scene-mini {
+  padding: 13px;
+}
+.as-properties .lp-decoration-toggle {
+  padding: 9px;
+  gap: 7px;
+  font-size: 10px;
+}
+.activity-studio .as-stage-scene {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border-radius: 0;
+}
+.as-stage-scene > .lp-scene-content {
+  height: 100%;
+  width: 100%;
+}
+.as-stage-grid .as-stage-scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(#92a9c43d 1px, transparent 1px);
+  background-size: 20px 20px;
+  z-index: 0;
+}
+.as-object[hidden] {
+  display: none !important;
+}
+.as-player-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  background: #fff;
+  padding: 16px;
+  margin-top: 12px;
+  border: 1px solid #dfe7f3;
+  border-radius: 11px;
+  flex-wrap: wrap;
+}
+.as-player-navigation > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+  min-width: 130px;
+}
+.as-player-navigation strong {
+  font-size: 12px;
+  color: #5f7da7;
+}
+.as-player-navigation span {
+  font-size: 10px;
+  color: #a0afc4;
+}
+.activity-studio .as-player-navigation button {
+  font-size: 11px;
+}
+@media (max-width: 700px) {
+  .as-pages {
+    grid-column: 1/-1;
+  }
+  .as-player-navigation {
+    gap: 8px;
+    padding: 12px;
+  }
+  .as-player-navigation > div {
+    order: -1;
+    width: 100%;
+  }
+}

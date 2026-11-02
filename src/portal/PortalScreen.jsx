@@ -1,6 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { usePortal } from "./portalStore.js";
+import {
+  BookOpen,
+  ClipboardCheck,
+  Users,
+  Bell,
+  ArrowUpRight,
+  RefreshCw,
+  Search,
+} from "lucide-react";
 
 const titles = {
   dashboard: "Tổng quan học tập",
@@ -30,8 +39,12 @@ const date = (value) => (value ? new Date(value).toLocaleString("vi-VN") : "—"
 const Empty = ({ children = "Chưa có dữ liệu." }) => (
   <p className="portal-empty">{children}</p>
 );
-const Card = ({ children }) => (
-  <article className="portal-card">{children}</article>
+const Card = ({ children, tone = "", className = "" }) => (
+  <article
+    className={`portal-card ${tone ? `portal-tone-${tone}` : ""} ${className}`}
+  >
+    {children}
+  </article>
 );
 function FileButton({ id }) {
   const { download, data } = usePortal();
@@ -50,6 +63,8 @@ export function PortalScreen({ mode = "dashboard" }) {
     data.profile.userType === "TEACHER" ? "students" : "lesson",
   );
   const teacher = data.profile.userType === "TEACHER";
+  const title =
+    mode === "dashboard" && teacher ? "Tổng quan giảng dạy" : titles[mode];
   const className = (id) => data.classes.find((c) => c.id === id)?.name || "—";
   const studentName = (id) =>
     data.students.find((s) => s.id === id)?.name || "—";
@@ -58,7 +73,11 @@ export function PortalScreen({ mode = "dashboard" }) {
       (r) =>
         (!classId || r.classId === classId) &&
         (!search ||
-          JSON.stringify(r)
+          JSON.stringify([
+            r,
+            className(r.classId),
+            studentName(r.studentId || r.ownerId),
+          ])
             .toLocaleLowerCase()
             .includes(search.toLocaleLowerCase())),
     );
@@ -118,27 +137,41 @@ export function PortalScreen({ mode = "dashboard" }) {
               data.notifications.filter((n) => !n.readAt).length,
               "Thông báo chưa đọc",
             ],
-          ].map(([n, title]) => (
-            <Card key={title}>
-              <span className="portal-stat">{n}</span>
-              <p>{title}</p>
-            </Card>
-          ))}
+          ].map(([n, title], index) => {
+            const Icon = [Users, BookOpen, ClipboardCheck, Bell][index];
+            return (
+              <Card
+                key={title}
+                tone={["blue", "purple", "orange", "green"][index]}
+                className="portal-kpi"
+              >
+                <span className="portal-kpi-icon">
+                  <Icon size={20} aria-hidden="true" />
+                </span>
+                <span className="portal-stat">{n}</span>
+                <p>{title}</p>
+              </Card>
+            );
+          })}
         </div>
         <div className="portal-grid">
           {Object.entries(routes).map(([key, path]) => (
             <Card key={key}>
-              <Link to={path}>{titles[key]}</Link>
+              <Link className="portal-shortcut" to={path}>
+                {titles[key]}
+                <ArrowUpRight size={17} aria-hidden="true" />
+              </Link>
             </Card>
           ))}
         </div>
-        <h2>Lịch học sắp tới</h2>
+        <h2>{teacher ? "Lịch giảng dạy sắp tới" : "Lịch học sắp tới"}</h2>
         <ScheduleList
           rows={data.schedules
             .filter(
               (s) =>
                 Date.parse(s.endAt) > Date.now() && s.status !== "cancelled",
             )
+            .sort((a, b) => Date.parse(a.startAt) - Date.parse(b.startAt))
             .slice(0, 5)}
           className={className}
           teacher={false}
@@ -166,7 +199,14 @@ export function PortalScreen({ mode = "dashboard" }) {
                     {course?.name} · {course?.level}
                   </p>
                   <p className="portal-muted">
-                    {c.code} · {c.status}
+                    {c.code} ·{" "}
+                    {{
+                      active: "Đang học",
+                      upcoming: "Sắp mở",
+                      full: "Đủ sĩ số",
+                      finished: "Đã kết thúc",
+                      cancelled: "Đã hủy",
+                    }[c.status] || c.status}
                   </p>
                   <p>
                     {date(c.startDate)} — {date(c.endDate)}
@@ -177,8 +217,16 @@ export function PortalScreen({ mode = "dashboard" }) {
               );
             })}
         </div>
-        {!data.classes.length && (
-          <Empty>Bạn chưa được phân công hoặc đăng ký lớp học.</Empty>
+        {!data.classes.some(
+          (c) =>
+            (!classId || c.id === classId) &&
+            (!search || c.name.toLowerCase().includes(search.toLowerCase())),
+        ) && (
+          <Empty>
+            {data.classes.length
+              ? "Không có lớp học phù hợp với bộ lọc."
+              : "Bạn chưa được phân công hoặc đăng ký lớp học."}
+          </Empty>
         )}
         {classId && (
           <>
@@ -205,7 +253,11 @@ export function PortalScreen({ mode = "dashboard" }) {
                     "progress",
                   ]
               ).map((key) => (
-                <button key={key} onClick={() => setTab(key)}>
+                <button
+                  key={key}
+                  aria-pressed={tab === key}
+                  onClick={() => setTab(key)}
+                >
                   {{ students: "Học sinh", attendance: "Điểm danh" }[key] ||
                     titles[key]}
                 </button>
@@ -226,7 +278,7 @@ export function PortalScreen({ mode = "dashboard" }) {
                 teacher={teacher}
               />
             ) : tab === "progress" ? (
-              <Results classId={classId} />
+              <Results classId={classId} search={search} />
             ) : (
               <Records
                 kind={tab}
@@ -258,13 +310,22 @@ export function PortalScreen({ mode = "dashboard" }) {
   else if (mode === "grading")
     content = (
       <Grading
-        rows={data.submissions.filter((s) =>
-          filtered(data.homework).some((h) => h.id === s.homeworkId),
-        )}
+        rows={data.submissions.filter((s) => {
+          const homework = data.homework.find((h) => h.id === s.homeworkId);
+          return (
+            homework &&
+            (!classId || homework.classId === classId) &&
+            (!search.trim() ||
+              `${studentName(s.studentId)} ${homework.title} ${className(homework.classId)}`
+                .toLocaleLowerCase()
+                .includes(search.trim().toLocaleLowerCase()))
+          );
+        })}
         studentName={studentName}
       />
     );
-  else if (mode === "progress") content = <Results classId={classId} />;
+  else if (mode === "progress")
+    content = <Results classId={classId} search={search} />;
   else if (mode === "certificates")
     content = (
       <div className="portal-grid">
@@ -320,15 +381,18 @@ export function PortalScreen({ mode = "dashboard" }) {
       />
     );
   return (
-    <section className="portal">
-      <header className="portal-toolbar">
-        <h1>{titles[mode]}</h1>
+    <section className="portal" data-mode={mode}>
+      <header className="portal-toolbar portal-page-header">
+        <div>
+          <p className="portal-eyebrow">Di-Ichi · Cổng giáo viên</p>
+          <h1>{title}</h1>
+        </div>
         <button disabled={busy} onClick={() => reload().catch(() => {})}>
-          Làm mới
+          <RefreshCw size={15} aria-hidden="true" /> Làm mới
         </button>
       </header>
-      {!["profile", "achievements"].includes(mode) && (
-        <div className="portal-toolbar">
+      {!["dashboard", "profile", "achievements"].includes(mode) && (
+        <div className="portal-toolbar portal-filters">
           <select
             aria-label="Lọc lớp học"
             value={classId}
@@ -341,12 +405,26 @@ export function PortalScreen({ mode = "dashboard" }) {
               </option>
             ))}
           </select>
-          <input
-            aria-label="Tìm kiếm"
-            placeholder="Tìm kiếm…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <label className="portal-search">
+            <Search size={16} aria-hidden="true" />
+            <input
+              aria-label="Tìm kiếm"
+              placeholder="Tìm kiếm…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </label>
+          {(classId || search) && (
+            <button
+              type="button"
+              onClick={() => {
+                setClassId("");
+                setSearch("");
+              }}
+            >
+              Xóa bộ lọc
+            </button>
+          )}
         </div>
       )}
       {content}
@@ -357,7 +435,11 @@ export function PortalScreen({ mode = "dashboard" }) {
 function Notifications() {
   const { data, act, busy } = usePortal();
   return (
-    <>
+    <section
+      id="thong-bao"
+      className="portal-notifications"
+      aria-label="Thông báo"
+    >
       <h2>Thông báo</h2>
       {data.notifications.length ? (
         data.notifications.map((n) => (
@@ -380,7 +462,7 @@ function Notifications() {
       ) : (
         <Empty>Chưa có thông báo.</Empty>
       )}
-    </>
+    </section>
   );
 }
 function Roster({ classId }) {
@@ -437,7 +519,14 @@ function ScheduleList({ rows, className, teacher }) {
               {date(s.startAt)} — {date(s.endAt)}
             </p>
             <p>
-              {s.teacher} · {s.room || "Chưa có phòng"} · {s.status}
+              {s.teacher} · {s.room || "Chưa có phòng"} ·{" "}
+              {{
+                active: "Đang học",
+                upcoming: "Sắp diễn ra",
+                checked: "Đã điểm danh",
+                cancelled: "Đã hủy",
+                makeup: "Học bù",
+              }[s.status] || s.status}
             </p>
             <p>{s.lessonNote}</p>
             {teacher && (
@@ -764,7 +853,11 @@ function Grade({ submission: s, title }) {
           <button
             key={String(returned)}
             disabled={
-              busy || score === "" || Number(score) < 0 || Number(score) > 100
+              busy ||
+              score === "" ||
+              !Number.isInteger(Number(score)) ||
+              Number(score) < 0 ||
+              Number(score) > 100
             }
             onClick={() =>
               act(`/submissions/${s.id}/grade`, {
@@ -867,7 +960,14 @@ function Records({ kind, classId, rows, teacher }) {
           <form onSubmit={save}>
             <ClassField
               value={form.classId}
-              onChange={(v) => set("classId", v)}
+              onChange={(v) =>
+                setForm((f) => ({
+                  ...f,
+                  classId: v,
+                  ownerId: "",
+                  parentId: "",
+                }))
+              }
             />
             <label>
               Tiêu đề
@@ -959,6 +1059,25 @@ function Records({ kind, classId, rows, teacher }) {
                     onChange={(e) => set("duration", e.target.value)}
                   />
                 </label>
+                <div className="portal-grid">
+                  <label>
+                    Mở bài lúc
+                    <input
+                      type="datetime-local"
+                      value={form.opensAt}
+                      onChange={(e) => set("opensAt", e.target.value)}
+                    />
+                  </label>
+                  <label>
+                    Đóng bài lúc
+                    <input
+                      type="datetime-local"
+                      min={form.opensAt || undefined}
+                      value={form.closesAt}
+                      onChange={(e) => set("closesAt", e.target.value)}
+                    />
+                  </label>
+                </div>
                 {questions.map((q, i) => (
                   <Card key={i}>
                     <label>
@@ -1278,17 +1397,21 @@ function QuizTaking({ quiz, initial, onClose }) {
     </Card>
   );
 }
-function Results({ classId }) {
+function Results({ classId, search = "" }) {
   const { data } = usePortal();
   const [editing, setEditing] = useState(null);
   const records = data.records.filter((r) => !classId || r.classId === classId);
   const lessons = records.filter((r) => r.kind === "lesson");
   const students = data.students.filter(
     (s) =>
-      !classId ||
-      data.enrollments.some(
-        (e) => e.classId === classId && e.studentId === s.id,
-      ),
+      (!search.trim() ||
+        `${s.name} ${s.code || ""}`
+          .toLocaleLowerCase()
+          .includes(search.trim().toLocaleLowerCase())) &&
+      (!classId ||
+        data.enrollments.some(
+          (e) => e.classId === classId && e.studentId === s.id,
+        )),
   );
   return (
     <>
@@ -1390,7 +1513,7 @@ function Results({ classId }) {
 }
 
 function ScoreEditor({ initial, onClose }) {
-  const { data, act, busy } = usePortal();
+  const { data, act, busy, setError } = usePortal();
   const [form, setForm] = useState({
     classId: initial.classId || "",
     studentId: initial.studentId || "",
@@ -1405,6 +1528,16 @@ function ScoreEditor({ initial, onClose }) {
   const set = (key, value) => setForm((f) => ({ ...f, [key]: value }));
   async function save(e) {
     e.preventDefault();
+    if (
+      !Number.isFinite(Number(form.score)) ||
+      !Number.isFinite(Number(form.maxScore)) ||
+      Number(form.maxScore) <= 0 ||
+      Number(form.score) < 0 ||
+      Number(form.score) > Number(form.maxScore)
+    ) {
+      setError("Điểm phải nằm trong khoảng từ 0 đến thang điểm.");
+      return;
+    }
     const result = await act(initial.id ? `/scores/${initial.id}` : "/scores", {
       method: initial.id ? "PATCH" : "POST",
       body: {
@@ -1467,6 +1600,7 @@ function ScoreEditor({ initial, onClose }) {
               }
               step="any"
               min={key === "maxScore" ? "0.01" : "0"}
+              max={key === "score" ? form.maxScore : undefined}
               value={form[key]}
               onChange={(e) => set(key, e.target.value)}
             />

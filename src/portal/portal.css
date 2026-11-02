@@ -1,110 +1,479 @@
+:root {
+  --teacher-primary: #e60023;
+  --teacher-primary-hover: #c4001e;
+  --teacher-primary-soft: #fff1f2;
+  --teacher-blue: #2563eb;
+  --teacher-blue-soft: #eff6ff;
+  --teacher-green: #047857;
+  --teacher-green-soft: #ecfdf5;
+  --teacher-orange: #92400e;
+  --teacher-orange-soft: #fffbeb;
+  --teacher-purple: #6d28d9;
+  --teacher-purple-soft: #f5f3ff;
+  --teacher-cyan: #0e7490;
+  --teacher-cyan-soft: #ecfeff;
+  --teacher-ink: #182230;
+  --teacher-muted: #667085;
+  --teacher-border: #e4e7ec;
+  --teacher-canvas: #f4f7fb;
+  --teacher-surface: #fff;
+  --teacher-radius: 12px;
+  --teacher-shadow: 0 1px 3px #18223008;
+}
+.teacher-shell {
+  background: var(--teacher-canvas);
+  color: var(--teacher-ink);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.teacher-content {
+  min-width: 0;
+  padding: 24px;
+}
+.teacher-shell :where(button, a, input, select, textarea):focus-visible,
+.portal :where(button, a, input, select, textarea):focus-visible,
+.portal-status button:focus-visible {
+  outline: 2px solid var(--teacher-primary);
+  outline-offset: 3px;
+}
+.teacher-shell button,
+.teacher-shell a {
+  -webkit-tap-highlight-color: transparent;
+}
+.teacher-skip-link {
+  position: fixed;
+  left: 16px;
+  top: -100px;
+  z-index: 200;
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+}
+.teacher-skip-link:focus {
+  top: 12px;
+}
+.teacher-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 40;
+  width: 288px;
+  height: 100dvh;
+  flex-direction: column;
+  background: var(--teacher-surface);
+  border-right: 1px solid var(--teacher-border);
+}
+.teacher-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border-bottom: 1px solid var(--teacher-border);
+}
+.teacher-brand img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+.teacher-brand strong {
+  font-size: 20px;
+  font-weight: 650;
+}
+.teacher-brand p {
+  font-size: 12px;
+  color: var(--teacher-muted);
+}
+.teacher-brand button {
+  margin-left: auto;
+}
+.teacher-today {
+  display: grid;
+  gap: 4px;
+  margin: 16px 16px 8px;
+  padding: 12px 16px;
+  border: 1px solid #dbeafe;
+  border-radius: var(--teacher-radius);
+  background: var(--teacher-blue-soft);
+}
+.teacher-today span,
+.teacher-today p {
+  color: var(--teacher-muted);
+  font-size: 12px;
+}
+.teacher-today strong {
+  color: var(--teacher-blue);
+  font-weight: 600;
+}
+.teacher-navigation {
+  padding: 8px 12px;
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1;
+}
+.teacher-nav-item {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 12px;
+  margin-block: 4px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: #475467;
+  font-size: 13px;
+  font-weight: 500;
+}
+.teacher-nav-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--tone, var(--teacher-blue));
+  background: var(--tone-bg, var(--teacher-blue-soft));
+}
+.teacher-nav-item:hover {
+  background: var(--teacher-blue-soft);
+}
+.teacher-nav-item[aria-current="page"] {
+  color: var(--teacher-primary-hover);
+  background: var(--teacher-primary-soft);
+  box-shadow: inset 3px 0 var(--teacher-primary);
+}
+.teacher-nav-item[aria-current="page"] .teacher-nav-icon {
+  color: var(--teacher-primary-hover);
+  background: #ffe4e8;
+}
+.teacher-sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid var(--teacher-border);
+}
+.teacher-logout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  color: var(--teacher-muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+.teacher-logout:hover {
+  color: var(--teacher-primary-hover);
+  background: var(--teacher-primary-soft);
+}
+.teacher-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+}
+.teacher-backdrop {
+  position: absolute;
+  inset: 0;
+  background: #10182866;
+}
+.teacher-mobile-panel {
+  display: flex;
+  width: min(288px, 88vw);
+  box-shadow: 12px 0 32px #1018281a;
+}
+.teacher-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 72px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--teacher-border);
+  background: var(--teacher-surface);
+}
+.teacher-eyebrow {
+  font-size: 11px;
+  color: var(--teacher-primary-hover);
+  font-weight: 600;
+}
+.teacher-welcome {
+  font-size: 15px;
+  font-weight: 600;
+}
+.teacher-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--teacher-border);
+  border-radius: 8px;
+  color: #475467;
+  background: white;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.teacher-icon-button:hover,
+.teacher-profile-link:hover {
+  background: var(--teacher-blue-soft);
+}
+.teacher-notification {
+  position: relative;
+}
+.teacher-unread {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--teacher-primary);
+  box-shadow: 0 0 0 2px white;
+}
+.teacher-profile-link {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+.teacher-profile-link strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+.teacher-profile-link small {
+  font-size: 11px;
+  color: var(--teacher-muted);
+}
+.teacher-avatar {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--teacher-primary-soft);
+  color: var(--teacher-primary-hover);
+  font-size: 11px;
+  font-weight: 600;
+}
 .portal {
-  color: #1e293b;
+  color: var(--teacher-ink);
   display: grid;
   gap: 20px;
+  min-width: 0;
 }
 .portal h1 {
-  font-size: 1.8rem;
-  font-weight: 850;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+  letter-spacing: -0.025em;
 }
 .portal h2 {
-  font-size: 1.15rem;
-  font-weight: 800;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
 }
 .portal p {
-  line-height: 1.7;
+  line-height: 1.6;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 .portal-toolbar,
 .portal-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   flex-wrap: wrap;
 }
+.portal-page-header {
+  justify-content: space-between;
+  background: linear-gradient(120deg, white, #fff5f6);
+  border: 1px solid var(--teacher-border);
+  border-left: 3px solid var(--teacher-primary);
+  border-radius: var(--teacher-radius);
+  padding: 20px;
+  box-shadow: var(--teacher-shadow);
+}
+.portal-eyebrow {
+  font-size: 11px;
+  color: var(--teacher-blue);
+  margin-bottom: 4px;
+}
 .portal button,
 .portal-status button {
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  border-radius: 12px;
-  padding: 9px 15px;
-  font-weight: 700;
-  color: #9a3412;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  background: white;
+  border: 1px solid var(--teacher-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #344054;
   cursor: pointer;
 }
+.portal button:hover:not(:disabled),
+.portal-status button:hover {
+  background: var(--teacher-blue-soft);
+  border-color: #cbd5e1;
+}
 .portal button.primary {
-  background: #ea580c;
+  background: var(--teacher-primary);
   color: white;
-  border-color: #ea580c;
+  border-color: var(--teacher-primary);
+}
+.portal button.primary:hover:not(:disabled) {
+  background: var(--teacher-primary-hover);
+  border-color: var(--teacher-primary-hover);
+}
+.portal button[aria-pressed="true"] {
+  color: var(--teacher-primary-hover);
+  background: var(--teacher-primary-soft);
+  border-color: #fecdd3;
 }
 .portal button:disabled {
   opacity: 0.5;
-  cursor: wait;
+  cursor: not-allowed;
 }
 .portal input,
 .portal select,
 .portal textarea {
   background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 10px;
+  border: 1px solid var(--teacher-border);
+  border-radius: 8px;
+  padding: 9px 12px;
   width: 100%;
   min-width: 0;
+  font-size: 13px;
+  color: var(--teacher-ink);
+}
+.portal input:focus,
+.portal select:focus,
+.portal textarea:focus {
+  border-color: var(--teacher-primary);
 }
 .portal label {
   display: grid;
   gap: 6px;
-  font-size: 0.9rem;
-  font-weight: 650;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475467;
 }
 .portal textarea {
   min-height: 100px;
+  resize: vertical;
 }
 .portal-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
   gap: 16px;
+  min-width: 0;
 }
 .portal-card {
   background: white;
-  border: 1px solid #ffedd5;
-  border-radius: 20px;
+  border: 1px solid var(--teacher-border);
+  border-radius: var(--teacher-radius);
   padding: 20px;
   display: grid;
   gap: 12px;
   align-content: start;
-  box-shadow: 0 5px 15px #9a341205;
+  min-width: 0;
+  box-shadow: var(--teacher-shadow);
+  overflow-wrap: anywhere;
 }
 .portal-muted {
-  color: #64748b;
-  font-size: 0.9rem;
+  color: var(--teacher-muted);
+  font-size: 12px;
 }
 .portal-empty,
 .portal-loading {
-  padding: 35px;
+  padding: 32px 16px;
   text-align: center;
-  color: #64748b;
+  color: var(--teacher-muted);
   background: white;
-  border-radius: 18px;
+  border: 1px dashed var(--teacher-border);
+  border-radius: var(--teacher-radius);
+  font-size: 13px;
+}
+.portal-error,
+.portal-notice {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 12px;
+  font-size: 13px;
 }
 .portal-error {
-  background: #fef2f2;
-  color: #b91c1c;
-  padding: 14px;
-  border-radius: 12px;
-  margin: 10px;
+  background: var(--teacher-primary-soft);
+  color: var(--teacher-primary-hover);
+  border: 1px solid #fecdd3;
 }
 .portal-notice {
-  background: #f0fdf4;
-  color: #166534;
-  padding: 12px;
-  border-radius: 12px;
-  margin: 10px;
+  background: var(--teacher-green-soft);
+  color: var(--teacher-green);
+  border: 1px solid #a7f3d0;
+}
+.portal-error button {
+  margin: 4px;
 }
 .portal-stat {
-  font-size: 2rem;
-  font-weight: 850;
-  color: #ea580c;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 38px;
+  font-variant-numeric: tabular-nums;
+  color: var(--tone, var(--teacher-blue));
+}
+.portal-tone-blue,
+[data-tone="blue"] {
+  --tone: var(--teacher-blue);
+  --tone-bg: var(--teacher-blue-soft);
+}
+.portal-tone-green,
+[data-tone="green"] {
+  --tone: var(--teacher-green);
+  --tone-bg: var(--teacher-green-soft);
+}
+.portal-tone-orange,
+[data-tone="orange"] {
+  --tone: var(--teacher-orange);
+  --tone-bg: var(--teacher-orange-soft);
+}
+.portal-tone-purple,
+[data-tone="purple"] {
+  --tone: var(--teacher-purple);
+  --tone-bg: var(--teacher-purple-soft);
+}
+[data-tone="cyan"] {
+  --tone: var(--teacher-cyan);
+  --tone-bg: var(--teacher-cyan-soft);
+}
+[data-tone="red"] {
+  --tone: var(--teacher-primary-hover);
+  --tone-bg: var(--teacher-primary-soft);
+}
+.portal-kpi {
+  background: var(--tone-bg);
+  border-color: color-mix(in srgb, var(--tone) 20%, white);
+  position: relative;
+  padding-right: 64px;
+  min-height: 136px;
+}
+.portal-kpi p {
+  color: #475467;
+  font-size: 12px;
+}
+.portal-kpi-icon {
+  position: absolute;
+  top: 20px;
+  right: 16px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  background: color-mix(in srgb, var(--tone) 12%, white);
+  color: var(--tone);
+  border-radius: 10px;
 }
 .portal form {
   display: grid;
@@ -112,39 +481,133 @@
 }
 .portal-table {
   overflow: auto;
+  width: 100%;
+  border: 1px solid var(--teacher-border);
+  border-radius: 8px;
 }
 .portal table {
   width: 100%;
   text-align: left;
   border-collapse: collapse;
+  font-size: 13px;
 }
 .portal td,
 .portal th {
-  padding: 12px;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--teacher-border);
+}
+.portal th {
+  background: #eef3f9;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475467;
+}
+.portal tbody tr:hover {
+  background: var(--teacher-blue-soft);
 }
 .portal a {
-  color: #c2410c;
+  color: var(--teacher-blue);
+  text-decoration: none;
+}
+.portal a:hover {
   text-decoration: underline;
+}
+.portal-shortcut {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  min-height: 32px;
 }
 .portal progress {
   width: 100%;
-  accent-color: #ea580c;
+  accent-color: var(--teacher-green);
 }
 .portal input[type="radio"],
 .portal input[type="checkbox"] {
   width: auto;
+  accent-color: var(--teacher-primary);
 }
 .portal-option {
   display: flex !important;
   align-items: center;
   gap: 10px;
   padding: 12px;
-  background: #fff7ed;
-  border-radius: 12px;
+  background: var(--teacher-blue-soft);
+  border-radius: 8px;
 }
-.portal .portal-toolbar input,
-.portal .portal-toolbar select {
-  width: auto;
-  max-width: 100%;
+.portal-filters {
+  background: #f0f4fa;
+  border: 1px solid var(--teacher-border);
+  padding: 12px;
+  border-radius: var(--teacher-radius);
+}
+.portal .portal-filters > select {
+  width: min(100%, 280px);
+}
+.portal .portal-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 200px;
+  background: white;
+  border: 1px solid var(--teacher-border);
+  border-radius: 8px;
+  padding-left: 12px;
+}
+.portal .portal-search input {
+  border: 0;
+  background: transparent;
+}
+.portal-notifications {
+  display: grid;
+  gap: 16px;
+  scroll-margin-top: 90px;
+}
+@media (max-width: 639px) {
+  .teacher-header {
+    padding: 12px 16px;
+    gap: 8px;
+  }
+  .teacher-content {
+    padding: 16px;
+  }
+  .teacher-welcome {
+    font-size: 13px;
+  }
+  .teacher-profile-link {
+    padding: 0;
+  }
+  .portal h1 {
+    font-size: 22px;
+    line-height: 28px;
+  }
+  .portal-page-header,
+  .portal-card {
+    padding: 16px;
+  }
+  .portal-kpi {
+    padding-right: 64px;
+  }
+  .portal .portal-filters > select {
+    width: 100%;
+  }
+  .portal-actions > button {
+    flex: 1 1 auto;
+  }
+}
+@media (min-width: 1024px) {
+  .teacher-header button[aria-label="Mở menu"] {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .teacher-shell *,
+  .portal * {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto;
+  }
 }

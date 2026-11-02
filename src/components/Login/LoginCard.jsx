@@ -1,55 +1,62 @@
-import React from 'react'
-import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { toast } from 'sonner'
-import { Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
-import logo from '../../assets/logo/LOGO_Diichi.webp'
-import { Button } from '../Common/Button.jsx'
-import { LanguageSwitcher } from '../Common/LanguageSwitcher.jsx'
-import { loginStaff } from '../../services/authApi.js'
-import { saveAuthSession } from '../../services/authSession.js'
+import React from "react";
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
+import logo from "../../assets/logo/LOGO_Diichi.webp";
+import { Button } from "../Common/Button.jsx";
+import { LanguageSwitcher } from "../Common/LanguageSwitcher.jsx";
+import { loginStaff } from "../../services/authApi.js";
+import { saveAuthSession } from "../../services/authSession.js";
 
 export const LoginCard = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [rememberLogin, setRememberLogin] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberLogin, setRememberLogin] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    const normalizedEmail = email.trim().toLowerCase()
+    const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail || !password) {
-      toast.error('Vui lòng nhập đầy đủ thông tin đăng nhập.')
-      return
+      toast.error("Vui lòng nhập đầy đủ thông tin đăng nhập.");
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const session = await loginStaff({ email: normalizedEmail, password })
-      if (!session?.accessToken) throw new Error('INVALID_LOGIN_RESPONSE')
-      if (session.userType !== 'TEACHER') throw new Error('TEACHER_REQUIRED')
+      const session = await loginStaff({ email: normalizedEmail, password });
+      if (!session?.accessToken) throw new Error("INVALID_LOGIN_RESPONSE");
+      if (session.userType !== "TEACHER") throw new Error("TEACHER_REQUIRED");
 
-      saveAuthSession(session, rememberLogin)
-      toast.success('Đăng nhập thành công', {
-        description: 'Chào mừng bạn quay lại Di-Ichi Teacher Portal.',
-      })
-      navigate(location.state?.from || '/dashboard', { replace: true })
+      saveAuthSession(session, rememberLogin);
+      toast.success("Đăng nhập thành công", {
+        description: "Chào mừng bạn quay lại Di-Ichi Teacher Portal.",
+      });
+      navigate(location.state?.from || "/dashboard", { replace: true });
     } catch (error) {
-      const backendMessage = error.response?.data?.error?.message || error.response?.data?.message
-      const description = error.response?.status === 401
-        ? 'Email hoặc mật khẩu không đúng.'
-        : error.message === 'TEACHER_REQUIRED' ? 'Vui lòng dùng tài khoản giáo viên.' : backendMessage || (error.message === 'INVALID_LOGIN_RESPONSE'
-          ? 'Phản hồi đăng nhập không có access token.'
-          : error.response ? 'Không thể đăng nhập. Vui lòng thử lại.' : 'Không thể kết nối máy chủ.')
-      toast.error('Đăng nhập thất bại', { description })
+      const backendMessage =
+        error.response?.data?.error?.message || error.response?.data?.message;
+      const description =
+        error.response?.status === 401
+          ? "Email hoặc mật khẩu không đúng."
+          : error.message === "TEACHER_REQUIRED"
+            ? "Vui lòng dùng tài khoản giáo viên."
+            : backendMessage ||
+              (error.message === "INVALID_LOGIN_RESPONSE"
+                ? "Phản hồi đăng nhập không có access token."
+                : error.response
+                  ? "Không thể đăng nhập. Vui lòng thử lại."
+                  : "Không thể kết nối máy chủ.");
+      toast.error("Đăng nhập thất bại", { description });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <section className="mx-auto w-full max-w-md rounded-3xl border border-white/60 bg-white/90 p-6 shadow-2xl shadow-orange-950/20 backdrop-blur md:p-8">
@@ -58,9 +65,17 @@ export const LoginCard = () => {
       </div>
 
       <div className="text-center">
-        <img className="mx-auto h-24 w-24 object-contain md:h-28 md:w-28" src={logo} alt="Di-Ichi" />
-        <h1 className="mt-5 text-2xl font-black text-slate-950">Đăng nhập giáo viên</h1>
-        <p className="mt-2 text-sm text-slate-500">Truy cập Di-Ichi Teacher để quản lý lớp học và lịch giảng dạy.</p>
+        <img
+          className="mx-auto h-24 w-24 object-contain md:h-28 md:w-28"
+          src={logo}
+          alt="Di-Ichi"
+        />
+        <h1 className="mt-5 text-2xl font-black text-slate-950">
+          Đăng nhập giáo viên
+        </h1>
+        <p className="mt-2 text-sm text-slate-500">
+          Truy cập Di-Ichi Teacher để quản lý lớp học và lịch giảng dạy.
+        </p>
       </div>
 
       <form className="mt-7 space-y-4" onSubmit={handleSubmit}>
@@ -86,14 +101,14 @@ export const LoginCard = () => {
               className="min-w-0 flex-1 bg-transparent text-sm outline-none"
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Nhập mật khẩu"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               value={password}
             />
             <button
               type="button"
               className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 transition hover:bg-orange-50 hover:text-orange-600"
               onClick={() => setShowPassword((current) => !current)}
-              aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+              aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -110,13 +125,24 @@ export const LoginCard = () => {
             />
             Ghi nhớ đăng nhập
           </label>
-          <button className="font-bold text-orange-600" type="button">Quên mật khẩu?</button>
+          <button
+            className="font-bold text-orange-600"
+            type="button"
+            onClick={() =>
+              toast.info("Khôi phục mật khẩu", {
+                description:
+                  "Vui lòng liên hệ quản trị viên trung tâm để được đặt lại mật khẩu.",
+              })
+            }
+          >
+            Quên mật khẩu?
+          </button>
         </div>
 
         <Button className="w-full" disabled={isSubmitting} type="submit">
-          {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
+          {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
         </Button>
       </form>
     </section>
-  )
-}
+  );
+};

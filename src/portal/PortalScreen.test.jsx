@@ -65,6 +65,27 @@ afterEach(() => {
 });
 
 describe("API portal screens", () => {
+  it("rejects malformed successful responses and recovers through retry", async () => {
+    fetch.mockResolvedValue(ok({ profile: { name: "Broken" } }));
+    mount("dashboard");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Dữ liệu portal không đúng định dạng",
+    );
+    fetch.mockResolvedValue(ok(empty()));
+    fireEvent.click(screen.getByText("Thử lại"));
+    expect(await screen.findByText("Tổng quan học tập")).toBeInTheDocument();
+  });
+  it("surfaces nested API errors instead of displaying empty fixture data", async () => {
+    fetch.mockResolvedValue({
+      ok: false,
+      status: 403,
+      json: async () => ({ error: { message: "Không có quyền truy cập" } }),
+    });
+    mount("classes");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Không có quyền truy cập",
+    );
+  });
   it.each(
     [
       "dashboard",
@@ -170,5 +191,292 @@ describe("API portal screens", () => {
     fetch.mockResolvedValue(ok(data));
     mount("quiz");
     expect(await screen.findByText("Exam from teacher")).toBeInTheDocument();
+  });
+});
+
+function teacherData() {
+  const data = empty();
+  data.profile = {
+    ...data.profile,
+    id: "teacher-1",
+    userType: "TEACHER",
+    name: "Giáo viên API",
+  };
+  data.classes = [
+    { id: "class-1", name: "Lớp từ API", code: "CLASS-1", status: "active" },
+  ];
+  data.students = [
+    { id: "student-1", name: "Học sinh API", code: "STUDENT-1" },
+  ];
+  data.enrollments = [
+    {
+      id: "enrollment-1",
+      classId: "class-1",
+      studentId: "student-1",
+      isCurrent: true,
+    },
+  ];
+  return data;
+}
+
+describe("Teacher API workflows", () => {
+  it("creates homework through the API and displays the reloaded record", async () => {
+    const data = teacherData();
+    let writes = 0;
+    fetch.mockImplementation(async (url, options) => {
+      if (options.method === "POST") {
+        writes++;
+        expect(url).toMatch(/\/portal\/homework$/);
+        const body = JSON.parse(options.body);
+        expect(body).toMatchObject({
+          classId: "class-1",
+          title: "Bài tập mới API",
+          note: "Nội dung bài tập",
+        });
+        expect(Number.isFinite(Date.parse(body.deadline))).toBe(true);
+        data.homework.push({ ...body, id: "homework-1", status: "assigned" });
+        return ok(data.homework[0]);
+      }
+      return ok(structuredClone(data));
+    });
+    mount("homework");
+    fireEvent.click(await screen.findByText("Giao bài tập"));
+    fireEvent.change(screen.getByLabelText("Lớp học"), {
+      target: { value: "class-1" },
+    });
+    fireEvent.change(screen.getByLabelText("Tiêu đề"), {
+      target: { value: "Bài tập mới API" },
+    });
+    fireEvent.change(screen.getByLabelText("Hạn nộp"), {
+      target: { value: "2027-01-05T18:30" },
+    });
+    fireEvent.change(screen.getByLabelText("Nội dung"), {
+      target: { value: "Nội dung bài tập" },
+    });
+    fireEvent.click(screen.getByText("Lưu"));
+    expect(await screen.findByText("Bài tập mới API")).toBeInTheDocument();
+    expect(writes).toBe(1);
+  });
+  it("searches grading by student name, blocks fractional grades, and reloads returned grades", async () => {
+    const data = teacherData();
+    data.homework = [
+      { id: "homework-1", classId: "class-1", title: "Bài tập API" },
+    ];
+    data.submissions = [
+      {
+        id: "submission-1",
+        studentId: "student-1",
+        homeworkId: "homework-1",
+        score: null,
+      },
+    ];
+    let writes = 0;
+    fetch.mockImplementation(async (url, options) => {
+      if (options.method === "PATCH") {
+        writes++;
+        expect(url).toMatch(/\/submissions\/submission-1\/grade$/);
+        expect(JSON.parse(options.body)).toEqual({
+          score: 85,
+          note: "Đã kiểm tra",
+          returned: true,
+        });
+        data.submissions[0] = {
+          ...data.submissions[0],
+          score: 85,
+          markedBy: "teacher-1",
+          note: "Đã kiểm tra",
+        };
+        data.records = [
+          {
+            id: "meta-1",
+            kind: "submission-files",
+            parentId: "submission-1",
+            content: { returned: true },
+          },
+        ];
+        return ok(data.submissions[0]);
+      }
+      return ok(structuredClone(data));
+    });
+    mount("grading");
+    await screen.findByText("Học sinh API · Bài tập API");
+    fireEvent.change(screen.getByLabelText("Tìm kiếm"), {
+      target: { value: "Học sinh API" },
+    });
+    expect(screen.getByText("Học sinh API · Bài tập API")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Điểm /100"), {
+      target: { value: "85.5" },
+    });
+    expect(screen.getByText("Lưu và trả bài")).toBeDisabled();
+    fireEvent.change(screen.getByLabelText("Điểm /100"), {
+      target: { value: "85" },
+    });
+    fireEvent.change(screen.getByLabelText("Nhận xét"), {
+      target: { value: "Đã kiểm tra" },
+    });
+    fireEvent.click(screen.getByText("Lưu và trả bài"));
+    expect(await screen.findByText("Đã trả bài")).toBeInTheDocument();
+    expect(writes).toBe(1);
+  });
+  it("persists attendance and shows the saved status after snapshot reload", async () => {
+    const data = teacherData();
+    data.schedules = [
+      {
+        id: "schedule-1",
+        classId: "class-1",
+        startAt: "2027-01-05T10:00:00Z",
+        endAt: "2027-01-05T11:00:00Z",
+        status: "upcoming",
+      },
+    ];
+    fetch.mockImplementation(async (url, options) => {
+      if (options.method === "PATCH") {
+        expect(url).toMatch(/\/schedules\/schedule-1\/attendance$/);
+        expect(JSON.parse(options.body)).toEqual({
+          studentId: "student-1",
+          status: "late",
+        });
+        data.records = [
+          {
+            id: "attendance-1",
+            kind: "attendance",
+            ownerId: "student-1",
+            parentId: "schedule-1",
+            content: { status: "late" },
+          },
+        ];
+        return ok(data.records[0]);
+      }
+      return ok(structuredClone(data));
+    });
+    mount("schedules");
+    fireEvent.click(await screen.findByText("Điểm danh"));
+    fireEvent.change(screen.getByLabelText("Điểm danh Học sinh API"), {
+      target: { value: "late" },
+    });
+    await waitFor(() =>
+      expect(screen.getByLabelText("Điểm danh Học sinh API")).toHaveValue(
+        "late",
+      ),
+    );
+  });
+  it("shows an empty search state and clears class filters", async () => {
+    fetch.mockResolvedValue(ok(teacherData()));
+    mount("classes");
+    await screen.findByRole("heading", { name: "Lớp từ API" });
+    fireEvent.change(screen.getByLabelText("Tìm kiếm"), {
+      target: { value: "Không có lớp này" },
+    });
+    expect(
+      screen.getByText("Không có lớp học phù hợp với bộ lọc."),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Xóa bộ lọc"));
+    expect(
+      screen.getByRole("heading", { name: "Lớp từ API" }),
+    ).toBeInTheDocument();
+  });
+  it("searches learning results by student and rejects manual scores above maxScore", async () => {
+    const data = teacherData();
+    let writes = 0;
+    fetch.mockImplementation(async (url, options) => {
+      if (options.method === "POST") {
+        writes++;
+        expect(url).toMatch(/\/portal\/scores$/);
+        const body = JSON.parse(options.body);
+        expect(body).toMatchObject({
+          classId: "class-1",
+          studentId: "student-1",
+          teacherId: "teacher-1",
+          score: 8,
+          maxScore: 10,
+        });
+        data.scores = [{ ...body, id: "score-1" }];
+        return ok(data.scores[0]);
+      }
+      return ok(structuredClone(data));
+    });
+    mount("progress");
+    fireEvent.click(await screen.findByText("Thêm điểm số"));
+    fireEvent.change(screen.getByLabelText("Lớp học"), {
+      target: { value: "class-1" },
+    });
+    fireEvent.change(screen.getByLabelText("Học sinh"), {
+      target: { value: "student-1" },
+    });
+    fireEvent.change(screen.getByLabelText("Tên bài kiểm tra"), {
+      target: { value: "Điểm API" },
+    });
+    fireEvent.change(screen.getByLabelText("Môn / kỹ năng"), {
+      target: { value: "Reading" },
+    });
+    fireEvent.change(screen.getByLabelText("Thang điểm"), {
+      target: { value: "10" },
+    });
+    fireEvent.change(screen.getByLabelText("Điểm"), {
+      target: { value: "11" },
+    });
+    fireEvent.submit(screen.getByText("Lưu điểm").closest("form"));
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Điểm phải nằm trong khoảng",
+    );
+    expect(writes).toBe(0);
+    fireEvent.change(screen.getByLabelText("Điểm"), { target: { value: "8" } });
+    fireEvent.submit(screen.getByText("Lưu điểm").closest("form"));
+    expect(await screen.findByText("Điểm API: 8/10")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Tìm kiếm"), {
+      target: { value: "Không có học sinh này" },
+    });
+    expect(screen.queryByText("Học sinh API")).not.toBeInTheDocument();
+    expect(writes).toBe(1);
+  });
+  it("creates an exam using the existing record contract and scheduling fields", async () => {
+    const data = teacherData();
+    fetch.mockImplementation(async (url, options) => {
+      if (options.method === "POST") {
+        expect(url).toMatch(/\/portal\/records$/);
+        const body = JSON.parse(options.body);
+        expect(body).toMatchObject({
+          classId: "class-1",
+          kind: "exam",
+          content: {
+            title: "Đề API",
+            duration: 15,
+            published: true,
+            questions: [
+              { prompt: "Câu API", options: ["A", "B", "C", "D"], answer: 0 },
+            ],
+          },
+        });
+        expect(Date.parse(body.content.opensAt)).toBeLessThan(
+          Date.parse(body.content.closesAt),
+        );
+        data.records = [{ ...body, id: "exam-1" }];
+        return ok(data.records[0]);
+      }
+      return ok(structuredClone(data));
+    });
+    mount("exam");
+    fireEvent.click(await screen.findByText("Tạo ngân hàng đề thi"));
+    fireEvent.change(screen.getByLabelText("Lớp học"), {
+      target: { value: "class-1" },
+    });
+    fireEvent.change(screen.getByLabelText("Tiêu đề"), {
+      target: { value: "Đề API" },
+    });
+    fireEvent.change(screen.getByLabelText("Câu 1"), {
+      target: { value: "Câu API" },
+    });
+    for (const option of ["A", "B", "C", "D"])
+      fireEvent.change(screen.getByLabelText("Đáp án " + option), {
+        target: { value: option },
+      });
+    fireEvent.change(screen.getByLabelText("Mở bài lúc"), {
+      target: { value: "2027-01-05T08:00" },
+    });
+    fireEvent.change(screen.getByLabelText("Đóng bài lúc"), {
+      target: { value: "2027-01-05T09:00" },
+    });
+    fireEvent.click(screen.getByText("Lưu"));
+    expect(await screen.findByText("Đề API")).toBeInTheDocument();
   });
 });

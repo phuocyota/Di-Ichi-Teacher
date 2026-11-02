@@ -1,0 +1,1281 @@
+.lp-back-list { color: #5274a3; font-size: 11px; border: 1px solid #dce4ef; border-radius: 8px; padding: 9px 12px; white-space: nowrap; }
+.lp-back-list:hover { background: #f0f5ff; }
+.lp-block > header > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+.lp-block-actions { flex-shrink: 0; }
+.lesson-planner .lp-block-actions .lp-collapse-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #5274a3;
+}
+.lp-collapse-toggle svg { transition: transform .15s; }
+.lp-collapse-toggle[aria-expanded="false"] svg { transform: rotate(180deg); }
+.lp-block-summary {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #7e8fa8;
+  font-size: 11px;
+  font-weight: 400;
+}
+.lp-block-collapsed > header { border-bottom: 0; border-radius: 14px; }
+.lp-block > fieldset[hidden] { display: none; }
+@media(max-width:760px) {
+  .lp-collapse-toggle > span { display: none; }
+}
+.lesson-planner .lp-block-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+}
+.lesson-planner .lp-block-index {
+  color: #7e8fa8;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.lesson-planner .lp-block-identity strong {
+  color: #334d72;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.lp-activity-templates > div {
+  display: grid;
+  gap: 9px;
+}
+.lesson-planner .lp-activity-templates > div > button {
+  display: flex;
+  gap: 10px;
+  align-items: start;
+  text-align: left;
+  width: 100%;
+  padding: 12px 9px;
+  border: 1px solid #e5eaf3;
+  background: #fcfdff;
+}
+.lp-activity-templates button > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.lp-activity-templates strong {
+  display: block;
+  font-size: 12px;
+}
+.lp-activity-templates small {
+  display: block;
+  font-size: 11px;
+  color: #6d7e99;
+  margin: 4px 0;
+}
+.lp-template-description {
+  display: block;
+  font-size: 10px;
+  line-height: 1.6;
+  color: #98a3b4;
+}
+.lp-tool-wheel {
+  background: #fff0d6;
+  color: #b67c18;
+}
+.lp-tool-group-sort {
+  background: #e5f4f4;
+  color: #2b8a8a;
+}
+.lp-tool-open-box {
+  background: #fce9e3;
+  color: #bf6a49;
+}
+.lp-tool-memory {
+  background: #eee8fc;
+  color: #8d62c2;
+}
+.lp-wheel-layout {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+.lp-wheel-stage {
+  position: relative;
+  width: 240px;
+  height: 252px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.lp-wheel {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  border: 7px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 4px 18px #223c5d26;
+  transition: transform 1.8s cubic-bezier(0.12, 0.68, 0.13, 1);
+}
+.lp-wheel > span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -11px 0 0 -11px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  background: #ffffffdc;
+  color: #415168;
+}
+.lp-wheel-pointer {
+  position: absolute;
+  top: -8px;
+  left: calc(50% - 12px);
+  z-index: 2;
+  color: #29446a;
+  font-size: 28px;
+  text-shadow: 0 2px 1px #ffffff;
+}
+.lp-wheel-center {
+  position: absolute;
+  top: calc(50% - 23px);
+  left: calc(50% - 23px);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: #446ca9;
+  box-shadow: 0 2px 10px #1e304633;
+  font-size: 22px;
+}
+.lp-wheel-entries {
+  flex: 1;
+  min-width: 180px;
+  list-style: decimal;
+  padding-left: 23px;
+  color: #6a7f9b;
+  line-height: 1.8;
+}
+.lp-wheel-entries li {
+  padding: 3px 0;
+  font-size: 13px;
+}
+.lp-wheel-result {
+  background: #edf4ff;
+  border: 1px solid #d9e5fb;
+  border-radius: 10px;
+  padding: 16px;
+  color: #355f9d !important;
+  font-size: 16px !important;
+}
+.lp-group-bank {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  border: 1px dashed #c9d8ea;
+  padding: 15px;
+  border-radius: 10px;
+  min-height: 72px;
+  background: #f8fbff;
+  margin-bottom: 18px;
+}
+.lp-group-bank button,
+.lp-groups section > div > button {
+  cursor: grab;
+  overflow-wrap: anywhere;
+}
+.lp-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.lp-groups section {
+  background: #f6f9fe;
+  border: 2px dashed #ccdbef;
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 150px;
+}
+.lesson-planner .lp-group-title {
+  width: 100%;
+  background: #e6eefb;
+  border: 0;
+  color: #4870aa;
+  text-align: center;
+  font-weight: 650;
+  font-size: 12px;
+}
+.lesson-planner .lp-group-title:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.lp-groups section > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.lp-boxes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+.lp-boxes article {
+  padding: 12px;
+  border: 1px solid #e1e9f5;
+  border-radius: 12px;
+  background: linear-gradient(140deg, #edf3ff, #f9fbff);
+  min-height: 130px;
+}
+.lesson-planner .lp-box-face {
+  width: 100%;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  color: #4d75b1;
+  font-size: 15px;
+  font-weight: 650;
+}
+.lp-box-face > span {
+  font-size: 32px;
+  color: #93add9;
+}
+.lp-box-open .lp-box-face:disabled {
+  opacity: 1;
+  cursor: default;
+  color: #3f526e;
+  font-size: 13px;
+  line-height: 1.7;
+  min-height: 75px;
+}
+.lp-boxes article > button:last-child:not(.lp-box-face) {
+  font-size: 11px;
+  width: 100%;
+  margin-top: 8px;
+}
+.lp-box-answer {
+  border-top: 1px solid #d8e3f2;
+  padding-top: 12px;
+  color: #2f865e;
+  font-size: 13px;
+  white-space: pre-wrap;
+  line-height: 1.7;
+}
+.lp-memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.lesson-planner .lp-memory-grid > button {
+  min-height: 100px;
+  border: 2px solid #dbe2f2;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #7594cf, #5e79b5);
+  color: white;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  font-size: 15px;
+  padding: 14px;
+}
+.lp-memory-grid button > span {
+  font-size: 32px;
+  color: #dce9ff;
+}
+.lesson-planner .lp-memory-grid .lp-memory-face {
+  background: #f4f7ff;
+  color: #4a6288;
+  border-color: #b7cbed;
+  font-weight: 650;
+}
+.lesson-planner .lp-memory-grid .lp-memory-matched:disabled {
+  opacity: 1;
+  background: #ecf8f1;
+  color: #347858;
+  border-color: #b7ddc7;
+}
+.lp-memory-score {
+  font-size: 12px !important;
+  color: #7b8dab !important;
+}
+.lp-print-memory {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.lp-print-memory > span {
+  border: 1px dashed #777;
+  padding: 15px;
+  text-align: center;
+}
+.lp-game-actions {
+  flex-wrap: wrap;
+  align-items: center;
+}
+@media (max-width: 760px) {
+  .lp-activity-templates > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .lp-template-description {
+    display: none;
+  }
+  .lp-boxes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .lp-memory-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .lp-groups {
+    grid-template-columns: 1fr;
+  }
+  .lp-wheel-layout {
+    justify-content: center;
+  }
+  .lp-wheel-entries {
+    flex-basis: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-wheel {
+    transition-duration: 0.05s;
+  }
+}
+@media print {
+  .lp-activity-templates {
+    display: none !important;
+  }
+}
+.lesson-planner {
+  --lp-blue: #245bd8;
+  --lp-border: #e0e6ef;
+  color: #26334b;
+  font-size: 14px;
+}
+.lesson-planner * {
+  box-sizing: border-box;
+}
+.lesson-planner button {
+  font: inherit;
+  border: 1px solid var(--lp-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #fff;
+  cursor: pointer;
+  color: inherit;
+  transition: background 0.15s;
+}
+.lesson-planner button:hover:not(:disabled) {
+  background: #f0f5ff;
+}
+.lesson-planner button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.lesson-planner button:focus-visible,
+.lesson-planner a:focus-visible {
+  outline: 3px solid #8db0ff;
+  outline-offset: 2px;
+}
+.lesson-planner input,
+.lesson-planner select,
+.lesson-planner textarea {
+  font: inherit;
+  border: 1px solid #d9e1ed;
+  border-radius: 8px;
+  padding: 10px 12px;
+  width: 100%;
+  min-width: 0;
+  background: #fff;
+  color: inherit;
+}
+.lesson-planner input:focus,
+.lesson-planner select:focus,
+.lesson-planner textarea:focus {
+  outline: 2px solid #a7bfff;
+  outline-offset: 1px;
+}
+.lesson-planner textarea {
+  resize: vertical;
+  line-height: 1.7;
+}
+.lesson-planner label {
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.lesson-planner fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.lesson-planner h1,
+.lesson-planner h2,
+.lesson-planner h3 {
+  font-weight: 700;
+}
+.lp-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+.lp-eyebrow {
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-weight: 750;
+  color: var(--lp-blue);
+  margin-bottom: 8px;
+}
+.lp-top h1 {
+  font-size: 30px;
+  letter-spacing: -1px;
+  margin: 0 0 8px;
+}
+.lp-top > div > p:last-child {
+  color: #7b8699;
+  font-size: 13px;
+}
+.lp-actionbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: white;
+  border: 1px solid var(--lp-border);
+  border-radius: 14px;
+  margin-bottom: 18px;
+  position: sticky;
+  top: 8px;
+  z-index: 15;
+  box-shadow: 0 3px 12px #1c335008;
+}
+.lp-mode {
+  display: flex;
+  gap: 4px;
+  background: #f2f5f9;
+  padding: 4px;
+  border-radius: 10px;
+}
+.lesson-planner .lp-mode button {
+  border: 0;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 650;
+}
+.lesson-planner .lp-mode button[aria-pressed="true"] {
+  background: #fff;
+  color: var(--lp-blue);
+  box-shadow: 0 1px 5px #16305012;
+}
+.lp-save-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lp-save-actions > span {
+  font-size: 11px;
+  margin-right: 8px;
+}
+.lesson-planner .lp-primary {
+  background: var(--lp-blue);
+  color: white;
+  border-color: var(--lp-blue);
+  font-weight: 650;
+}
+.lesson-planner .lp-primary:hover:not(:disabled) {
+  background: #174bbf;
+}
+.lp-unsaved {
+  color: #b07922;
+}
+.lp-muted,
+.lp-hint {
+  color: #8090a6;
+  line-height: 1.6;
+  font-weight: 400;
+}
+.lp-hint {
+  font-size: 11px;
+  margin: 10px 0;
+}
+.lp-workspace {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.lp-sidebar {
+  display: grid;
+  gap: 16px;
+}
+.lp-sidebar > section {
+  background: #fff;
+  border: 1px solid var(--lp-border);
+  border-radius: 14px;
+  padding: 18px;
+}
+.lp-sidebar h2 {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+.lp-sidebar .lp-muted {
+  font-size: 11px;
+  margin-bottom: 16px;
+}
+.lp-palette {
+  display: grid;
+  gap: 8px;
+}
+.lesson-planner .lp-palette > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #e9edf4;
+  padding: 10px;
+  text-align: left;
+  background: #fcfdff;
+}
+.lp-palette strong {
+  display: block;
+  font-size: 12px;
+}
+.lp-palette small {
+  display: block;
+  font-size: 10px;
+  color: #8490a2;
+  margin-top: 3px;
+}
+.lp-palette > button > span:last-child {
+  margin-left: auto;
+  color: #9aabc1;
+}
+.lp-tool-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  color: #5274a3;
+  background: #eaf1fe;
+  font-weight: 750;
+  flex-shrink: 0;
+}
+.lp-tool-quiz {
+  background: #fff3d8;
+  color: #a87819;
+}
+.lp-tool-matching {
+  background: #efe9ff;
+  color: #8053c0;
+}
+.lp-tool-ordering {
+  background: #e2f5ed;
+  color: #218563;
+}
+.lp-tool-image {
+  background: #fce7ee;
+  color: #bb5475;
+}
+.lp-tool-video {
+  background: #e2f2ff;
+  color: #397eb1;
+}
+.lesson-planner .lp-template {
+  width: 100%;
+  border: 1px dashed #adc3e9;
+  color: var(--lp-blue);
+  font-size: 11px;
+  margin-top: 16px;
+  padding: 12px 6px;
+}
+.lp-library-link {
+  display: block;
+  color: var(--lp-blue);
+  font-size: 12px;
+  text-decoration: underline;
+  margin-top: 18px;
+}
+.lp-saved h2 {
+  display: flex;
+  justify-content: space-between;
+}
+.lp-saved h2 span {
+  color: #8a9bb0;
+  font-size: 12px;
+}
+.lp-saved > input {
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+.lesson-planner .lp-saved > button {
+  width: 100%;
+  display: block;
+  text-align: left;
+  border: 0;
+  padding: 12px 8px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid #f0f3f7;
+}
+.lp-saved small {
+  display: block;
+  color: #8c98a9;
+  font-size: 10px;
+  margin-top: 5px;
+}
+.lesson-planner .lp-saved .lp-current {
+  background: #eef4ff;
+  color: var(--lp-blue);
+}
+.lp-settings {
+  background: #fff;
+  border: 1px solid var(--lp-border);
+  border-radius: 14px;
+  padding: 22px;
+}
+.lp-settings-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.lp-settings-title h2 {
+  font-size: 15px;
+}
+.lp-settings-title > span {
+  font-size: 11px;
+  color: #7385a0;
+  background: #f1f5fa;
+  padding: 6px 9px;
+  border-radius: 6px;
+}
+.lp-settings > fieldset {
+  display: grid;
+  gap: 16px;
+}
+.lp-two {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 140px;
+  gap: 14px;
+}
+.lp-three {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.lp-canvas {
+  padding: 0 0 16px;
+  min-height: 200px;
+}
+.lp-empty {
+  text-align: center;
+  background: #f9fbff;
+  border: 2px dashed #ccdaee;
+  border-radius: 14px;
+  padding: 50px 20px;
+  margin: 20px 0;
+  color: #7f91a9;
+}
+.lp-empty > span {
+  font-size: 34px;
+  color: #a9bcda;
+}
+.lp-empty h2 {
+  color: #496483;
+  margin: 10px 0;
+  font-size: 18px;
+}
+.lp-empty p {
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+.lp-empty button {
+  color: var(--lp-blue);
+}
+.lp-block {
+  background: #fff;
+  border: 1px solid #dce4ef;
+  border-radius: 14px;
+  box-shadow: 0 2px 5px #263c5804;
+}
+.lp-block-active {
+  border-color: #91b2f1;
+  box-shadow: 0 0 0 3px #dbe8ff60;
+}
+.lp-block > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #edf1f6;
+  background: #fcfdff;
+  border-radius: 14px 14px 0 0;
+}
+.lp-block > header > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.lp-block strong {
+  font-size: 12px;
+}
+.lesson-planner .lp-drag-handle {
+  cursor: grab;
+  border: 0;
+  padding: 5px;
+  color: #a2afc1;
+  font-size: 24px;
+}
+.lesson-planner .lp-block-actions {
+  gap: 3px;
+}
+.lesson-planner .lp-block-actions button {
+  padding: 5px 8px;
+  border-color: transparent;
+  color: #7e8ca1;
+  font-size: 16px;
+}
+.lp-danger {
+  color: #bf4657 !important;
+}
+.lp-block-fields {
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+}
+.lp-block-fields fieldset {
+  border: 1px solid #e4eaf2;
+  border-radius: 9px;
+  padding: 12px;
+}
+.lp-block-fields legend {
+  font-size: 11px;
+  color: #7a8ca5;
+  padding: 0 6px;
+}
+.lp-option-edit {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 9px 0;
+}
+.lp-option-edit input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  accent-color: var(--lp-blue);
+}
+.lp-option-edit button {
+  padding: 6px 9px;
+}
+.lp-pair-edit {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+  margin: 10px 0;
+}
+.lp-block-fields fieldset > button {
+  font-size: 11px;
+  color: var(--lp-blue);
+}
+.lp-drop-zone {
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7194d1;
+  transition: height 0.15s;
+}
+.lp-drop-zone > span {
+  display: none;
+  font-size: 10px;
+  pointer-events: none;
+}
+.lp-dragging .lp-drop-zone {
+  height: 52px;
+  border: 1px dashed #aac2ec;
+  background: #edf4ff;
+  border-radius: 10px;
+  margin: 8px 0;
+}
+.lp-dragging .lp-drop-zone > span {
+  display: block;
+}
+.lp-drop-last {
+  height: auto;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px dashed #d3dfef;
+  padding: 16px;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+.lp-drop-last > span {
+  display: block;
+  font-size: 10px;
+}
+.lesson-planner .lp-drop-last button {
+  border: 0;
+  background: transparent;
+  color: var(--lp-blue);
+  font-size: 12px;
+}
+.lp-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 0;
+  color: #8d9aaf;
+  font-size: 11px;
+}
+.lp-footer > div {
+  display: flex;
+  gap: 8px;
+}
+.lp-footer button {
+  font-size: 11px;
+}
+.lp-play-area {
+  max-width: 900px;
+  margin: auto;
+}
+.lp-play-area > header {
+  background: linear-gradient(125deg, #254d91, #2d6ca0);
+  padding: 30px;
+  border-radius: 16px;
+  color: #fff;
+  margin-bottom: 20px;
+}
+.lp-play-area > header h2 {
+  font-size: 26px;
+  margin: 8px 0;
+}
+.lp-play-area > header p {
+  line-height: 1.8;
+}
+.lp-play-area > header .lp-eyebrow {
+  color: #c3dcff;
+}
+.lp-play-area > header .lp-hint {
+  color: #c8dcf6;
+}
+.lp-play-block {
+  padding: 24px;
+  background: white;
+  border: 1px solid var(--lp-border);
+  border-radius: 14px;
+  margin-bottom: 18px;
+  overflow-wrap: anywhere;
+}
+.lp-play-block h3 {
+  font-size: 20px;
+  margin: 12px 0;
+}
+.lp-play-caption {
+  display: flex;
+  justify-content: space-between;
+  color: #8c9bb0;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+.lp-prose,
+.lp-game > p {
+  white-space: pre-wrap;
+  line-height: 1.9;
+}
+.lp-play-heading {
+  background: #edf4ff;
+  border-color: #d5e2fb;
+}
+.lp-play-block img {
+  display: block;
+  max-width: 100%;
+  max-height: 600px;
+  margin: 15px auto;
+  border-radius: 10px;
+}
+.lp-play-block iframe,
+.lp-play-block video {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 10px;
+  border: 0;
+  margin: 15px 0;
+}
+.lp-play-block a {
+  color: var(--lp-blue);
+  text-decoration: underline;
+  font-size: 12px;
+}
+.lp-game > p {
+  color: #7a8ba1;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+.lesson-planner .lp-choice {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #dce4ef;
+  padding: 14px;
+  margin: 10px 0;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.lp-choice input {
+  width: 18px;
+  accent-color: var(--lp-blue);
+}
+.lp-choice span {
+  color: #8a9bb4;
+}
+.lp-game-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+}
+.lp-game-actions button:first-child {
+  color: var(--lp-blue);
+  background: #eef4ff;
+}
+.lp-good {
+  color: #18845d !important;
+  font-weight: 650;
+  margin-top: 15px;
+}
+.lp-bad {
+  color: #bc4754 !important;
+  font-weight: 650;
+  margin-top: 15px;
+}
+.lesson-planner .lp-correct {
+  border-color: #5bbd95;
+  background: #edfaf3;
+}
+.lesson-planner .lp-incorrect {
+  border-color: #dfa4ad;
+  background: #fff3f5;
+}
+.lp-matching {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
+.lp-matching > div {
+  display: grid;
+  gap: 12px;
+}
+.lp-matching button {
+  min-height: 55px;
+  text-align: left;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.lp-matching button[draggable="true"] {
+  cursor: grab;
+}
+.lp-matching small {
+  display: block;
+  color: #8b99b0;
+  font-size: 11px;
+  margin-top: 6px;
+}
+.lesson-planner .lp-selected {
+  border-color: #8daef4;
+  background: #edf3ff;
+  box-shadow: 0 0 0 2px #b4ccfa60;
+}
+.lp-order {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+}
+.lp-order > li {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 1px solid #dfe6f0;
+  border-radius: 9px;
+  background: #f9fbff;
+  cursor: grab;
+}
+.lp-order > li > div {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.lp-order button {
+  padding: 4px 9px;
+}
+.lp-error,
+.lp-notice {
+  padding: 14px 18px;
+  border-radius: 10px;
+  margin: 12px 0;
+  font-size: 13px;
+}
+.lp-error {
+  background: #fff1f2;
+  color: #bc4252;
+  border: 1px solid #f3d2d7;
+}
+.lp-notice {
+  background: #eaf7f0;
+  color: #277d56;
+  border: 1px solid #cee9d9;
+}
+.lp-error button {
+  margin-left: 12px;
+}
+.lp-loading {
+  padding: 70px;
+  text-align: center;
+  color: #8092a9;
+}
+.lp-overlay {
+  position: fixed;
+  inset: 0;
+  background: #1f355f66;
+  backdrop-filter: blur(3px);
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.lp-confirm {
+  background: white;
+  padding: 26px;
+  border-radius: 16px;
+  max-width: 460px;
+  box-shadow: 0 20px 80px #162d5940;
+}
+.lp-confirm h2 {
+  font-size: 18px;
+  line-height: 1.6;
+}
+.lp-confirm p {
+  color: #8b9bb0;
+  font-size: 12px;
+  margin: 12px 0 22px;
+}
+.lp-confirm > div {
+  display: flex;
+  justify-content: end;
+  gap: 10px;
+}
+.lp-print {
+  display: none;
+}
+.lp-present {
+  position: fixed;
+  inset: 0;
+  background: #f0f4fa;
+  z-index: 70;
+  overflow: auto;
+  padding: 20px 40px;
+}
+.lp-present .lp-top,
+.lp-present .lp-sidebar,
+.lp-present .lp-footer {
+  display: none;
+}
+.lp-present .lp-workspace {
+  display: block;
+}
+.lp-present .lp-main {
+  max-width: 1080px;
+  margin: 24px auto;
+}
+.lp-present .lp-actionbar {
+  top: 0;
+}
+.lp-present .lp-play-block {
+  font-size: 18px;
+}
+.lp-present .lp-play-block h3 {
+  font-size: 26px;
+}
+@media (max-width: 1150px) {
+  .lp-workspace {
+    grid-template-columns: 210px minmax(0, 1fr);
+    gap: 14px;
+  }
+  .lp-actionbar {
+    position: static;
+    flex-wrap: wrap;
+  }
+  .lp-save-actions {
+    flex-wrap: wrap;
+  }
+  .lp-sidebar > section {
+    padding: 14px;
+  }
+  .lp-palette small {
+    display: none;
+  }
+  .lp-three {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .lp-workspace {
+    grid-template-columns: 1fr;
+  }
+  .lp-palette {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .lp-saved {
+    max-height: 240px;
+    overflow: auto;
+  }
+  .lp-top {
+    align-items: start;
+  }
+  .lp-top h1 {
+    font-size: 25px;
+  }
+  .lp-top > div > p:last-child {
+    max-width: 240px;
+  }
+  .lp-two,
+  .lp-three {
+    grid-template-columns: 1fr;
+  }
+  .lp-block > header {
+    padding: 10px;
+    gap: 5px;
+  }
+  .lp-block > header > div {
+    gap: 5px;
+  }
+  .lp-block > header strong {
+    font-size: 11px;
+  }
+  .lesson-planner .lp-block-actions button {
+    padding: 4px 6px;
+  }
+  .lp-block-fields {
+    padding: 16px;
+  }
+  .lp-play-block {
+    padding: 18px;
+  }
+  .lp-pair-edit {
+    grid-template-columns: 1fr auto 1fr auto;
+    gap: 4px;
+  }
+  .lp-pair-edit input {
+    padding: 8px;
+  }
+  .lp-present {
+    padding: 12px;
+  }
+  .lp-matching {
+    gap: 12px;
+  }
+  .lp-footer {
+    align-items: start;
+    flex-direction: column;
+  }
+  .lp-save-actions > span {
+    width: 100%;
+  }
+}
+@media print {
+  @page {
+    size: A4;
+    margin: 18mm;
+  }
+  body * {
+    visibility: hidden !important;
+  }
+  .lp-print,
+  .lp-print * {
+    visibility: visible !important;
+  }
+  .lp-print {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: #111;
+    font-size: 11pt;
+    background: #fff;
+  }
+  .lp-print h1 {
+    font-size: 20pt;
+    margin-bottom: 12pt;
+  }
+  .lp-print .lp-play-block {
+    break-inside: avoid;
+    border: 0;
+    border-radius: 0;
+    padding: 12pt 0;
+    margin: 0;
+    border-bottom: 1px solid #ddd;
+    box-shadow: none;
+    background: white;
+  }
+  .lp-print .lp-play-block h3 {
+    font-size: 14pt;
+  }
+  .lp-print .lp-play-caption {
+    color: #555;
+  }
+  .lp-print .lp-play-block img {
+    max-height: 240px;
+  }
+  .lp-print p {
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+  .lp-print .lp-play-block a {
+    display: none;
+  }
+  .lp-print .lp-print-activity p {
+    padding: 5pt 0;
+  }
+  .lesson-planner.lp-present {
+    position: static;
+    overflow: visible;
+  }
+  .lp-top,
+  .lp-actionbar,
+  .lp-workspace,
+  .lp-overlay {
+    display: none !important;
+  }
+}

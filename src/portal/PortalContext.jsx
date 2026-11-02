@@ -1,47 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { getAccessToken, clearAuthSession } from "../services/authSession.js";
+import { clearAuthSession } from "../services/authSession.js";
 import "./portal.css";
 
 import { PortalContext as Context } from "./portalStore.js";
-const base = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(
-  /\/$/,
-  "",
-);
-async function portalRequest(
-  path,
-  { method = "GET", body, signal, download = false } = {},
-) {
-  const form = body instanceof FormData;
-  const response = await fetch(`${base}/portal${path}`, {
-    method,
-    signal,
-    headers: {
-      Authorization: `Bearer ${getAccessToken()}`,
-      ...(!form && body ? { "Content-Type": "application/json" } : {}),
-    },
-    body: body ? (form ? body : JSON.stringify(body)) : undefined,
-  });
-  if (response.status === 401) {
-    clearAuthSession();
-    window.location.assign("/login");
-  }
-  if (download && response.ok)
-    return {
-      blob: await response.blob(),
-      name: decodeURIComponent(
-        response.headers.get("Content-Disposition")?.split("UTF-8''")[1] ||
-          "tai-lieu",
-      ),
-    };
-  const payload = await response.json().catch(() => null);
-  if (!response.ok)
-    throw new Error(
-      Array.isArray(payload?.message)
-        ? payload.message.join("; ")
-        : payload?.message || "Không thể kết nối máy chủ",
-    );
-  return payload?.data ?? payload;
-}
+import { portalRequest, validateSnapshot } from "../services/portalApi.js";
 export function PortalProvider({ children }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
@@ -52,7 +14,9 @@ export function PortalProvider({ children }) {
   const reload = useCallback(async (signal) => {
     const request = ++revision.current;
     try {
-      const next = await portalRequest("/snapshot", { signal });
+      const next = validateSnapshot(
+        await portalRequest("/snapshot", { signal }),
+      );
       if (request === revision.current) {
         setData(next);
         setError("");
@@ -112,7 +76,14 @@ export function PortalProvider({ children }) {
           <div role="alert" className="portal-error">
             {error}{" "}
             <button onClick={() => reload().catch(() => {})}>Thử lại</button>
-            <button onClick={() => { clearAuthSession(); window.location.assign('/login'); }}>Đăng xuất</button>
+            <button
+              onClick={() => {
+                clearAuthSession();
+                window.location.assign("/login");
+              }}
+            >
+              Đăng xuất
+            </button>
           </div>
         )}
         {notice && <div className="portal-notice">{notice}</div>}
