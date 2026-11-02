@@ -9,6 +9,7 @@ import {
   newPlan,
 } from "./blocks.js";
 import BlockPlayer from "./BlockPlayer.jsx";
+import SlidePresentation from './SlidePresentation.jsx';
 import BlockFields from "./BlockFields.jsx";
 import LessonAppearance, { LessonScene } from "./LessonAppearance.jsx";
 import { normalizeAppearance, validatedImageBlob } from "./appearance.js";
@@ -38,6 +39,7 @@ export default function LessonPlanner() {
     [playSession, setPlaySession] = useState(0);
   const [collapsed, setCollapsed] = useState({});
   const [motionPaused, setMotionPaused] = useState(false);
+  const [presenting,setPresenting]=useState(false);
   const lock = useRef(false);
   const blocker = useBlocker(dirty);
   useEffect(() => {
@@ -296,6 +298,7 @@ export default function LessonPlanner() {
               key={value}
               aria-pressed={mode === value}
               onClick={() => {
+                if(value==='present'){setPresenting(true);return;}
                 setMode(value);
                 setPlaySession((v) => v + 1);
               }}
