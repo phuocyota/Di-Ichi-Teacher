@@ -1,3 +1,4 @@
+import { useResourceUpdates } from '../services/realtime.js';
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useBlocker, useNavigate, useParams } from "react-router-dom";
 import { portalRequest } from "../services/portalApi.js";
@@ -42,6 +43,12 @@ export default function LessonPlanner() {
   const [presenting, setPresenting] = useState(false);
   const lock = useRef(false);
   const blocker = useBlocker(dirty);
+  useResourceUpdates(async () => {
+    const list = await portalRequest('/lesson-plans');
+    if (!Array.isArray(list?.classes) || !Array.isArray(list?.items)) throw new Error('Danh sách lớp/giáo án không hợp lệ');
+    setClasses(list.classes);
+    setSaved(list.items);
+  }, ['class','class-staff','workspace','portal'], !loading && !busy);
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);

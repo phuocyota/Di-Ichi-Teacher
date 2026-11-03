@@ -1,3 +1,4 @@
+import { useUpdatesConnection, useResourceUpdates } from '../services/realtime.js';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { clearAuthSession } from "../services/authSession.js";
 import "./portal.css";
@@ -6,6 +7,7 @@ import { PortalContext as Context } from "./portalStore.js";
 import { portalRequest, validateSnapshot } from "../services/portalApi.js";
 import { useScheduleReminders } from "./useScheduleReminders.js";
 export function PortalProvider({ children }) {
+  useUpdatesConnection();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -49,6 +51,7 @@ export function PortalProvider({ children }) {
       window.removeEventListener("focus", refresh);
     };
   }, [data?.profile?.userId, data?.profile?.userType, reload]);
+  useResourceUpdates(() => reload().catch(() => {}), ['portal', 'workspace', 'class', 'class-staff', 'class-room', 'class-weekly-schedule', 'course', 'enrollment', 'schedule', 'attendance-record', 'homework', 'homework-submission', 'score', 'notification', 'document', 'class-document', 'student-certificate', 'student', 'staff', 'finance-transaction', 'payment', 'debt-schedule']);
   const act = async (path, options = {}) => {
     if (lock.current) return null;
     lock.current = true;

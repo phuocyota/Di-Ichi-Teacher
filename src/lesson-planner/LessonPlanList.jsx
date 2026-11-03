@@ -1,3 +1,4 @@
+import { useResourceUpdates } from '../services/realtime.js';
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { portalRequest } from "../services/portalApi.js";
@@ -31,6 +32,7 @@ export default function LessonPlanList() {
   const [deleting, setDeleting] = useState(null),
     [busy, setBusy] = useState(false),
     [notice, setNotice] = useState("");
+  useResourceUpdates(() => setRetry(v => v + 1), ['portal','class-staff','class','workspace'], !busy && !deleting);
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);

@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
-import { API_BASE_URL } from "../services/apiConfig.js";
-import { getAccessToken } from "../services/authSession.js";
+import { createRealtimeSocket } from "../services/realtime.js";
 
 export function useLessonProgressSocket(planId, onRefresh) {
   const [status, setStatus] = useState("connecting");
@@ -17,12 +15,7 @@ export function useLessonProgressSocket(planId, onRefresh) {
           if (active) onRefresh();
         }, 75);
     };
-    const origin = new URL(API_BASE_URL, window.location.origin).origin;
-    const client = io(`${origin}/lesson-progress`, {
-      // PM2 runs multiple workers; WebSocket transport does not need sticky polling sessions.
-      transports: ["websocket"],
-      auth: (callback) => callback({ token: getAccessToken() }),
-    });
+    const client = createRealtimeSocket('lesson-progress');
     setStatus("connecting");
     client.on("connect", () => {
       watching = false;

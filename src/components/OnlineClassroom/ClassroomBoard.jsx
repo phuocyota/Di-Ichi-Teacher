@@ -10,7 +10,7 @@ export const ClassroomBoard = ({ socket, scheduleId, permissions }) => {
   useEffect(() => {
     if (!socket) return undefined
     const receiveStroke = (event) => event.scheduleId === scheduleId && event.data?.id
-      && setStrokes((current) => [...current, event.data])
+      && setStrokes((current) => [...current.filter(item => item.id !== event.data.id), event.data])
     const clearBoard = (event) => event.scheduleId === scheduleId && setStrokes([])
     const sendSnapshot = (event) => event.scheduleId === scheduleId && permissions.canControlBoard
       && socket.emit('board:snapshot', { scheduleId, data: strokesRef.current })
@@ -20,7 +20,7 @@ export const ClassroomBoard = ({ socket, scheduleId, permissions }) => {
     socket.on('board:clear', clearBoard)
     socket.on('board:snapshot-request', sendSnapshot)
     socket.on('board:snapshot', receiveSnapshot)
-    socket.emit('board:snapshot-request', { scheduleId })
+    if (socket.classroomReady) socket.emit('board:snapshot-request', { scheduleId })
     return () => {
       socket.off('board:draw', receiveStroke)
       socket.off('board:clear', clearBoard)
@@ -34,13 +34,14 @@ export const ClassroomBoard = ({ socket, scheduleId, permissions }) => {
     return { x: ((event.clientX - rect.left) / rect.width) * 1000, y: ((event.clientY - rect.top) / rect.height) * 500 }
   }
   const start = (event) => {
-    if (!permissions.canWriteBoard) return
+    if (!permissions.canWriteBoard || !socket?.connected || !socket.classroomReady) return
     event.currentTarget.setPointerCapture(event.pointerId)
     setDrawing({ id: `${Date.now()}-${Math.random().toString(16).slice(2)}`, color: '#F97316', width: 4, points: [point(event)] })
   }
   const move = (event) => drawing && setDrawing({ ...drawing, points: [...drawing.points, point(event)] })
   const finish = () => {
     if (!drawing) return
+    if (!socket?.connected || !socket.classroomReady) { setDrawing(null); return }
     if (drawing.points.length > 1) {
       setStrokes((current) => [...current, drawing])
       socket?.emit('board:draw', { scheduleId, data: drawing })
@@ -48,6 +49,7 @@ export const ClassroomBoard = ({ socket, scheduleId, permissions }) => {
     setDrawing(null)
   }
   const clear = () => {
+    if (!socket?.connected || !socket.classroomReady) return
     setStrokes([])
     socket?.emit('board:clear', { scheduleId })
   }

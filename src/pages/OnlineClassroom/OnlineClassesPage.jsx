@@ -1,3 +1,4 @@
+import { useResourceUpdates } from '../../services/realtime.js';
 import { useCallback, useEffect, useState } from 'react'
 import { Clock3, GraduationCap, RefreshCw, Video } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -15,6 +16,7 @@ export const OnlineClassesPage = () => {
   const load = useCallback(async () => {
     try { setError(''); setClasses(await getOnlineSchedules()) } catch (requestError) { setError(requestError.message) } finally { setLoading(false) }
   }, [])
+  useResourceUpdates(load, ['schedule','class','class-staff','workspace','portal'], !starting)
   useEffect(() => { void load() }, [load])
 
   const start = async (item) => {

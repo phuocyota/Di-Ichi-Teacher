@@ -33,7 +33,7 @@ export const TeacherClassroomExperience = ({ joinData, onLeave, onDeviceError })
         return next
       })
     }
-    if (eventName === 'classroom:participant-joined' || eventName === 'classroom:participant-left') void loadParticipants()
+    if (['classroom:resynced','classroom:participant-joined','classroom:participant-left','classroom:participant-kicked'].includes(eventName)) void loadParticipants()
     if (eventName === 'classroom:permission-changed') {
       setParticipants((current) => current.map((item) => item.identity === event.identity ? { ...item, permissions: event.permissions } : item))
     }

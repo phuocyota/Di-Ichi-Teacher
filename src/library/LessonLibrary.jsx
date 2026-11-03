@@ -1,3 +1,4 @@
+import { useResourceUpdates } from '../services/realtime.js';
 import React, { useEffect, useRef, useState } from 'react'
 import { libraryRequest } from '../services/libraryApi.js'
 import './LessonLibrary.css'
@@ -15,6 +16,7 @@ export default function LessonLibrary({ manage = false }) {
   const [actionError, setActionError] = useState(''), [link, setLink] = useState({ name: '', url: '' })
   const [preview, setPreview] = useState(null), [notice, setNotice] = useState(''), [confirmDelete, setConfirmDelete] = useState(null)
   const previewUrl = useRef(null), serial = useRef(0)
+  useResourceUpdates(() => setRevision(v => v + 1), ['lesson-library', 'class', 'class-staff', 'enrollment'], !selected && !busy);
   const canManage = manage && options?.canManage
   useEffect(() => {
     const controller = new AbortController()
