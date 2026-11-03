@@ -1,3 +1,4 @@
+import { useOnlineScheduleWatcher } from '../../hooks/useOnlineScheduleWatcher.js';
 import { useResourceUpdates } from '../../services/realtime.js';
 import { useCallback, useEffect, useState } from 'react'
 import { Clock3, GraduationCap, RefreshCw, Video } from 'lucide-react'
@@ -16,6 +17,7 @@ export const OnlineClassesPage = () => {
   const load = useCallback(async () => {
     try { setError(''); setClasses(await getOnlineSchedules()) } catch (requestError) { setError(requestError.message) } finally { setLoading(false) }
   }, [])
+  useOnlineScheduleWatcher(classes.map(item => item.scheduleId), load, load)
   useResourceUpdates(load, ['schedule','class','class-staff','workspace','portal'], !starting)
   useEffect(() => { void load() }, [load])
 
