@@ -19,7 +19,14 @@ export const OnlineClassesPage = () => {
   }, [])
   useOnlineScheduleWatcher(classes.map(item => item.scheduleId), load, load)
   useResourceUpdates(load, ['schedule','class','class-staff','workspace','portal'], !starting)
-  useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    void load()
+    const refresh = () => { if (!document.hidden) void load() }
+    // Availability also changes when the clock reaches the lesson window.
+    const timer = setInterval(refresh, 30000)
+    window.addEventListener('focus', refresh)
+    return () => { clearInterval(timer); window.removeEventListener('focus', refresh) }
+  }, [load])
 
   const start = async (item) => {
     if (starting) return
