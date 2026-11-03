@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import LessonLibrary from '../library/LessonLibrary.jsx'
 import LessonPlanner from '../lesson-planner/LessonPlanner.jsx'
 import LessonPlanList from '../lesson-planner/LessonPlanList.jsx'
+import LessonProgress from '../lesson-planner/LessonProgress.jsx'
 import ActivityStudio from '../lesson-planner/ActivityStudio.jsx'
 import { MainLayout } from '../layouts/MainLayout.jsx'
 import { DashboardPage } from '../pages/Dashboard/DashboardPage.jsx'
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
       { path: '/soan-giao-an', element: <LessonPlanner /> },
       { path: '/soan-giao-an/:planId', element: <LessonPlanner /> },
       { path: '/giao-an', element: <LessonPlanList /> },
+      { path: '/giao-an/:planId/tien-do', element: <LessonProgress /> },
       { path: '/tao-hoat-dong', element: <ActivityStudio /> },
       { path: '/tao-hoat-dong/:planId', element: <ActivityStudio /> },
       { path: '/soan-elearning', element: <ActivityStudio /> },

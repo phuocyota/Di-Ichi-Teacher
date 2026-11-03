@@ -287,6 +287,7 @@ export default function LessonPlanList() {
                         </td>
                         <td>
                           <div className="lpl-row-actions">
+                            {p.classId && p.editorMode !== 'elearning' && <Link to={`/giao-an/${p.id}/tien-do`}>Tiến độ học sinh</Link>}
                             <Link
                               aria-label={"Mở giáo án " + p.title}
                               to={editorPath(p)}

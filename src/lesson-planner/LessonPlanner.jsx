@@ -330,6 +330,7 @@ export default function LessonPlanner() {
           <Link className="lp-back-list" to="/giao-an">
             Danh sách giáo án
           </Link>
+          {plan.id && plan.classId && <Link to={`/giao-an/${plan.id}/tien-do`}>Tiến độ học sinh</Link>}
           <span className={dirty ? "lp-unsaved" : "lp-muted"}>
             {dirty
               ? "● Có thay đổi chưa lưu"
