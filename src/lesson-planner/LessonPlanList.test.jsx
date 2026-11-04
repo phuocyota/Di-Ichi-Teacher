@@ -69,12 +69,12 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
 });
-function mount(path = "/giao-an") {
+function mount(path = "/vn/giao-an") {
   const router = createMemoryRouter(
     [
-      { path: "/giao-an", element: <LessonPlanList /> },
-      { path: "/soan-giao-an", element: <LessonPlanner /> },
-      { path: "/soan-giao-an/:planId", element: <LessonPlanner /> },
+      { path: "/vn/giao-an", element: <LessonPlanList /> },
+      { path: "/vn/soan-giao-an", element: <LessonPlanner /> },
+      { path: "/vn/soan-giao-an/:planId", element: <LessonPlanner /> },
     ],
     { initialEntries: [path] },
   );
@@ -110,9 +110,9 @@ it("opens a saved plan from its own URL and supports loading that URL directly",
   await waitFor(() =>
     expect(screen.getByLabelText("Tên giáo án *")).toHaveValue("Phân số"),
   );
-  expect(view.router.state.location.pathname).toBe("/soan-giao-an/p1");
+  expect(view.router.state.location.pathname).toBe("/vn/soan-giao-an/p1");
   view.unmount();
-  mount("/soan-giao-an/p2");
+  mount("/vn/soan-giao-an/p2");
   await waitFor(() =>
     expect(screen.getByLabelText("Tên giáo án *")).toHaveValue("Từ vựng"),
   );
@@ -129,7 +129,7 @@ it("shows an empty state with a create action and retries a failed API request",
   expect(await screen.findByText("Chưa có giáo án đã lưu")).toBeInTheDocument();
   expect(
     screen.getByRole("link", { name: "Soạn giáo án đầu tiên →" }),
-  ).toHaveAttribute("href", "/soan-giao-an");
+  ).toHaveAttribute("href", "/vn/soan-giao-an");
 });
 it("confirms deletion and updates the list only after the API succeeds", async () => {
   mount();

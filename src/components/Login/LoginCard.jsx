@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "../../routes/localizedRouter.jsx";
 import { toast } from "sonner";
 import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
 import logo from "../../assets/logo/LOGO_Diichi.webp";

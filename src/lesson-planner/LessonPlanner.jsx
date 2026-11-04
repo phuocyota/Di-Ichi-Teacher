@@ -1,6 +1,6 @@
 import { useResourceUpdates } from '../services/realtime.js';
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useBlocker, useNavigate, useParams } from "react-router-dom";
+import { Link, useBlocker, useNavigate, useParams } from "../routes/localizedRouter.jsx";
 import { portalRequest } from "../services/portalApi.js";
 import {
   BLOCKS,

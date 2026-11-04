@@ -2,7 +2,7 @@ import { useOnlineScheduleWatcher } from '../../hooks/useOnlineScheduleWatcher.j
 import { useResourceUpdates } from '../../services/realtime.js';
 import { useCallback, useEffect, useState } from 'react'
 import { Clock3, GraduationCap, RefreshCw, Video } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '../../routes/localizedRouter.jsx'
 import { toast } from 'sonner'
 import { PageHeader } from '../../components/Common/PageHeader.jsx'
 import { Card } from '../../components/Common/Card.jsx'

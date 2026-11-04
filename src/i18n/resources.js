@@ -1,4 +1,7 @@
+import { uiExact, uiPhrases } from './uiTranslations.js'
+
 const exact = {
+  ...uiExact,
   'Mở menu': 'Open menu',
   'Đóng menu': 'Close menu',
   'Thông báo': 'Notifications',
@@ -216,6 +219,7 @@ const exact = {
 }
 
 const phrases = {
+  ...uiPhrases,
   'Cô Linh Trần': 'Ms. Linh Tran',
   'Thầy Minh Phạm': 'Mr. Minh Pham',
   'Cô Mai Anh': 'Ms. Mai Anh',

@@ -1,8 +1,9 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import { resources } from './resources.js'
+import { languageForLocale, localeFromPath, preferredLocale } from './localeRouting.js'
 
-const savedLanguage = localStorage.getItem('di-ichi-language') || 'vi'
+const savedLanguage = languageForLocale(localeFromPath(window.location.pathname) || preferredLocale())
 
 i18n.use(initReactI18next).init({
   resources,
@@ -14,7 +15,7 @@ i18n.use(initReactI18next).init({
 })
 
 i18n.on('languageChanged', (language) => {
-  localStorage.setItem('di-ichi-language', language)
+  try { localStorage.setItem('di-ichi-language', language) } catch { /* URL remains the source of truth when storage is unavailable. */ }
   document.documentElement.lang = language
 })
 

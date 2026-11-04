@@ -1,6 +1,7 @@
 import { useUpdatesConnection, useResourceUpdates } from '../services/realtime.js';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { clearAuthSession } from "../services/authSession.js";
+import { localizedLoginPath } from '../i18n/localeRouting.js';
 import "./portal.css";
 
 import { PortalContext as Context } from "./portalStore.js";
@@ -100,7 +101,7 @@ export function PortalProvider({ children }) {
             <button
               onClick={() => {
                 clearAuthSession();
-                window.location.assign("/login");
+                window.location.assign(localizedLoginPath());
               }}
             >
               Đăng xuất

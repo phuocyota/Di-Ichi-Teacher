@@ -1,6 +1,6 @@
 import { useResourceUpdates } from '../services/realtime.js';
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "../routes/localizedRouter.jsx";
 import { portalRequest } from "../services/portalApi.js";
 import "./lesson-plan-list.css";
 

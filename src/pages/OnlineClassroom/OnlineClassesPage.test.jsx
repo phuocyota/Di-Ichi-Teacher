@@ -30,10 +30,10 @@ describe('OnlineClassesPage', () => {
 
   it('chống double click và chuyển vào phòng sau khi start thành công', async () => {
     render(
-      <MemoryRouter initialEntries={['/lop-hoc-online']}>
+      <MemoryRouter initialEntries={['/vn/lop-hoc-online']}>
         <Routes>
-          <Route path="/lop-hoc-online" element={<OnlineClassesPage />} />
-          <Route path="/lop-hoc-online/:scheduleId" element={<p>Đã vào phòng</p>} />
+          <Route path="/vn/lop-hoc-online" element={<OnlineClassesPage />} />
+          <Route path="/vn/lop-hoc-online/:scheduleId" element={<p>Đã vào phòng</p>} />
         </Routes>
       </MemoryRouter>,
     )

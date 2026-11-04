@@ -1,3 +1,4 @@
+import { localizedLoginPath } from '../i18n/localeRouting.js';
 import { getAccessToken, clearAuthSession } from './authSession.js'
 import { API_BASE_URL } from './apiConfig.js'
 const BASE = API_BASE_URL.replace(/\/$/, '')
@@ -14,7 +15,7 @@ export async function libraryRequest(path = '', { method = 'GET', body, signal, 
       headers: { Authorization: 'Bearer ' + getAccessToken(), ...(!(body instanceof FormData) && body ? { 'Content-Type': 'application/json' } : {}) },
       body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined,
     });
-    if (response.status === 401) { clearAuthSession(); window.location.assign('/login'); throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'); }
+    if (response.status === 401) { clearAuthSession(); window.location.assign(localizedLoginPath()); throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'); }
     if (file && response.ok) return response.blob();
     const result = await response.json().catch(() => null);
     if (!response.ok || result?.success === false) {

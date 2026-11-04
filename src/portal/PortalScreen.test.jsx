@@ -11,6 +11,7 @@ import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PortalProvider } from "./PortalContext.jsx";
 import { PortalScreen } from "./PortalScreen.jsx";
+import { CLOSED_TIMEKEEPING_MESSAGE, dayVN, readTimekeeping, saveTimekeeping, timekeepingBlockReason } from './teachingTimekeeping.js';
 
 const empty = () => ({
   profile: {
@@ -49,6 +50,8 @@ function mount(mode) {
   );
 }
 beforeEach(() => {
+  Object.defineProperty(HTMLDialogElement.prototype, 'showModal', { configurable: true, value() { this.open = true; } });
+  Object.defineProperty(HTMLDialogElement.prototype, 'close', { configurable: true, value() { this.open = false; } });
   vi.stubGlobal("localStorage", {
     getItem: vi.fn(() => null),
     removeItem: vi.fn(),
@@ -61,6 +64,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
 
@@ -219,6 +223,150 @@ function teacherData() {
   return data;
 }
 
+describe('Teacher timetable and provisional timekeeping', () => {
+  function setupSchedule(status = 'active', day = dayVN()) {
+    Object.defineProperty(navigator, 'geolocation', { configurable: true, value: {
+      getCurrentPosition: vi.fn(success => success({ coords: { latitude: 10.7326, longitude: 106.7199, accuracy: 8 }, timestamp: Date.now() })),
+    } });
+    const storage = new Map();
+    vi.stubGlobal('localStorage', {
+      getItem: vi.fn(key => storage.get(key) || null),
+      setItem: vi.fn((key, value) => storage.set(key, value)),
+      removeItem: vi.fn(key => storage.delete(key)),
+    });
+    const data = teacherData();
+    data.schedules = [{ id: 'session-1', classId: 'class-1', startAt: `${day}T00:00:00+07:00`, endAt: `${day}T23:59:59+07:00`, periods: 2, status }];
+    fetch.mockResolvedValue(ok(data));
+    return data;
+  }
+  it('saves separate check-in/out locations, persists after remount and hides students', async () => {
+    setupSchedule();
+    const view = mount('schedules');
+    fireEvent.click(await screen.findByRole('button', { name: /Xem lịch dạy Lớp từ API/ }));
+    expect(screen.getByRole('button', { name: 'Check-out' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Check-in' }));
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Đã check-in'));
+    expect(screen.getByRole('button', { name: 'Check-in' })).toBeDisabled();
+    await new Promise(resolve => setTimeout(resolve, 5));
+    navigator.geolocation.getCurrentPosition.mockImplementation(success => success({ coords: { latitude: 10.733, longitude: 106.72, accuracy: 12 }, timestamp: Date.now() }));
+    fireEvent.click(screen.getByRole('button', { name: 'Check-out' }));
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Đã check-out'));
+    expect(screen.getByRole('button', { name: 'Check-out' })).toBeDisabled();
+    expect(readTimekeeping('user-1')['session-1']).toMatchObject({ source: 'teacher-local', checkIn: expect.any(String), checkOut: expect.any(String) });
+    expect(readTimekeeping('user-1')['session-1'].checkInEvidence).toMatchObject({ latitude: 10.7326, longitude: 106.7199, accuracy: 8, capturedAt: expect.any(String) });
+    expect(readTimekeeping('user-1')['session-1'].checkOutEvidence).toMatchObject({ latitude: 10.733, longitude: 106.72, accuracy: 12 });
+    expect(screen.getByRole('link', { name: 'Xem vị trí Check-in trên bản đồ ↗' })).toHaveAttribute('href', expect.stringContaining('10.7326%2C106.7199'));
+    expect(fetch.mock.calls.every(([, options]) => options.method === 'GET')).toBe(true);
+    view.unmount();
+    mount('schedules');
+    expect(await screen.findByText('Đã chấm công đầy đủ')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Xem lịch dạy Lớp từ API/ }));
+    expect(screen.getByRole('button', { name: 'Check-in' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Check-out' })).toBeDisabled();
+    expect(screen.queryByLabelText('Điểm danh Học sinh API')).not.toBeInTheDocument();
+    expect(screen.getByText('10.733000, 106.720000')).toBeInTheDocument();
+    expect(readTimekeeping('another-teacher')).toEqual({});
+  });
+  it('disables cancelled lessons and dates outside today', async () => {
+    setupSchedule('cancelled');
+    mount('schedules');
+    fireEvent.click(await screen.findByRole('button', { name: /Xem lịch dạy Lớp từ API/ }));
+    expect(screen.getByRole('button', { name: 'Check-in' })).toBeDisabled();
+    expect(screen.queryByLabelText('Điểm danh Học sinh API')).not.toBeInTheDocument();
+    cleanup();
+    setupSchedule('upcoming', '2027-01-05');
+    mount('schedules');
+    fireEvent.change(await screen.findByLabelText('Chọn tuần giảng dạy'), { target: { value: '2027-01-05' } });
+    fireEvent.click(screen.getByRole('button', { name: /Xem lịch dạy Lớp từ API/ }));
+    expect(screen.getByRole('button', { name: 'Check-in' })).toBeDisabled();
+    expect(screen.getByText('Chỉ có thể check-in/check-out cho buổi dạy hôm nay.')).toBeInTheDocument();
+  });
+  it('reports storage failures without showing a successful check-in', async () => {
+    setupSchedule();
+    localStorage.setItem.mockImplementation(() => { throw new Error('Quota exceeded'); });
+    mount('schedules');
+    fireEvent.click(await screen.findByRole('button', { name: /Xem lịch dạy Lớp từ API/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Check-in' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Không lưu được chấm công');
+    expect(screen.getByRole('button', { name: 'Check-in' })).toBeEnabled();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+  it('validates sequence, duplicate operations and Vietnam date boundaries', () => {
+    const data = setupSchedule();
+    const schedule = data.schedules[0];
+    const now = Date.parse(`${dayVN()}T10:00:00+07:00`);
+    expect(() => saveTimekeeping('user-1', schedule, 'checkOut', now)).toThrow('Cần check-in');
+    expect(() => saveTimekeeping('user-1', schedule, 'checkIn', now)).toThrow('Cần lấy vị trí');
+    saveTimekeeping('user-1', schedule, 'checkIn', now, { latitude: 10.7326, longitude: 106.7199, accuracy: 8, capturedAt: new Date(now).toISOString() });
+    expect(() => saveTimekeeping('user-1', schedule, 'checkIn', now + 1000)).toThrow('đã được ghi nhận');
+    expect(() => saveTimekeeping('user-1', schedule, 'checkOut', now - 1000)).toThrow('phải sau check-in');
+    expect(dayVN('2026-11-03T18:00:00Z')).toBe('2026-11-04');
+  });
+  it.each([1, 2, 3])('does not save attendance when geolocation fails with code %s', async code => {
+    setupSchedule();
+    navigator.geolocation.getCurrentPosition.mockImplementation((_success, fail) => fail({ code }));
+    mount('schedules');
+    fireEvent.click(await screen.findByRole('button', { name: /Xem lịch dạy Lớp từ API/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Check-in' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(/vị trí/);
+    expect(readTimekeeping('user-1')).toEqual({});
+    expect(screen.getByRole('button', { name: 'Check-in' })).toBeEnabled();
+  });
+  it('locks duplicate clicks and discards location results after the dialog is closed', async () => {
+    setupSchedule();
+    let resolveLocation;
+    navigator.geolocation.getCurrentPosition.mockImplementation(success => { resolveLocation = success; });
+    mount('schedules');
+    fireEvent.click(await screen.findByRole('button', { name: /Xem lịch dạy Lớp từ API/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Check-in' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Đang lấy vị trí');
+    expect(screen.getByRole('button', { name: 'Check-in' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Check-out' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Đóng chi tiết lịch dạy' }));
+    resolveLocation({ coords: { latitude: 10.7326, longitude: 106.7199, accuracy: 8 }, timestamp: Date.now() });
+    await new Promise(resolve => setTimeout(resolve, 5));
+    expect(readTimekeeping('user-1')).toEqual({});
+    fireEvent.click(screen.getByRole('button', { name: /Xem lịch dạy Lớp từ API/ }));
+    expect(screen.getByRole('button', { name: 'Check-in' })).toBeEnabled();
+  });
+  it.each(['checkIn', 'checkOut'])('blocks %s after the class ends and directs the teacher to admin', async action => {
+    const data = setupSchedule();
+    const schedule = data.schedules[0];
+    const end = Date.parse(`${dayVN()}T10:00:00+07:00`);
+    schedule.endAt = new Date(end).toISOString();
+    const evidence = { latitude: 10.7326, longitude: 106.7199, accuracy: 8, capturedAt: new Date(end - 60000).toISOString() };
+    if (action === 'checkOut') saveTimekeeping('user-1', schedule, 'checkIn', end - 60000, evidence);
+    const before = readTimekeeping('user-1');
+    expect(timekeepingBlockReason(schedule, end)).toBe('');
+    expect(timekeepingBlockReason(schedule, end + 1)).toBe(CLOSED_TIMEKEEPING_MESSAGE);
+    expect(() => saveTimekeeping('user-1', schedule, action, end + 1, evidence)).toThrow(CLOSED_TIMEKEEPING_MESSAGE);
+    expect(readTimekeeping('user-1')).toEqual(before);
+    vi.spyOn(Date, 'now').mockReturnValue(end + 1);
+    mount('schedules');
+    fireEvent.click(await screen.findByRole('button', { name: /Xem lịch dạy Lớp từ API/ }));
+    expect(screen.getByRole('button', { name: 'Check-in' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Check-out' })).toBeDisabled();
+    expect(screen.getByText(CLOSED_TIMEKEEPING_MESSAGE)).toBeInTheDocument();
+    expect(navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
+  });
+  it('rejects a pending location result if the class ends before it arrives', async () => {
+    const data = setupSchedule();
+    let now = Date.parse(`${dayVN()}T10:00:00+07:00`);
+    data.schedules[0].endAt = new Date(now + 5000).toISOString();
+    vi.spyOn(Date, 'now').mockImplementation(() => now);
+    let resolveLocation;
+    navigator.geolocation.getCurrentPosition.mockImplementation(success => { resolveLocation = success; });
+    mount('schedules');
+    fireEvent.click(await screen.findByRole('button', { name: /Xem lịch dạy Lớp từ API/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Check-in' }));
+    now += 5001;
+    resolveLocation({ coords: { latitude: 10.7326, longitude: 106.7199, accuracy: 8 }, timestamp: now });
+    expect(await screen.findByRole('alert')).toHaveTextContent(CLOSED_TIMEKEEPING_MESSAGE);
+    expect(readTimekeeping('user-1')).toEqual({});
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+});
+
 describe("Teacher API workflows", () => {
   it("creates homework through the API and displays the reloaded record", async () => {
     const data = teacherData();
@@ -349,8 +497,10 @@ describe("Teacher API workflows", () => {
       }
       return ok(structuredClone(data));
     });
-    mount("schedules");
-    fireEvent.click(await screen.findByText("Điểm danh"));
+    mount("classes");
+    fireEvent.click(await screen.findByRole('button', { name: 'Xem lớp' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Điểm danh', exact: true }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Điểm danh', exact: true }).at(-1));
     fireEvent.change(screen.getByLabelText("Điểm danh Học sinh API"), {
       target: { value: "late" },
     });
