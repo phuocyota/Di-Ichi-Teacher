@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "../routes/localizedRouter.jsx";
 import { toast } from "sonner";
 
 const WINDOW_MS = 15 * 60 * 1000;

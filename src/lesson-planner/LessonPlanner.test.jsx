@@ -57,8 +57,8 @@ afterEach(() => {
 function mount() {
   const router = createMemoryRouter([
     { path: "/", element: <LessonPlanner /> },
-    { path: "/soan-giao-an/:planId", element: <LessonPlanner /> },
-    { path: "/soan-giao-an", element: <LessonPlanner /> },
+    { path: "/vn/soan-giao-an/:planId", element: <LessonPlanner /> },
+    { path: "/vn/soan-giao-an", element: <LessonPlanner /> },
     { path: "/other", element: <p>Other page</p> },
   ]);
   const view = render(<RouterProvider router={router} />);

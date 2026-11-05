@@ -13,11 +13,14 @@ const translateNode = (node, i18n) => {
   if (node.nodeType === Node.TEXT_NODE) {
     if (shouldSkip(node) || !node.nodeValue.trim()) return
 
-    if (!node.__i18nOriginalText) {
+    // React may replace the content of an existing text node. Do not restore
+    // its previous value when translating an attendance/time/status update.
+    if (!node.__i18nOriginalText || (node.__i18nLastText !== undefined && node.nodeValue !== node.__i18nLastText)) {
       node.__i18nOriginalText = node.nodeValue
     }
 
     const translated = translateText(node.__i18nOriginalText, i18n)
+    node.__i18nLastText = translated
     if (node.nodeValue !== translated) {
       node.nodeValue = translated
     }
@@ -31,8 +34,11 @@ const translateNode = (node, i18n) => {
     if (!value) return
 
     const originalAttribute = `data-i18n-original-${attribute}`
-    const original = node.getAttribute(originalAttribute) || value
+    const lastAttributes = node.__i18nLastAttributes ||= {}
+    const changed = lastAttributes[attribute] !== undefined && value !== lastAttributes[attribute]
+    const original = changed ? value : node.getAttribute(originalAttribute) || value
     const translated = translateText(original, i18n)
+    lastAttributes[attribute] = translated
 
     node.setAttribute(originalAttribute, original)
     if (value !== translated) {

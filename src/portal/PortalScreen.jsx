@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "../routes/localizedRouter.jsx";
 import { usePortal } from "./portalStore.js";
+import { TeacherTimetable } from './TeacherTimetable.jsx';
+import i18n from '../i18n/i18n.js';
+import { translateText } from '../i18n/translateText.js';
 import {
   BookOpen,
   ClipboardCheck,
@@ -296,7 +299,12 @@ export function PortalScreen({ mode = "dashboard" }) {
       </>
     );
   else if (mode === "schedules")
-    content = (
+    content = teacher ? (
+      <TeacherTimetable
+        rows={filtered(data.schedules)}
+        className={className}
+      />
+    ) : (
       <ScheduleList
         rows={filtered(data.schedules)}
         className={className}
@@ -503,16 +511,8 @@ function Roster({ classId }) {
   );
 }
 function ScheduleList({ rows, className, teacher }) {
-  const { data, act, busy } = usePortal();
   const [selected, setSelected] = useState("");
   const schedule = rows.find((r) => r.id === selected);
-  const students = schedule
-    ? data.students.filter((s) =>
-        data.enrollments.some(
-          (e) => e.classId === schedule.classId && e.studentId === s.id,
-        ),
-      )
-    : [];
   return (
     <>
       <div className="portal-grid">
@@ -540,9 +540,18 @@ function ScheduleList({ rows, className, teacher }) {
         ))}
         {!rows.length && <Empty>Chưa có lịch học.</Empty>}
       </div>
-      {schedule && (
+      {schedule && <ScheduleAttendance schedule={schedule} />}
+    </>
+  );
+}
+function ScheduleAttendance({ schedule }) {
+  const { data, act, busy } = usePortal();
+  const students = data.students.filter((s) => data.enrollments.some(
+    (e) => e.classId === schedule.classId && e.studentId === s.id,
+  ));
+  return (
         <Card>
-          <h2>Điểm danh · {date(schedule.startAt)}</h2>
+          <h2>Điểm danh học viên · {date(schedule.startAt)}</h2>
           {students.map((s) => (
             <label key={s.id}>
               {s.name}
@@ -582,8 +591,6 @@ function ScheduleList({ rows, className, teacher }) {
           ))}
           {!students.length && <Empty />}
         </Card>
-      )}
-    </>
   );
 }
 function ClassField({ value, onChange }) {
@@ -1277,7 +1284,7 @@ function Records({ kind, classId, rows, teacher }) {
                 <button
                   disabled={busy}
                   onClick={() => {
-                    if (window.confirm("Xóa nội dung này?"))
+                    if (window.confirm(translateText("Xóa nội dung này?", i18n)))
                       act(`/records/${r.id}`, { method: "DELETE" });
                   }}
                 >

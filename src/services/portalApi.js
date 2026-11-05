@@ -1,5 +1,6 @@
 import { clearAuthSession, getAccessToken } from "./authSession.js";
 import { API_BASE_URL } from "./apiConfig.js";
+import { localizedLoginPath } from '../i18n/localeRouting.js';
 
 const base = API_BASE_URL;
 
@@ -32,7 +33,7 @@ export async function portalRequest(
     });
     if (response.status === 401) {
       clearAuthSession();
-      window.location.assign("/login");
+      window.location.assign(localizedLoginPath());
       throw new Error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
     }
     if (download && response.ok) {

@@ -50,12 +50,12 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
 });
-function mount(path = "/tao-hoat-dong") {
+function mount(path = "/vn/tao-hoat-dong") {
   const router = createMemoryRouter(
     [
-      { path: "/soan-elearning/:planId", element: <ActivityStudio /> },
-      { path: "/tao-hoat-dong", element: <ActivityStudio /> },
-      { path: "/tao-hoat-dong/:planId", element: <ActivityStudio /> },
+      { path: "/vn/soan-elearning/:planId", element: <ActivityStudio /> },
+      { path: "/vn/tao-hoat-dong", element: <ActivityStudio /> },
+      { path: "/vn/tao-hoat-dong/:planId", element: <ActivityStudio /> },
     ],
     { initialEntries: [path] },
   );
@@ -174,7 +174,7 @@ it("restores positions from a direct activity URL", async () => {
       layout: { x: 180, y: 90, width: 520, height: 500 },
     })),
   };
-  mount("/tao-hoat-dong/studio-1");
+  mount("/vn/tao-hoat-dong/studio-1");
   expect(await screen.findByLabelText("Tên bài e-learning")).toHaveValue(
     "Bố cục đã lưu",
   );
@@ -228,7 +228,7 @@ it("creates, copies and reorders pages, keeps objects on their own page, and res
   expect(new Set(saved.blocks.map((b) => b.id)).size).toBe(3);
   expect(new Set(saved.blocks.map((b) => b.pageId)).size).toBe(3);
   view.unmount();
-  mount("/soan-elearning/studio-1");
+  mount("/vn/soan-elearning/studio-1");
   await screen.findByLabelText("Tên bài e-learning");
   fireEvent.click(screen.getByRole("button", { name: "Xem trước bài học" }));
   fireEvent.click(screen.getByRole("button", { name: "Trang sau →" }));

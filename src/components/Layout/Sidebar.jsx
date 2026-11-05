@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "../../routes/localizedRouter.jsx";
 import { LogOut, X } from "lucide-react";
 import logo from "../../assets/logo/LOGO_Diichi.webp";
 import { menuItems } from "./menu.js";

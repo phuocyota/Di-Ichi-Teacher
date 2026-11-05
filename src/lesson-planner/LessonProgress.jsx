@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "../routes/localizedRouter.jsx";
 import { portalRequest } from "../services/portalApi.js";
 import { useLessonProgressSocket } from "../hooks/useLessonProgressSocket.js";
 import "./lesson-plan-list.css";

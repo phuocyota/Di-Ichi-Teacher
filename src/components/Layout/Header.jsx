@@ -1,7 +1,7 @@
 import React from "react";
 import { Bell, Menu } from "lucide-react";
 import { usePortal } from "../../portal/portalStore.js";
-import { Link } from "react-router-dom";
+import { Link } from "../../routes/localizedRouter.jsx";
 import { LanguageSwitcher } from "../Common/LanguageSwitcher.jsx";
 
 export const Header = ({ onMenu }) => {
@@ -33,7 +33,7 @@ export const Header = ({ onMenu }) => {
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        <span className="hidden sm:block">
+        <span>
           <LanguageSwitcher compact />
         </span>
         <Link

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from '../../routes/localizedRouter.jsx'
 import { ArrowRight, CalendarDays, FileCheck2, NotebookPen } from 'lucide-react'
 import { dashboardStats } from '../../datas/portalData.js'
 

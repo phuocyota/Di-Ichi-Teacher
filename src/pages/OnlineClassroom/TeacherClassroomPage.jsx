@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { LiveKitRoom } from '@livekit/components-react'
-import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate, useParams } from '../../routes/localizedRouter.jsx'
 import { TeacherClassroomExperience } from '../../components/OnlineClassroom/TeacherClassroomExperience.jsx'
 import { joinClassroom } from '../../services/classroomApi.js'
 

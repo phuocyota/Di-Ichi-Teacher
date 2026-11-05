@@ -22,9 +22,9 @@ afterEach(() => {
 });
 const mount = () =>
   render(
-    <MemoryRouter initialEntries={["/giao-an/p1/tien-do"]}>
+    <MemoryRouter initialEntries={["/vn/giao-an/p1/tien-do"]}>
       <Routes>
-        <Route path="/giao-an/:planId/tien-do" element={<LessonProgress />} />
+        <Route path="/vn/giao-an/:planId/tien-do" element={<LessonProgress />} />
       </Routes>
     </MemoryRouter>,
   );
