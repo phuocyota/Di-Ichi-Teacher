@@ -1,10 +1,12 @@
 import { Navigate, useLocation } from './localizedRouter.jsx'
-import { getAccessToken } from '../services/authSession.js'
+import { getAccessToken, subscribeAuthSession } from '../services/authSession.js'
+import { Fragment, useSyncExternalStore } from 'react'
 
 export const ProtectedRoute = ({ children }) => {
   const location = useLocation()
+  const token = useSyncExternalStore(subscribeAuthSession, getAccessToken)
 
-  if (!getAccessToken()) return <Navigate to="/login" replace state={{ from: `${location.pathname}${location.search}${location.hash}` }} />
+  if (!token) return <Navigate to="/login" replace state={{ from: `${location.pathname}${location.search}${location.hash}` }} />
 
-  return children
+  return <Fragment key={token}>{children}</Fragment>
 }

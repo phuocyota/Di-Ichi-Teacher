@@ -611,3 +611,7 @@
     scroll-behavior: auto;
   }
 }
+
+.portal-realtime { display: flex; align-items: center; gap: 7px; margin: 8px 16px; font-size: 11px; color: #64748b; }
+.portal-realtime::before { content: ''; width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: #eab308; }
+.portal-realtime.is-live::before { background: #10b981; }

@@ -11,6 +11,8 @@ beforeEach(() => {
   vi.useFakeTimers();
   handlers = {};
   client = {
+    connected: true,
+    connect: vi.fn(),
     on: vi.fn((event, handler) => {
       handlers[event] = handler;
     }),
@@ -41,7 +43,10 @@ it("subscribes, coalesces events and resynchronizes after reconnect", () => {
   expect(auth).toHaveBeenCalledWith({ token: "current-token" });
   act(() => {
     handlers.connect();
-    acknowledge(null, { success: true, data: { ok: true, ready: true, planId: "p1" } });
+    acknowledge(null, {
+      success: true,
+      data: { ok: true, ready: true, planId: "p1" },
+    });
     vi.advanceTimersByTime(75);
   });
   expect(result.current).toBe("live");
@@ -101,4 +106,35 @@ it("rejects a failed subscription and ignores its events", () => {
     vi.advanceTimersByTime(100);
   });
   expect(refresh).not.toHaveBeenCalled();
+});
+
+it("retries timeouts, ignores stale acknowledgements and keeps the socket across callback changes", () => {
+  const first = vi.fn(),
+    second = vi.fn();
+  const { result, rerender } = renderHook(
+    ({ callback }) => useLessonProgressSocket("p1", callback),
+    { initialProps: { callback: first } },
+  );
+  act(() => handlers.connect());
+  const stale = acknowledge;
+  act(() => acknowledge(new Error("timeout")));
+  act(() => vi.advanceTimersByTime(3000));
+  expect(client.emit.mock.calls.length).toBeGreaterThanOrEqual(2);
+  const current = acknowledge;
+  act(() => handlers.disconnect());
+  act(() => current(null, { ok: true, ready: true, planId: "p1" }));
+  expect(result.current).toBe("fallback");
+  rerender({ callback: second });
+  expect(io).toHaveBeenCalledOnce();
+  act(() => {
+    handlers.connect();
+    stale(null, { ok: true, ready: true, planId: "p1" });
+  });
+  expect(result.current).toBe("fallback");
+  act(() => {
+    acknowledge(null, { ok: true, ready: true, planId: "p1" });
+    vi.advanceTimersByTime(75);
+  });
+  expect(second).toHaveBeenCalledOnce();
+  expect(first).not.toHaveBeenCalled();
 });

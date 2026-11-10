@@ -1,14 +1,18 @@
-import { useUpdatesConnection, useResourceUpdates } from '../services/realtime.js';
+﻿import {
+  useUpdatesConnection,
+  useResourceUpdates,
+  PORTAL_RESOURCES,
+} from "../services/realtime.js";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { clearAuthSession } from "../services/authSession.js";
-import { localizedLoginPath } from '../i18n/localeRouting.js';
+import { localizedLoginPath } from "../i18n/localeRouting.js";
 import "./portal.css";
 
 import { PortalContext as Context } from "./portalStore.js";
 import { portalRequest, validateSnapshot } from "../services/portalApi.js";
 import { useScheduleReminders } from "./useScheduleReminders.js";
 export function PortalProvider({ children }) {
-  useUpdatesConnection();
+  const realtimeStatus = useUpdatesConnection();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -36,23 +40,7 @@ export function PortalProvider({ children }) {
     reload(controller.signal).catch(() => {});
     return () => controller.abort();
   }, [reload]);
-  useEffect(() => {
-    // Refresh the teacher's timetable so reminders include newly created/changed lessons.
-    if (data?.profile?.userType !== "TEACHER") return;
-    const controller = new AbortController();
-    const refresh = () => {
-      if (document.visibilityState !== "hidden" && !lock.current)
-        reload(controller.signal).catch(() => {});
-    };
-    const timer = setInterval(refresh, 60000);
-    window.addEventListener("focus", refresh);
-    return () => {
-      clearInterval(timer);
-      controller.abort();
-      window.removeEventListener("focus", refresh);
-    };
-  }, [data?.profile?.userId, data?.profile?.userType, reload]);
-  useResourceUpdates(() => reload().catch(() => {}), ['portal', 'workspace', 'class', 'class-staff', 'class-room', 'class-weekly-schedule', 'course', 'enrollment', 'schedule', 'attendance-record', 'homework', 'homework-submission', 'score', 'notification', 'document', 'class-document', 'student-certificate', 'student', 'staff', 'finance-transaction', 'payment', 'debt-schedule']);
+  useResourceUpdates(() => reload().catch(() => {}), PORTAL_RESOURCES, !busy);
   const act = async (path, options = {}) => {
     if (lock.current) return null;
     lock.current = true;
@@ -92,8 +80,17 @@ export function PortalProvider({ children }) {
     }
   };
   return (
-    <Context.Provider value={{ data, act, busy, download, reload, setError }}>
+    <Context.Provider
+      value={{ data, act, busy, download, reload, setError, realtimeStatus }}
+    >
       <div className="portal-status" aria-live="polite">
+        <p className={`portal-realtime is-${realtimeStatus}`}>
+          {realtimeStatus === "live"
+            ? "Đang đồng bộ trực tiếp"
+            : realtimeStatus === "connecting"
+              ? "Đang kết nối đồng bộ…"
+              : "Đang kết nối lại · Tạm cập nhật mỗi 30 giây"}
+        </p>
         {error && (
           <div role="alert" className="portal-error">
             {error}{" "}
