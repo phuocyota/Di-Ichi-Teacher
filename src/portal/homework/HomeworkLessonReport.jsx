@@ -13,7 +13,15 @@ const labels = {
   incorrect: "Sai",
   unanswered: "Chưa trả lời",
 };
-const colors = ["#94a3b8", "#eab308", "#3b82f6", "#16a34a"];
+const colors = {
+  unseen: "#94a3b8",
+  viewed: "#eab308",
+  in_progress: "#3b82f6",
+  completed: "#16a34a",
+  correct: "#16a34a",
+  incorrect: "#dc2626",
+  unanswered: "#94a3b8",
+};
 const date = (value) => (value ? new Date(value).toLocaleString("vi-VN") : "—");
 function Breakdown({ title, groups, total }) {
   return (
@@ -31,8 +39,8 @@ function Breakdown({ title, groups, total }) {
                   innerRadius={48}
                   outerRadius={80}
                 >
-                  {groups.map((g, i) => (
-                    <Cell key={g.key} fill={colors[i]} />
+                  {groups.map((g) => (
+                    <Cell key={g.key} fill={colors[g.key]} />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -40,11 +48,11 @@ function Breakdown({ title, groups, total }) {
             </ResponsiveContainer>
           </div>
           <ul>
-            {groups.map((g, i) => (
+            {groups.map((g) => (
               <li key={g.key}>
                 <span
                   className="homework-report-dot"
-                  style={{ background: colors[i] }}
+                  style={{ background: colors[g.key] }}
                 />
                 <span>{labels[g.key]}</span>
                 <strong>
@@ -114,7 +122,7 @@ export default function HomeworkLessonReport() {
             Thống kê tính tới: <time>{date(data.asOf)}</time>
           </p>
           <p>
-            Mốc trước buổi học / hạn chuẩn bị:{" "}
+            Mốc trước buổi học / hạn chuẩn bị (lưu lúc giao):{" "}
             <time>{date(data.cutoffAt)}</time>
           </p>
           <p>
@@ -144,6 +152,10 @@ export default function HomeworkLessonReport() {
             Kết quả đúng, sai và chưa trả lời tính trên tổng số câu của tất cả
             học viên được giao bài; học viên chưa làm không được tính là làm
             sai.
+          </p>
+          <p>
+            Điểm tạm tính khi chưa làm hết bài; điểm = số câu đúng / tổng câu ×
+            100.
           </p>
           <div className="portal-table">
             <table>
@@ -176,7 +188,12 @@ export default function HomeworkLessonReport() {
                     </td>
                     <td>{row.correct}</td>
                     <td>{row.incorrect}</td>
-                    <td>{row.score ?? "—"}</td>
+                    <td>
+                      {row.score ?? "—"}
+                      {row.score != null && row.answered < row.total && (
+                        <span> · Tạm tính</span>
+                      )}
+                    </td>
                     <td>{date(row.lastAnsweredAt)}</td>
                   </tr>
                 ))}

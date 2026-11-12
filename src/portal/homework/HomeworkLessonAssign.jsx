@@ -51,94 +51,98 @@ export default function HomeworkLessonAssign() {
       {error && <p role="alert">{error}</p>}
       {plans && (
         <form onSubmit={save}>
-          <label>
-            Giáo án làm bài tập
-            <select
-              required
-              value={form.lessonPlanId}
-              onChange={(e) =>
-                setForm({ ...form, lessonPlanId: e.target.value })
-              }
-            >
-              <option value="">Chọn giáo án</option>
-              {plans.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.title}
-                </option>
-              ))}
-            </select>
-          </label>
-          {!plans.length && (
-            <p>
-              Chưa có giáo án phù hợp. Soạn giáo án có câu tự chấm trước khi
-              giao.
-            </p>
-          )}
-          <label>
-            Lớp nhận bài
-            <select
-              required
-              value={form.classId}
-              onChange={(e) =>
-                setForm({ ...form, classId: e.target.value, scheduleId: "" })
-              }
-            >
-              <option value="">Chọn lớp</option>
-              {data.classes.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Buổi học chuẩn bị bài
-            <select
-              value={form.scheduleId}
-              onChange={(e) => setForm({ ...form, scheduleId: e.target.value })}
-            >
-              <option value="">
-                Không gắn buổi học — thống kê tới hạn nộp
-              </option>
-              {data.schedules
-                .filter(
-                  (s) =>
-                    s.classId === form.classId &&
-                    s.status !== "cancelled" &&
-                    Date.parse(s.startAt) > Date.now(),
-                )
-                .map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {new Date(s.startAt).toLocaleString("vi-VN")}
+          <fieldset disabled={busy}>
+            <label>
+              Giáo án làm bài tập
+              <select
+                required
+                value={form.lessonPlanId}
+                onChange={(e) =>
+                  setForm({ ...form, lessonPlanId: e.target.value })
+                }
+              >
+                <option value="">Chọn giáo án</option>
+                {plans.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.title}
                   </option>
                 ))}
-            </select>
-          </label>
-          <label>
-            Hạn chuẩn bị bài
-            <input
-              required
-              type="datetime-local"
-              value={form.deadline}
-              onChange={(e) => setForm({ ...form, deadline: e.target.value })}
-            />
-          </label>
-          <p>
-            Đề bài được giữ theo bản giáo án lúc giao. Mỗi lần giao có kết quả
-            riêng.
-          </p>
-          <div className="portal-actions">
-            <button className="primary" disabled={busy || !plans.length}>
-              Giao giáo án về nhà
-            </button>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => setPlans(null)}
-            >
-              Hủy
-            </button>
-          </div>
+              </select>
+            </label>
+            {!plans.length && (
+              <p>
+                Chưa có giáo án phù hợp. Soạn giáo án có câu tự chấm trước khi
+                giao.
+              </p>
+            )}
+            <label>
+              Lớp nhận bài
+              <select
+                required
+                value={form.classId}
+                onChange={(e) =>
+                  setForm({ ...form, classId: e.target.value, scheduleId: "" })
+                }
+              >
+                <option value="">Chọn lớp</option>
+                {data.classes.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Buổi học chuẩn bị bài
+              <select
+                value={form.scheduleId}
+                onChange={(e) =>
+                  setForm({ ...form, scheduleId: e.target.value })
+                }
+              >
+                <option value="">
+                  Không gắn buổi học — thống kê tới hạn nộp
+                </option>
+                {data.schedules
+                  .filter(
+                    (s) =>
+                      s.classId === form.classId &&
+                      s.status !== "cancelled" &&
+                      Date.parse(s.startAt) > Date.now(),
+                  )
+                  .map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {new Date(s.startAt).toLocaleString("vi-VN")}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <label>
+              Hạn chuẩn bị bài
+              <input
+                required
+                type="datetime-local"
+                value={form.deadline}
+                onChange={(e) => setForm({ ...form, deadline: e.target.value })}
+              />
+            </label>
+            <p>
+              Đề bài được giữ theo bản giáo án lúc giao. Mỗi lần giao có kết quả
+              riêng.
+            </p>
+            <div className="portal-actions">
+              <button className="primary" disabled={busy || !plans.length}>
+                Giao giáo án về nhà
+              </button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setPlans(null)}
+              >
+                Hủy
+              </button>
+            </div>
+          </fieldset>
         </form>
       )}
     </section>
