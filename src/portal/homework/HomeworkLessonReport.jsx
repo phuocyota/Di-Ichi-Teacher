@@ -70,18 +70,18 @@ function Breakdown({ title, groups, total }) {
 }
 export default function HomeworkLessonReport() {
   const { homeworkId } = useParams();
-  const [data, setData] = useState(null),
-    [error, setError] = useState(""),
-    [revision, setRevision] = useState(0),
-    [loading, setLoading] = useState(true);
+  const [revision, setRevision] = useState(0);
+  const [result, setResult] = useState({ key: null, data: null, error: "" });
+  const requestKey = `${homeworkId}:${revision}`;
+  const loading = result.key !== requestKey;
+  const data = loading ? null : result.data;
+  const error = loading ? "" : result.error;
   useResourceUpdates(
     () => setRevision((r) => r + 1),
     ["portal", "homework", "enrollment"],
   );
   useEffect(() => {
     const controller = new AbortController();
-    setLoading(true);
-    setError("");
     portalRequest(`/homework/${encodeURIComponent(homeworkId)}/lesson/report`, {
       signal: controller.signal,
     })
@@ -92,16 +92,15 @@ export default function HomeworkLessonReport() {
           !Array.isArray(result?.results)
         )
           throw new Error("Dữ liệu báo cáo không hợp lệ");
-        if (!controller.signal.aborted) setData(result);
+        if (!controller.signal.aborted)
+          setResult({ key: requestKey, data: result, error: "" });
       })
       .catch((e) => {
-        if (!controller.signal.aborted) setError(e.message);
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
+        if (!controller.signal.aborted)
+          setResult({ key: requestKey, data: null, error: e.message });
       });
     return () => controller.abort();
-  }, [homeworkId, revision]);
+  }, [homeworkId, requestKey]);
   return (
     <section className="portal homework-lesson-report">
       <header className="portal-toolbar">

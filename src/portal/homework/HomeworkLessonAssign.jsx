@@ -3,6 +3,7 @@ import { portalRequest } from "../../services/portalApi.js";
 import { usePortal } from "../portalStore.js";
 export default function HomeworkLessonAssign() {
   const { data, act, busy } = usePortal();
+  const [now, setNow] = useState(() => Date.now());
   const [plans, setPlans] = useState(null),
     [error, setError] = useState(""),
     [loading, setLoading] = useState(false);
@@ -13,6 +14,7 @@ export default function HomeworkLessonAssign() {
     deadline: "",
   });
   async function show() {
+    setNow(Date.now());
     setLoading(true);
     setError("");
     try {
@@ -108,7 +110,7 @@ export default function HomeworkLessonAssign() {
                     (s) =>
                       s.classId === form.classId &&
                       s.status !== "cancelled" &&
-                      Date.parse(s.startAt) > Date.now(),
+                      Date.parse(s.startAt) > now,
                   )
                   .map((s) => (
                     <option key={s.id} value={s.id}>

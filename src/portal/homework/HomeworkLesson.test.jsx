@@ -165,3 +165,34 @@ it("handles an empty class without a fake chart and retries failed report reques
   expect(screen.queryByText("Chart")).not.toBeInTheDocument();
   expect(document.body.textContent).not.toMatch(/NaN|Infinity/);
 });
+
+it("marks partial scores as provisional and preserves unanswered coverage", async () => {
+  portalRequest.mockResolvedValue({
+    title: "Partial",
+    totalStudents: 1,
+    totalQuestions: 2,
+    readiness: [{ key: "in_progress", count: 1, percent: 100 }],
+    results: [
+      { key: "correct", count: 1, percent: 50 },
+      { key: "unanswered", count: 1, percent: 50 },
+    ],
+    items: [
+      {
+        studentId: "s1",
+        name: "Partial student",
+        state: "in_progress",
+        answered: 1,
+        total: 2,
+        correct: 1,
+        incorrect: 0,
+        score: 50,
+      },
+    ],
+    averageScore: 50,
+    scoredStudents: 1,
+  });
+  reportPage();
+  await screen.findByText("Partial student");
+  expect(screen.getByText("· Tạm tính")).toBeInTheDocument();
+  expect(screen.getAllByText("1 · 50%")).toHaveLength(2);
+});
