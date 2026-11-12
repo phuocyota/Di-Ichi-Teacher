@@ -1,3 +1,4 @@
+import HomeworkLessonAssign from './homework/HomeworkLessonAssign.jsx';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "../routes/localizedRouter.jsx";
 import { usePortal } from "./portalStore.js";
@@ -635,6 +636,7 @@ function Homework({ classId, rows, teacher }) {
   }
   return (
     <>
+      {teacher && <HomeworkLessonAssign />}
       {teacher && (
         <button
           disabled={!data.classes.length}
@@ -698,7 +700,7 @@ function Homework({ classId, rows, teacher }) {
             </p>
             <p>{h.note}</p>
             {teacher ? (
-              <>
+              h.lessonPlanId ? <Link to={`/bai-tap/${h.id}/bao-cao`}>Xem báo cáo chuẩn bị bài</Link> : <>
                 <p>
                   {data.submissions.filter((s) => s.homeworkId === h.id).length}{" "}
                   bài nộp

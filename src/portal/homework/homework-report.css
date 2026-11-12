@@ -1,0 +1,27 @@
+.homework-lesson-report .homework-report-chart {
+  min-width: 0;
+  height: 200px;
+}
+.homework-lesson-report ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+.homework-lesson-report li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.homework-lesson-report li strong {
+  margin-left: auto;
+}
+.homework-report-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.homework-lesson-report th {
+  white-space: nowrap;
+}
