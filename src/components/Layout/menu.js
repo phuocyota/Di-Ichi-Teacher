@@ -30,7 +30,6 @@ export const menuItems = [
   {
     label: "Lớp học Online",
     path: "/lop-hoc-online",
-    hidden: true,
     icon: Video,
     badge: null,
   },
