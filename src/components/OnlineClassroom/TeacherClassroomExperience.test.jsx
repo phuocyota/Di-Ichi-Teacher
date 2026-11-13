@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { RoomEvent } from 'livekit-client'
 import { toast } from 'sonner'
 import { TeacherClassroomExperience } from './TeacherClassroomExperience.jsx'
-import { getClassroomParticipants, kickClassroomParticipant } from '../../services/classroomApi.js'
+import { getClassroomParticipants, kickClassroomParticipant, readmitStudent } from '../../services/classroomApi.js'
 
 globalThis.React = React
 const mocks = vi.hoisted(() => ({ room: { on: vi.fn(), off: vi.fn() }, onEvent: null }))
@@ -18,10 +18,13 @@ vi.mock('../../hooks/useClassroomSocket.js', () => ({ useClassroomSocket: ({ onE
   mocks.onEvent = onEvent
   return { socket: null, connected: true }
 } }))
+vi.mock('./ClassroomStage.jsx', () => ({ ClassroomStage: () => null }))
+vi.mock('./ClassroomPanels.jsx', () => ({ ClassroomPanels: ({ participants }) => <div>{participants}</div> }))
+vi.mock('./ConnectionBanner.jsx', () => ({ ConnectionBanner: () => null }))
 vi.mock('./ClassroomBoard.jsx', () => ({ ClassroomBoard: () => null }))
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }))
 vi.mock('../../services/classroomApi.js', async (importOriginal) => ({
-  ...await importOriginal(), getClassroomParticipants: vi.fn(), kickClassroomParticipant: vi.fn(),
+  ...await importOriginal(), getClassroomParticipants: vi.fn(), kickClassroomParticipant: vi.fn(), readmitStudent: vi.fn(),
 }))
 
 const student = { studentId: 'student-id', identity: 'user-account-id', displayName: 'Học sinh A', connected: true, permissions: {} }
@@ -94,3 +97,24 @@ describe('Teacher LiveKit participant management', () => {
     expect(screen.queryByRole('button', { name: 'Mời ra khỏi lớp' })).not.toBeInTheDocument()
   })
 })
+
+it('retains removed status after roster refresh and readmits only on explicit action', async () => {
+  kickClassroomParticipant.mockResolvedValue({ removed: true, admissionStatus: 'removed' });
+  readmitStudent.mockResolvedValue({ admissionStatus: 'admitted' });
+  render(<TeacherClassroomExperience joinData={{ scheduleId: 'schedule-id', features: { kickBan: true } }} onLeave={vi.fn()} onEnded={vi.fn()} onDeviceError={vi.fn()} />);
+  const button = await screen.findByRole('button', { name: 'Mời ra khỏi lớp' });
+  getClassroomParticipants.mockResolvedValue([{ ...student, connected: false }]);
+  fireEvent.click(button);
+  await screen.findByText('Đã mời ra');
+  expect(readmitStudent).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button', { name: 'Cho vào lại' }));
+  await waitFor(() => expect(readmitStudent).toHaveBeenCalledExactlyOnceWith('schedule-id', student.studentId));
+  await waitFor(() => expect(screen.queryByText('Đã mời ra')).toBeNull());
+});
+it('forwards a classroom:ended event to the page', async () => {
+  const ended = vi.fn();
+  render(<TeacherClassroomExperience joinData={{ scheduleId: 'schedule-id' }} onLeave={vi.fn()} onEnded={ended} onDeviceError={vi.fn()} />);
+  await screen.findByText(student.displayName);
+  act(() => mocks.onEvent('classroom:ended', { scheduleId: 'schedule-id' }));
+  expect(ended).toHaveBeenCalledOnce();
+});

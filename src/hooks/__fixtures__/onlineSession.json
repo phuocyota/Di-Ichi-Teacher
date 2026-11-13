@@ -1,0 +1,17 @@
+{
+  "scheduleId": "schedule-id",
+  "className": "Online class",
+  "session": {
+    "status": "not_started"
+  },
+  "me": {
+    "isHost": true,
+    "canStart": true,
+    "canJoin": true,
+    "admissionStatus": "admitted"
+  },
+  "features": {
+    "lifecycle": true,
+    "kickBan": true
+  }
+}

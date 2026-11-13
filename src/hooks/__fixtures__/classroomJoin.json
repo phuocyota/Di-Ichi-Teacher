@@ -1,0 +1,20 @@
+{
+  "scheduleId": "schedule-id",
+  "room": "schedule-room",
+  "identity": "user-test",
+  "displayName": "Test",
+  "className": "Class A",
+  "isHost": true,
+  "sessionStatus": "active",
+  "admission": "admitted",
+  "hostIdentity": "user-teacher",
+  "serverUrl": "wss://example.invalid",
+  "token": "fixture-only",
+  "permissions": {
+    "canUseMic": true,
+    "canUseCamera": true,
+    "canShareScreen": true,
+    "canWriteBoard": true,
+    "canControlBoard": true
+  }
+}
