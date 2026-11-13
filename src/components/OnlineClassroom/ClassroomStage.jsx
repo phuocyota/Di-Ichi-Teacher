@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import {
-  CarouselLayout,
   FocusLayout,
   ParticipantTile,
   useSpeakingParticipants,
@@ -63,18 +62,12 @@ export function ClassroomStage({ tracks, hostIdentity, compact = false }) {
         className="live-filmstrip-tiles"
         style={{ '--live-filmstrip-count': Math.max(1, visible.length) }}
       >
-        {compact
-          ? visible.map((track, index) => (
-              <ParticipantTile
-                key={`${track.participant?.identity || index}:${track.source}`}
-                trackRef={track}
-              />
-            ))
-          : visible.length > 0 && (
-              <CarouselLayout tracks={visible} orientation="horizontal">
-                <ParticipantTile />
-              </CarouselLayout>
-            )}
+        {visible.map((track, index) => (
+          <ParticipantTile
+            key={`${track.participant?.identity || index}:${track.source}`}
+            trackRef={track}
+          />
+        ))}
         {compact && !visible.length && (
           <p className="live-camera-empty">Camera sẽ xuất hiện tại đây.</p>
         )}

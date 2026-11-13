@@ -14,7 +14,7 @@ vi.mock('@livekit/components-react', () => ({
   useSpeakingParticipants: () => [],
   useConnectionState: () => mock.state,
   PreJoin: ({ onError, onSubmit }) => <><button onClick={() => onError(new Error('Denied'))}>Deny</button><button onClick={() => onSubmit({ audioEnabled: true, audioDeviceId: 'mic', videoEnabled: true, videoDeviceId: 'cam' })}>Choose devices</button></>,
-  CarouselLayout: ({ tracks }) => <div>Carousel {tracks.length}</div>, FocusLayout: () => <div>Focus</div>, GridLayout: ({ tracks }) => <div>Grid {tracks.length}</div>, ParticipantTile: () => null,
+  CarouselLayout: ({ tracks }) => <div>Carousel {tracks.length}</div>, FocusLayout: () => <div>Focus</div>, GridLayout: ({ tracks }) => <div>Grid {tracks.length}</div>, ParticipantTile: ({ trackRef }) => <div data-testid="participant-thumbnail">{trackRef?.participant?.identity}</div>,
 }));
 beforeEach(() => { vi.clearAllMocks(); mock.send.mockResolvedValue({}); mock.messages = []; mock.state = ConnectionState.Connected; });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
@@ -50,10 +50,10 @@ it('focuses a real screen share and limits mobile video tiles to four', () => {
   vi.stubGlobal('matchMedia', () => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
   const tracks = Array.from({ length: 6 }, () => ({ source: Track.Source.Camera }));
   const view = render(<ClassroomStage tracks={tracks} />);
-  expect(screen.getByText('Carousel 3')).toBeInTheDocument();
+  expect(screen.getAllByTestId('participant-thumbnail')).toHaveLength(3);
   expect(screen.getByText('Focus')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Trang video sau' }));
-  expect(screen.getByText('Carousel 2')).toBeInTheDocument();
+  expect(screen.getAllByTestId('participant-thumbnail')).toHaveLength(2);
   view.rerender(<ClassroomStage tracks={[...tracks, { source: Track.Source.ScreenShare, publication: { track: {} } }]} />);
   expect(screen.getByText('Focus')).toBeInTheDocument();
 });
