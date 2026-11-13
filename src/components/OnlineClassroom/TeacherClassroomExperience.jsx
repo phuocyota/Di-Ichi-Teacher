@@ -42,10 +42,6 @@ export const TeacherClassroomExperience = ({
   const [boardOpen, setBoardOpen] = useState(false);
   const [presenting, setPresenting] = useState(false);
   const closeBoard = useCallback(() => setBoardOpen(false), []);
-  const openLesson = () => {
-    setLessonOpened(true);
-    setShowLesson(true);
-  };
   const onPresentationChange = useCallback((active) => {
     setPresenting(active);
     setShowLesson(active);
@@ -287,15 +283,6 @@ export const TeacherClassroomExperience = ({
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              className="live-open-lesson"
-              aria-expanded={showLesson}
-              aria-controls="live-lesson-workspace"
-              onClick={openLesson}
-            >
-              <BookOpen size={18} aria-hidden="true" /> Mở giáo án
-            </button>
             {presenting && (
               <span className="live-presentation-badge" role="status">
                 Đang trình chiếu
@@ -373,70 +360,72 @@ export const TeacherClassroomExperience = ({
           </div>
         </div>
         <footer className="live-controls" aria-label="Điều khiển lớp học">
-          <div className="live-media-controls">
-            {' '}
-            <ControlBar
-              variation="verbose"
-              controls={{
-                microphone: true,
-                camera: true,
-                screenShare: true,
-                chat: false,
-                settings: true,
-                leave: false,
-              }}
-              onDeviceError={({ error }) => onDeviceError(error.message)}
-            />
-          </div>
-          <div className="live-meeting-tools" aria-label="Công cụ lớp học">
-            <button
-              type="button"
-              className="live-tool-button"
-              aria-expanded={boardOpen}
-              aria-controls="live-whiteboard"
-              onClick={() => setBoardOpen(true)}
-            >
-              <PenLine size={18} aria-hidden="true" /> Bảng trắng
-            </button>
-            <button
-              type="button"
-              className="live-tool-button"
-              aria-pressed={showLesson}
-              onClick={() => {
-                setLessonOpened(true);
-                setShowLesson((value) => !value);
-              }}
-            >
-              <BookOpen size={18} aria-hidden="true" />{' '}
-              {showLesson ? 'Ẩn giáo án' : 'Giáo án'}
-            </button>
-          </div>
+          <div className="live-toolbar-actions">
+            <div className="live-media-controls">
+              {' '}
+              <ControlBar
+                variation="verbose"
+                controls={{
+                  microphone: true,
+                  camera: true,
+                  screenShare: true,
+                  chat: false,
+                  settings: true,
+                  leave: false,
+                }}
+                onDeviceError={({ error }) => onDeviceError(error.message)}
+              />
+            </div>
+            <div className="live-meeting-tools" aria-label="Công cụ lớp học">
+              <button
+                type="button"
+                className="live-tool-button"
+                aria-expanded={boardOpen}
+                aria-controls="live-whiteboard"
+                onClick={() => setBoardOpen(true)}
+              >
+                <PenLine size={18} aria-hidden="true" /> Bảng trắng
+              </button>
+              <button
+                type="button"
+                className="live-tool-button"
+                aria-pressed={showLesson}
+                onClick={() => {
+                  setLessonOpened(true);
+                  setShowLesson((value) => !value);
+                }}
+              >
+                <BookOpen size={18} aria-hidden="true" />{' '}
+                {showLesson ? 'Ẩn giáo án' : 'Mở giáo án'}
+              </button>
+            </div>
 
-          <div className="live-panel-controls">
-            <button
-              type="button"
-              className="live-tool-button"
-              aria-expanded={sidePanel === 'participants'}
-              aria-controls="live-side-panel"
-              onClick={() =>
-                setSidePanel((value) =>
-                  value === 'participants' ? null : 'participants',
-                )
-              }
-            >
-              <Users size={21} aria-hidden="true" /> Học sinh
-            </button>
-            <button
-              type="button"
-              className="live-tool-button"
-              aria-expanded={sidePanel === 'chat'}
-              aria-controls="live-side-panel"
-              onClick={() =>
-                setSidePanel((value) => (value === 'chat' ? null : 'chat'))
-              }
-            >
-              <MessageSquare size={21} aria-hidden="true" /> Trò chuyện
-            </button>
+            <div className="live-panel-controls">
+              <button
+                type="button"
+                className="live-tool-button"
+                aria-expanded={sidePanel === 'participants'}
+                aria-controls="live-side-panel"
+                onClick={() =>
+                  setSidePanel((value) =>
+                    value === 'participants' ? null : 'participants',
+                  )
+                }
+              >
+                <Users size={21} aria-hidden="true" /> Học sinh
+              </button>
+              <button
+                type="button"
+                className="live-tool-button"
+                aria-expanded={sidePanel === 'chat'}
+                aria-controls="live-side-panel"
+                onClick={() =>
+                  setSidePanel((value) => (value === 'chat' ? null : 'chat'))
+                }
+              >
+                <MessageSquare size={21} aria-hidden="true" /> Trò chuyện
+              </button>
+            </div>
           </div>
           <div className="live-exit-controls">
             {' '}

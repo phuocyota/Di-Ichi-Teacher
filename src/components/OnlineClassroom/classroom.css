@@ -288,3 +288,23 @@
   .live-camera-zone .live-filmstrip-tiles > .lk-participant-tile { width: 112px; height: 100%; flex: 0 1 112px; }
   .live-camera-zone .live-filmstrip-arrow { width: 24px; height: 100%; }
 }
+/* Một thanh điều khiển duy nhất; màn hẹp cuộn ngang thay vì xuống dòng. */
+.live-classroom > .live-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 52px; padding: 3px 12px max(3px, env(safe-area-inset-bottom)); }
+.live-toolbar-actions { display: flex; align-items: center; justify-content: center; flex-wrap: nowrap; gap: 12px; min-width: 0; }
+.live-toolbar-actions > .live-media-controls, .live-toolbar-actions > .live-meeting-tools, .live-toolbar-actions > .live-panel-controls { display: flex; align-items: center; flex-wrap: nowrap; gap: 4px; margin: 0; flex-shrink: 0; }
+.live-controls .lk-control-bar { display: flex; flex-wrap: nowrap; gap: 4px; }
+.live-controls .live-tool-button, .live-controls .lk-button { min-height: 44px; min-width: 58px; padding: 4px 7px; gap: 4px; font-size: 10px; }
+.live-controls .lk-button > svg, .live-controls .live-tool-button > svg { width: 19px; height: 19px; }
+.live-controls .lk-button-group-menu .lk-button { min-width: 20px; padding-inline: 2px; }
+.live-controls .lk-button[data-lk-source='screen_share'] { min-width: 76px; }
+.live-controls > .live-exit-controls { margin: 0; }
+.live-toolbar-actions > .live-media-controls { margin-right: auto; }
+.live-exit-controls > button, .live-exit-controls > div > button { padding: 8px 12px; font-size: 11px; }
+@media (max-width: 1023px) {
+  .live-classroom > .live-controls { gap: 6px; padding-inline: 6px; }
+  .live-toolbar-actions { justify-content: flex-start; gap: 6px; overflow-x: auto; scrollbar-width: thin; overscroll-behavior-x: contain; }
+  .live-toolbar-actions > .live-media-controls { margin-right: 0; }
+  .live-toolbar-actions:has(.lk-button-menu[aria-pressed='true']) { overflow: visible; }
+  .live-controls .live-tool-button, .live-controls .lk-button { min-width: 48px; padding-inline: 5px; }
+  .live-controls .lk-button[data-lk-source='screen_share'] { min-width: 70px; }
+}
