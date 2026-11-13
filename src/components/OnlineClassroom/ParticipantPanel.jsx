@@ -8,8 +8,8 @@ const permissionItems = [
   ['canControlBoard', MousePointer2, 'Điều khiển'],
 ]
 
-export const ParticipantPanel = ({ participants, raisedHands, saving, onPermission, kicking, onKick }) => (
-  <aside className="w-full shrink-0 overflow-y-auto border-l border-white/10 bg-slate-900 p-4 xl:w-80">
+export const ParticipantPanel = ({ participants, raisedHands, saving, onPermission, kicking, onKick, kickBan, onReadmit, readmitting }) => (
+  <section className="w-full shrink-0 overflow-y-auto border-l border-white/10 bg-slate-900 p-4">
     <h2 className="text-lg font-black">Học sinh ({participants.length})</h2>
     <div className="mt-4 space-y-3">
       {participants.map((participant) => (
@@ -18,7 +18,7 @@ export const ParticipantPanel = ({ participants, raisedHands, saving, onPermissi
             <div className="min-w-0">
               <p className="truncate font-bold">{participant.displayName}</p>
               <p className={`text-xs font-semibold ${participant.connected ? 'text-emerald-400' : 'text-slate-400'}`}>
-                {participant.connected ? 'Đang trong lớp' : 'Chưa vào lớp'}
+                {kickBan && participant.admissionStatus === 'removed' ? 'Đã mời ra' : participant.connected ? 'Đang trong lớp' : 'Chưa vào lớp'}
               </p>
             </div>
             {raisedHands.has(participant.studentId) && <Hand className="h-5 w-5 text-orange-400" />}
@@ -36,6 +36,7 @@ export const ParticipantPanel = ({ participants, raisedHands, saving, onPermissi
               </button>
             ))}
           </div>
+          {kickBan && participant.admissionStatus === 'removed' && <button type="button" disabled={Boolean(readmitting)} onClick={() => onReadmit(participant)} className="mt-3 rounded-xl bg-orange-600 px-3 py-2 text-sm font-bold disabled:opacity-50">Cho vào lại</button>}
           {participant.identity && participant.connected && (
             <button type="button" disabled={kicking.has(participant.identity)} onClick={() => onKick(participant)} className="mt-3 w-full rounded-xl bg-red-500/15 px-2 py-2 text-xs font-bold text-red-300 disabled:opacity-40">
               {kicking.has(participant.identity) ? 'Đang mời ra...' : 'Mời ra khỏi lớp'}
@@ -44,5 +45,5 @@ export const ParticipantPanel = ({ participants, raisedHands, saving, onPermissi
         </article>
       ))}
     </div>
-  </aside>
+  </section>
 )

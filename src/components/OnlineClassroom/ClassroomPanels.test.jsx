@@ -1,0 +1,21 @@
+import '@testing-library/jest-dom/vitest';
+import React from 'react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, expect, it, vi } from 'vitest';
+import { ClassroomPanels } from './ClassroomPanels.jsx';
+globalThis.React = React;
+vi.mock('./ClassroomChat.jsx', () => ({ ClassroomChat: () => <input aria-label="Chat draft" /> }));
+afterEach(cleanup);
+it('preserves chat drafts while switching tabs or closing the mobile panel', () => {
+  render(<ClassroomPanels participants={<p>Roster</p>} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Trò chuyện / Học sinh' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Trò chuyện', exact: true }));
+  const input = screen.getByRole('textbox', { name: 'Chat draft' });
+  fireEvent.change(input, { target: { value: 'Unsent' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Học sinh', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Trò chuyện', exact: true }));
+  expect(screen.getByRole('textbox')).toHaveValue('Unsent');
+  fireEvent.click(screen.getByRole('button', { name: 'Đóng' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Trò chuyện / Học sinh' }));
+  expect(screen.getByRole('textbox')).toHaveValue('Unsent');
+});

@@ -21,3 +21,11 @@ export const updateClassroomPermissions = (scheduleId, studentId, permissions) =
     `/schedule/${encodeURIComponent(scheduleId)}/participants/${encodeURIComponent(studentId)}/permissions`,
     permissions,
   )
+
+const sessionPath = (id) => `/schedule/${encodeURIComponent(id)}/online-session`
+export const getOnlineSession = (id) => api.get(sessionPath(id))
+export const startOnlineSession = (id) => api.post(`${sessionPath(id)}/start`)
+export const endOnlineSession = (id) => api.post(`${sessionPath(id)}/end`, { reason: 'teacher_ended' })
+export const configureOnlineSession = (id, { waitingRoomEnabled }) => api.patch(sessionPath(id), { waitingRoomEnabled })
+export const readmitStudent = (id, studentId) => api.post(`${sessionPath(id)}/admissions/${encodeURIComponent(studentId)}`, { decision: 'admit' })
+export const isFeatureDisabledError = (error) => error?.response?.status === 404
