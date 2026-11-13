@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import {
   CarouselLayout,
   FocusLayout,
-  GridLayout,
   ParticipantTile,
   useSpeakingParticipants,
 } from '@livekit/components-react';
@@ -26,140 +25,99 @@ export function ClassroomStage({ tracks, hostIdentity, compact = false }) {
     (track) =>
       track.source === Track.Source.ScreenShare && track.publication?.track,
   );
-  const priorityIdentity =
-    compact || share ? hostIdentity : speakers[0]?.identity;
-  const others = tracks
-    .filter((track) => track !== share)
-    .sort((a, b) => {
-      if (!priorityIdentity) return 0;
-      return (
-        Number(b.participant?.identity === priorityIdentity) -
-        Number(a.participant?.identity === priorityIdentity)
-      );
-    });
-  const host =
-    !compact &&
-    share &&
-    mobile &&
-    others.find(
-      (track) => hostIdentity && track.participant?.identity === hostIdentity,
-    );
-  const paginated = host ? others.filter((track) => track !== host) : others;
-  // Count the focused share and floating teacher within the four mobile tiles.
-  const pageSize = compact ? 4 : share ? (host ? 2 : 3) : 4;
-  const pages = Math.max(1, Math.ceil(paginated.length / pageSize));
+  const cameras = tracks.filter(
+    (track) => track.source === Track.Source.Camera,
+  );
+  const speaker = cameras.find(
+    (track) =>
+      track.participant?.identity === speakers[0]?.identity &&
+      speakers[0]?.identity,
+  );
+  const host = cameras.find(
+    (track) => hostIdentity && track.participant?.identity === hostIdentity,
+  );
+  const focus = share || speaker || host || cameras[0];
+  const thumbnails =
+    compact || share ? cameras : cameras.filter((track) => track !== focus);
+  const pageSize = mobile ? 3 : 5;
+  const pages = Math.max(1, Math.ceil(thumbnails.length / pageSize));
   const current = Math.min(page, pages - 1);
-  const visible =
-    mobile || compact
-      ? paginated.slice(current * pageSize, (current + 1) * pageSize)
-      : others;
-  const mobileFocus = !share && mobile ? visible[0] : null;
-
-  if (compact)
-    return (
-      <div className="live-stage live-stage--compact">
-        <div className="live-camera-tiles">
-          {visible.length ? (
-            visible.map((track, index) => (
+  const visible = thumbnails.slice(
+    current * pageSize,
+    (current + 1) * pageSize,
+  );
+  const filmstrip = (
+    <div className="live-filmstrip" aria-label="Video người tham gia">
+      {pages > 1 && (
+        <button
+          className="live-filmstrip-arrow"
+          type="button"
+          disabled={current === 0}
+          onClick={() => setPage(current - 1)}
+          aria-label="Trang video trước"
+        >
+          ‹
+        </button>
+      )}
+      <div
+        className="live-filmstrip-tiles"
+        style={{ '--live-filmstrip-count': Math.max(1, visible.length) }}
+      >
+        {compact
+          ? visible.map((track, index) => (
               <ParticipantTile
                 key={`${track.participant?.identity || index}:${track.source}`}
                 trackRef={track}
               />
             ))
-          ) : (
-            <p className="live-camera-empty">Camera sẽ xuất hiện tại đây.</p>
-          )}
-        </div>
-        {pages > 1 && (
-          <nav
-            aria-label="Video người tham gia"
-            className="live-camera-pagination"
-          >
-            <button
-              type="button"
-              disabled={current === 0}
-              onClick={() => setPage(current - 1)}
-              aria-label="Trang video trước"
-            >
-              ‹
-            </button>
-            <span>
-              {current + 1} / {pages}
-            </span>
-            <button
-              type="button"
-              disabled={current === pages - 1}
-              onClick={() => setPage(current + 1)}
-              aria-label="Trang video sau"
-            >
-              ›
-            </button>
-          </nav>
+          : visible.length > 0 && (
+              <CarouselLayout tracks={visible} orientation="horizontal">
+                <ParticipantTile />
+              </CarouselLayout>
+            )}
+        {compact && !visible.length && (
+          <p className="live-camera-empty">Camera sẽ xuất hiện tại đây.</p>
         )}
       </div>
-    );
+      {pages > 1 && (
+        <button
+          className="live-filmstrip-arrow"
+          type="button"
+          disabled={current === pages - 1}
+          onClick={() => setPage(current + 1)}
+          aria-label="Trang video sau"
+        >
+          ›
+        </button>
+      )}
+      {pages > 1 && (
+        <span className="sr-only" aria-live="polite">
+          Trang video {current + 1} / {pages}
+        </span>
+      )}
+    </div>
+  );
 
+  if (compact)
+    return <div className="live-stage live-stage--compact">{filmstrip}</div>;
   return (
-    <div className="live-stage flex min-h-96 flex-1 flex-col gap-2 p-4">
-      {!tracks.length ? (
+    <div
+      className={`live-stage live-stage--zoom${thumbnails.length ? '' : ' live-stage--single'}`}
+    >
+      {thumbnails.length > 0 && filmstrip}
+      {focus ? (
+        <div
+          className={`live-spotlight${share ? ' live-spotlight--share' : ' live-spotlight--camera'}`}
+          aria-label={share ? 'Màn hình đang chia sẻ' : 'Video chính'}
+        >
+          <FocusLayout trackRef={focus} />
+        </div>
+      ) : (
         <div className="live-stage-empty">
           <span aria-hidden="true">◉</span>
           <h2>Phòng học đã sẵn sàng</h2>
           <p>Video sẽ xuất hiện khi bạn hoặc người tham gia bật camera.</p>
         </div>
-      ) : share ? (
-        <div className="relative flex min-h-96 flex-1 flex-col gap-3 xl:flex-row">
-          <FocusLayout
-            trackRef={share}
-            className="min-h-64 min-w-0 flex-1 xl:w-3/4"
-          />
-          {host && (
-            <div className="absolute right-2 top-2 h-24 w-32 overflow-hidden rounded-xl">
-              <ParticipantTile trackRef={host} />
-            </div>
-          )}
-          <CarouselLayout
-            tracks={visible}
-            className="h-36 shrink-0 xl:h-auto xl:w-1/4"
-          >
-            <ParticipantTile />
-          </CarouselLayout>
-        </div>
-      ) : mobileFocus ? (
-        <>
-          <FocusLayout trackRef={mobileFocus} className="min-h-64 flex-1" />
-          <CarouselLayout tracks={visible.slice(1)} className="h-36">
-            <ParticipantTile />
-          </CarouselLayout>
-        </>
-      ) : (
-        <GridLayout tracks={visible} className="lk-grid-layout min-h-96 flex-1">
-          <ParticipantTile />
-        </GridLayout>
-      )}
-      {mobile && pages > 1 && (
-        <nav
-          aria-label="Video"
-          className="flex items-center justify-center gap-4"
-        >
-          <button
-            type="button"
-            disabled={current === 0}
-            onClick={() => setPage(current - 1)}
-          >
-            Trước
-          </button>
-          <span>
-            {current + 1} / {pages}
-          </span>
-          <button
-            type="button"
-            disabled={current === pages - 1}
-            onClick={() => setPage(current + 1)}
-          >
-            Tiếp
-          </button>
-        </nav>
       )}
     </div>
   );

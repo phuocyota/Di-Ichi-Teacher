@@ -70,6 +70,15 @@ it('renders the real LiveKit controls inside layout context and toggles settings
       this.removeAttribute('open');
     },
   );
+  const footer = screen.getByRole('contentinfo', { name: 'Điều khiển lớp học' });
+  expect(footer.parentElement).toHaveClass('live-classroom');
+  expect(view.container.querySelector('.live-main')).not.toContainElement(footer);
+  const panel = view.container.querySelector('#live-side-panel');
+  expect(panel).toHaveAttribute('hidden');
+  fireEvent.click(screen.getByRole('button', { name: 'Học sinh', exact: true }));
+  expect(panel).not.toHaveAttribute('hidden');
+  fireEvent.click(screen.getByRole('button', { name: 'Đóng', exact: true }));
+  expect(panel).toHaveAttribute('hidden');
   fireEvent.click(screen.getByRole('button', { name: 'Mở giáo án' }));
   expect(view.container.querySelector('.live-meeting-stage')).toHaveClass(
     'live-meeting-stage--presenting',

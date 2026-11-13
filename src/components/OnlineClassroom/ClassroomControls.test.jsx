@@ -52,8 +52,8 @@ it('focuses a real screen share and limits mobile video tiles to four', () => {
   const view = render(<ClassroomStage tracks={tracks} />);
   expect(screen.getByText('Carousel 3')).toBeInTheDocument();
   expect(screen.getByText('Focus')).toBeInTheDocument();
-  fireEvent.click(screen.getByText('Tiếp'));
-  expect(screen.getByText('Carousel 1')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Trang video sau' }));
+  expect(screen.getByText('Carousel 2')).toBeInTheDocument();
   view.rerender(<ClassroomStage tracks={[...tracks, { source: Track.Source.ScreenShare, publication: { track: {} } }]} />);
   expect(screen.getByText('Focus')).toBeInTheDocument();
 });

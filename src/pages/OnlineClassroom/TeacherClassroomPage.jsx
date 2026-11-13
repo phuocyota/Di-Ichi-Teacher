@@ -19,12 +19,12 @@ export const TeacherClassroomPage = () => {
   if (['ended', 'removed', 'duplicate', 'disconnected'].includes(flow.state)) return <SessionEndedScreen state={flow.state} onBack={back} />;
   if (flow.state === 'left') return null;
   if (flow.state === 'live' && flow.joinData) {
-    const data = { ...flow.joinData, classId: flow.detail?.classId ?? flow.joinData.classId, features: flow.detail?.features || {}, isHost: flow.detail?.me?.isHost ?? flow.joinData.isHost };
+    const data = { ...flow.joinData, className: flow.joinData.className || flow.detail?.className, classId: flow.detail?.classId ?? flow.joinData.classId, features: flow.detail?.features || {}, isHost: flow.detail?.me?.isHost ?? flow.joinData.isHost };
     const choices = flow.choices || {};
     return <LiveKitRoom serverUrl={data.serverUrl} token={data.token} options={roomOptions} connect
       audio={choices.audioEnabled && data.permissions?.canUseMic !== false ? { deviceId: choices.audioDeviceId } : false}
       video={choices.videoEnabled && data.permissions?.canUseCamera !== false ? { deviceId: choices.videoDeviceId } : false}
-      onDisconnected={flow.disconnect} onError={() => setMediaError('Không thể kết nối lớp học. Vui lòng thử lại.')} className="min-h-screen">
+      onDisconnected={flow.disconnect} onError={() => setMediaError('Không thể kết nối lớp học. Vui lòng thử lại.')} className="live-room-shell">
       {mediaError && <p role="alert" className="bg-amber-100 p-3 text-amber-950">{mediaError}</p>}
       <TeacherClassroomExperience joinData={data} onLeave={back} onEnded={() => flow.finish('ended')} onDeviceError={() => setMediaError('Không truy cập được thiết bị. Bạn vẫn có thể vào lớp chỉ nghe.')} />
     </LiveKitRoom>;

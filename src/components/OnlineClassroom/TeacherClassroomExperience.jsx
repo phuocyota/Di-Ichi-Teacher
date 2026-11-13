@@ -1,7 +1,7 @@
 import { ClassroomWhiteboard } from './ClassroomWhiteboard.jsx';
 import { ClassroomLesson } from './ClassroomLesson.jsx';
 import './classroom.css';
-import { BookOpen, PenLine, Radio } from 'lucide-react';
+import { BookOpen, PenLine, Radio, Users, MessageSquare } from 'lucide-react';
 import { EndSessionDialog } from './EndSessionDialog.jsx';
 import { ClassroomStage } from './ClassroomStage.jsx';
 import { ClassroomPanels } from './ClassroomPanels.jsx';
@@ -37,6 +37,8 @@ export const TeacherClassroomExperience = ({
 }) => {
   const [lessonOpened, setLessonOpened] = useState(false);
   const [showLesson, setShowLesson] = useState(false);
+  const [sidePanel, setSidePanel] = useState(null);
+  const closePanel = useCallback(() => setSidePanel(null), []);
   const [boardOpen, setBoardOpen] = useState(false);
   const [presenting, setPresenting] = useState(false);
   const closeBoard = useCallback(() => setBoardOpen(false), []);
@@ -262,7 +264,7 @@ export const TeacherClassroomExperience = ({
   return (
     <LayoutContextProvider>
       <div
-        className="live-classroom flex min-h-screen flex-col bg-slate-950 text-white"
+        className="live-classroom flex flex-col bg-slate-950 text-white"
         data-lk-theme="default"
       >
         <ConnectionBanner />
@@ -272,7 +274,7 @@ export const TeacherClassroomExperience = ({
               <Radio size={14} aria-hidden="true" /> Lớp học trực tuyến
             </p>
             <h1 className="live-title text-xl font-black">
-              {joinData.className || joinData.room}
+              {joinData.className || 'Lớp học trực tuyến'}
             </h1>
             <p className="text-xs text-slate-400">
               <span
@@ -299,15 +301,9 @@ export const TeacherClassroomExperience = ({
                 Đang trình chiếu
               </span>
             )}
-            <EndSessionDialog
-              scheduleId={joinData.scheduleId}
-              enabled={Boolean(joinData.features?.lifecycle && joinData.isHost)}
-              onLeave={onLeave}
-              onEnded={onEnded}
-            />
           </div>
         </header>
-        <div className="flex min-h-0 flex-1 flex-col xl:flex-row">
+        <div className="live-room-content flex min-h-0 flex-1">
           <main className="live-main flex min-w-0 flex-1 flex-col">
             <div
               className={`live-meeting-stage${showLesson ? ' live-meeting-stage--presenting' : ''}`}
@@ -349,60 +345,109 @@ export const TeacherClassroomExperience = ({
                 permissions={joinData.permissions}
               />
             </ClassroomWhiteboard>
-            <div className="live-controls flex flex-wrap items-center justify-center gap-3 border-t border-white/10 p-3">
-              <div className="live-meeting-tools" aria-label="Công cụ lớp học">
-                <button
-                  type="button"
-                  className="live-tool-button"
-                  aria-expanded={boardOpen}
-                  aria-controls="live-whiteboard"
-                  onClick={() => setBoardOpen(true)}
-                >
-                  <PenLine size={18} aria-hidden="true" /> Bảng trắng
-                </button>
-                <button
-                  type="button"
-                  className="live-tool-button"
-                  aria-pressed={showLesson}
-                  onClick={() => {
-                    setLessonOpened(true);
-                    setShowLesson((value) => !value);
-                  }}
-                >
-                  <BookOpen size={18} aria-hidden="true" />{' '}
-                  {showLesson ? 'Ẩn giáo án' : 'Giáo án'}
-                </button>
-              </div>
-              <ControlBar
-                variation="minimal"
-                controls={{
-                  microphone: true,
-                  camera: true,
-                  screenShare: true,
-                  chat: false,
-                  settings: true,
-                  leave: false,
-                }}
-                onDeviceError={({ error }) => onDeviceError(error.message)}
-              />
-            </div>
           </main>
-          <ClassroomPanels
-            participants={
-              <ParticipantPanel
-                kickBan={joinData.features?.kickBan}
-                onReadmit={readmit}
-                readmitting={readmitting}
-                participants={participants}
-                raisedHands={raisedHands}
-                saving={saving}
-                onPermission={changePermission}
-                kicking={kicking}
-                onKick={kickParticipant}
-              />
-            }
-          />
+          <div
+            id="live-side-panel"
+            className="live-side-panel"
+            hidden={!sidePanel}
+          >
+            <ClassroomPanels
+              visible={Boolean(sidePanel)}
+              activeTab={sidePanel || 'participants'}
+              onTabChange={setSidePanel}
+              onClose={closePanel}
+              participants={
+                <ParticipantPanel
+                  kickBan={joinData.features?.kickBan}
+                  onReadmit={readmit}
+                  readmitting={readmitting}
+                  participants={participants}
+                  raisedHands={raisedHands}
+                  saving={saving}
+                  onPermission={changePermission}
+                  kicking={kicking}
+                  onKick={kickParticipant}
+                />
+              }
+            />
+          </div>
         </div>
+        <footer className="live-controls" aria-label="Điều khiển lớp học">
+          <div className="live-media-controls">
+            {' '}
+            <ControlBar
+              variation="verbose"
+              controls={{
+                microphone: true,
+                camera: true,
+                screenShare: true,
+                chat: false,
+                settings: true,
+                leave: false,
+              }}
+              onDeviceError={({ error }) => onDeviceError(error.message)}
+            />
+          </div>
+          <div className="live-meeting-tools" aria-label="Công cụ lớp học">
+            <button
+              type="button"
+              className="live-tool-button"
+              aria-expanded={boardOpen}
+              aria-controls="live-whiteboard"
+              onClick={() => setBoardOpen(true)}
+            >
+              <PenLine size={18} aria-hidden="true" /> Bảng trắng
+            </button>
+            <button
+              type="button"
+              className="live-tool-button"
+              aria-pressed={showLesson}
+              onClick={() => {
+                setLessonOpened(true);
+                setShowLesson((value) => !value);
+              }}
+            >
+              <BookOpen size={18} aria-hidden="true" />{' '}
+              {showLesson ? 'Ẩn giáo án' : 'Giáo án'}
+            </button>
+          </div>
+
+          <div className="live-panel-controls">
+            <button
+              type="button"
+              className="live-tool-button"
+              aria-expanded={sidePanel === 'participants'}
+              aria-controls="live-side-panel"
+              onClick={() =>
+                setSidePanel((value) =>
+                  value === 'participants' ? null : 'participants',
+                )
+              }
+            >
+              <Users size={21} aria-hidden="true" /> Học sinh
+            </button>
+            <button
+              type="button"
+              className="live-tool-button"
+              aria-expanded={sidePanel === 'chat'}
+              aria-controls="live-side-panel"
+              onClick={() =>
+                setSidePanel((value) => (value === 'chat' ? null : 'chat'))
+              }
+            >
+              <MessageSquare size={21} aria-hidden="true" /> Trò chuyện
+            </button>
+          </div>
+          <div className="live-exit-controls">
+            {' '}
+            <EndSessionDialog
+              scheduleId={joinData.scheduleId}
+              enabled={Boolean(joinData.features?.lifecycle && joinData.isHost)}
+              onLeave={onLeave}
+              onEnded={onEnded}
+            />
+          </div>
+        </footer>
       </div>
     </LayoutContextProvider>
   );

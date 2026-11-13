@@ -29,7 +29,11 @@ vi.mock('../../services/classroomApi.js', async (importOriginal) => ({
 }))
 
 const student = { studentId: 'student-id', identity: 'user-account-id', displayName: 'Học sinh A', connected: true, permissions: {} }
-const mount = () => render(<TeacherClassroomExperience joinData={{ scheduleId: 'schedule-id', permissions: {}, isHost: false }} onLeave={vi.fn()} onDeviceError={vi.fn()} />)
+const mount = () => {
+  const view = render(<TeacherClassroomExperience joinData={{ scheduleId: 'schedule-id', permissions: {}, isHost: false }} onLeave={vi.fn()} onDeviceError={vi.fn()} />)
+  fireEvent.click(screen.getByRole('button', { name: 'Học sinh', exact: true }))
+  return view
+}
 beforeEach(() => {
   vi.clearAllMocks()
   getClassroomParticipants.mockResolvedValue([student])
@@ -103,6 +107,7 @@ it('retains removed status after roster refresh and readmits only on explicit ac
   kickClassroomParticipant.mockResolvedValue({ removed: true, admissionStatus: 'removed' });
   readmitStudent.mockResolvedValue({ admissionStatus: 'admitted' });
   render(<TeacherClassroomExperience joinData={{ scheduleId: 'schedule-id', features: { kickBan: true } }} onLeave={vi.fn()} onEnded={vi.fn()} onDeviceError={vi.fn()} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Học sinh', exact: true }));
   const button = await screen.findByRole('button', { name: 'Mời ra khỏi lớp' });
   getClassroomParticipants.mockResolvedValue([{ ...student, connected: false }]);
   fireEvent.click(button);

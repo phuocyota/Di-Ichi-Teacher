@@ -6,10 +6,13 @@
   --lk-border-radius: 12px;
   color-scheme: dark;
   isolation: isolate;
-  border: 1px solid #253148;
-  border-radius: 24px;
-  background: #0b1120;
-  box-shadow: 0 20px 60px #0f172a24;
+  border: 0;
+  border-radius: 0;
+  background: #171717;
+  box-shadow: none;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 .live-header { flex-wrap: wrap; background: #111a2c; }
 .live-eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; color: #fb923c; font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
@@ -64,12 +67,10 @@
 .live-prejoin-note { display: flex; align-items: flex-start; justify-content: center; gap: 7px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
 .live-prejoin-note svg { flex-shrink: 0; margin-top: 2px; }
 @media (min-width: 1280px) {
-  .live-classroom { height: calc(100dvh - 32px); min-height: 640px; overflow: hidden; }
   .live-classroom > div.flex-1 { overflow: hidden; }
   .live-panels { width: 320px; }
 }
 @media (max-width: 767px) {
-  .live-classroom { border-radius: 16px; min-height: calc(100dvh - 24px); }
   .live-header { padding: 16px; gap: 12px; }
   .live-title { font-size: 18px; }
   .live-stage { padding: 12px; }
@@ -135,4 +136,113 @@
   .live-whiteboard-dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); border-radius: 14px; }
   .live-whiteboard-header { padding: 14px; }
   .live-tool-button { padding: 10px; }
+}
+/* Khung Live phủ đúng viewport, không cộng chiều cao của layout portal. */
+.live-room-shell { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; width: 100%; height: 100vh; height: 100dvh; min-height: 0; margin: 0; padding: 0; overflow: hidden; background: #171717; }
+.live-room-shell > [role='alert'] { flex-shrink: 0; }
+.live-room-shell > .live-classroom { flex: 1; height: auto; min-height: 0; }
+.live-room-content { position: relative; overflow: hidden; }
+.live-main { overflow: hidden; }
+.live-header { padding: 10px 18px; flex-shrink: 0; background: #202020; }
+.live-title { margin-bottom: 3px; font-size: 16px; line-height: 1.4; }
+.live-eyebrow { margin-bottom: 3px; font-size: 9px; }
+.live-header .live-open-lesson { min-height: 38px; padding: 8px 12px; font-size: 12px; }
+.live-meeting-stage { background: #171717; }
+.live-stage-empty { background: #1b1b1b; border-color: #343434; }
+.live-lesson-focus { border-color: #353535; background: #202020; }
+.live-side-panel { width: 320px; min-width: 0; min-height: 0; flex-shrink: 0; border-left: 1px solid #383838; background: #202020; }
+.live-side-panel[hidden] { display: none; }
+.live-side-panel > .live-panels { display: flex; width: 100%; height: 100%; background: #202020; border: 0; }
+.live-classroom > .live-controls { position: relative; bottom: auto; display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; gap: 18px; width: 100%; min-height: 78px; margin: 0; padding: 8px 16px max(8px, env(safe-area-inset-bottom)); border-top: 1px solid #383838; background: #202020; backdrop-filter: none; }
+.live-media-controls, .live-panel-controls { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.live-exit-controls { margin-left: auto; flex-shrink: 0; }
+.live-controls .lk-control-bar { flex-wrap: nowrap; gap: 6px; }
+.live-controls .live-tool-button, .live-controls .lk-button { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-width: 72px; min-height: 58px; padding: 7px 10px; border: 1px solid transparent; border-radius: 8px; background: transparent; font-size: 11px; font-weight: 600; line-height: 1.2; color: #e5e7eb; white-space: nowrap; }
+.live-controls .live-tool-button:hover, .live-controls .lk-button:hover { background: #343434; }
+.live-controls .live-tool-button[aria-pressed='true'], .live-controls .live-tool-button[aria-expanded='true'] { background: #353535; border-color: #737373; color: #fff; }
+.live-controls .lk-button > svg, .live-controls .live-tool-button > svg { width: 23px; height: 23px; }
+.live-controls .lk-button-group { align-items: center; background: transparent; }
+.live-controls .lk-button-group-menu .lk-button { min-width: 24px; padding-inline: 4px; }
+.live-controls .lk-button[data-lk-source='screen_share'] { min-width: 100px; color: #4ade80; }
+.live-controls .lk-button[data-lk-source='screen_share'][data-lk-enabled='true'] { background: #15803d; color: #fff; }
+.live-controls .lk-button[data-lk-source='microphone'][data-lk-enabled='false'] > svg, .live-controls .lk-button[data-lk-source='camera'][data-lk-enabled='false'] > svg { color: #f87171; }
+.live-controls .live-meeting-tools { flex-wrap: nowrap; gap: 6px; }
+.live-exit-controls > button, .live-exit-controls > div > button { background: #dc2626; border-radius: 7px; padding: 9px 15px; font-size: 12px; font-weight: 700; }
+.live-exit-controls > div > button:first-child:not(:last-child) { background: #3f3f46; }
+.live-meeting-stage--presenting .live-lesson > .lp-slides-embedded { min-height: 0; }
+.live-lesson-focus .lp-slides-embedded { height: auto; min-height: 0; }
+.live-lesson-focus .lp-slides-embedded .lp-slide-viewport { min-height: 0; }
+.live-lesson-focus .lp-slides-embedded .lp-slides-toolbar { padding: 8px 14px; }
+.live-lesson-focus .lp-slides-embedded .lp-slides-navigation { padding: 7px 12px; }
+@media (max-width: 1023px) {
+  .live-side-panel { position: absolute; inset: 0 0 0 auto; z-index: 30; width: min(360px, 100%); box-shadow: -20px 0 50px #0008; }
+  .live-classroom > .live-controls { gap: 6px; padding-inline: 8px; }
+  .live-controls .live-tool-button, .live-controls .lk-button { min-width: 58px; padding-inline: 6px; }
+}
+@media (max-width: 767px) {
+  .live-header { padding: 8px 12px; gap: 8px; }
+  .live-title { font-size: 14px; }
+  .live-classroom > .live-controls { flex-wrap: wrap; justify-content: center; min-height: 0; gap: 4px 8px; }
+  .live-controls .live-tool-button, .live-controls .lk-button { min-width: 48px; min-height: 48px; font-size: 10px; }
+  .live-controls .lk-button[data-lk-source='screen_share'] { min-width: 76px; }
+  .live-exit-controls { margin-left: 0; }
+  .live-meeting-stage--presenting { grid-template-rows: minmax(0, 1fr) 100px; }
+  .live-camera-tiles > .lk-participant-tile { height: 70px; width: 112px; }
+  .live-camera-heading { display: none; }
+  .live-camera-tiles { grid-auto-columns: 112px; }
+  .live-stage, .live-stage .lk-grid-layout, .live-stage-empty { min-height: 0; }
+}
+@media (max-height: 600px) {
+  .live-header .live-eyebrow, .live-lesson-heading p { display: none; }
+  .live-classroom > .live-controls { min-height: 58px; padding-top: 4px; padding-bottom: 4px; }
+  .live-controls .live-tool-button, .live-controls .lk-button { min-height: 44px; }
+  .live-stage, .live-stage .lk-grid-layout, .live-stage-empty { min-height: 0; }
+}
+/* Bố cục Zoom: filmstrip phía trên và một sân khấu chính phía dưới. */
+.live-header { min-height: 46px; padding: 6px 16px; background: #050505; }
+.live-header .live-eyebrow { display: none; }
+.live-title { margin: 0; font-size: 14px; }
+.live-header .live-open-lesson { min-height: 32px; padding: 6px 10px; background: #272727; border-color: #404040; }
+.live-classroom > .live-controls { min-height: 64px; padding-top: 4px; padding-bottom: max(4px, env(safe-area-inset-bottom)); background: #050505; gap: 12px; }
+.live-controls .live-tool-button, .live-controls .lk-button { min-height: 52px; border-radius: 5px; }
+.live-controls .live-panel-controls { margin-left: auto; }
+.live-exit-controls { margin-left: auto; }
+.live-meeting-stage { padding: 4px 12px 0; gap: 4px; overflow: hidden; }
+.live-meeting-stage--presenting { grid-template-columns: minmax(0, 1fr); grid-template-rows: 112px minmax(0, 1fr); }
+.live-meeting-stage--presenting > .live-camera-zone { grid-column: 1; grid-row: 1; }
+.live-meeting-stage--presenting > .live-lesson-focus { grid-column: 1; grid-row: 2; width: 100%; max-width: 1400px; justify-self: center; border-radius: 6px; }
+.live-camera-heading { display: none; }
+.live-camera-zone > .live-stage { min-height: 0; }
+.live-stage.live-stage--zoom { display: grid; grid-template-rows: 112px minmax(0, 1fr); gap: 4px; width: 100%; height: 100%; min-height: 0; padding: 0; overflow: hidden; }
+.live-stage.live-stage--single { grid-template-rows: minmax(0, 1fr); }
+.live-stage.live-stage--compact { display: flex; justify-content: center; height: 100%; min-height: 0; }
+.live-filmstrip { display: flex; align-items: stretch; justify-content: center; gap: 6px; width: 100%; height: 100%; min-width: 0; min-height: 0; }
+.live-filmstrip-tiles { display: flex; align-items: stretch; justify-content: center; gap: 6px; min-width: 0; width: calc(var(--live-filmstrip-count, 1) * 200px); max-width: 100%; overflow: hidden; }
+.live-filmstrip-tiles > .lk-carousel { height: 100%; max-width: 100%; padding: 0; gap: 6px; }
+.live-filmstrip-tiles > .lk-participant-tile { width: 190px; height: 100%; aspect-ratio: 16 / 9; flex: 0 1 190px; min-width: 0; border-radius: 5px; }
+.live-filmstrip .lk-participant-tile { border-radius: 5px; }
+.live-filmstrip .lk-participant-metadata { margin: 3px; font-size: 11px; }
+.live-filmstrip-arrow { width: 28px; flex-shrink: 0; border-radius: 4px; background: #252525; color: #fff; font-size: 28px; }
+.live-filmstrip-arrow:disabled { opacity: .3; }
+.live-spotlight { display: flex; justify-self: center; min-height: 0; min-width: 0; width: 100%; max-width: 1400px; height: 100%; overflow: hidden; border-radius: 6px; border: 2px solid #414141; }
+.live-spotlight--camera { border-color: #4ade80; }
+.live-spotlight > .lk-focus-layout { width: 100%; min-height: 0; padding: 0; gap: 0; }
+.live-spotlight .lk-participant-tile { border: 0; border-radius: 0; }
+.live-spotlight video { object-fit: contain; background: #111; }
+.live-meeting-stage--presenting .live-lesson { gap: 6px; padding: 6px; }
+.live-meeting-stage--presenting .live-lesson-heading h2 { font-size: 13px; }
+.live-meeting-stage--presenting .live-lesson-heading p { display: none; }
+.live-meeting-stage--presenting .lp-slides-toolbar { padding: 6px 10px; }
+@media (max-width: 767px) {
+  .live-meeting-stage--presenting, .live-stage.live-stage--zoom { grid-template-rows: 76px minmax(0, 1fr); }
+  .live-stage.live-stage--single { grid-template-rows: minmax(0, 1fr); }
+  .live-filmstrip-tiles { width: calc(var(--live-filmstrip-count, 1) * 126px); }
+  .live-filmstrip-tiles > .lk-participant-tile { width: 126px; flex-basis: 126px; }
+  .live-classroom > .live-controls { gap: 4px; }
+  .live-controls .live-panel-controls, .live-exit-controls { margin-left: 0; }
+}
+@media (max-height: 600px) and (min-width: 768px) {
+  .live-meeting-stage--presenting, .live-stage.live-stage--zoom { grid-template-rows: 80px minmax(0, 1fr); }
+  .live-stage.live-stage--single { grid-template-rows: minmax(0, 1fr); }
+  .live-filmstrip-tiles > .lk-participant-tile { width: 140px; flex-basis: 140px; }
 }
