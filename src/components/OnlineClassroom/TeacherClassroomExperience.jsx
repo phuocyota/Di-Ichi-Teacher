@@ -3,7 +3,7 @@ import { ClassroomStage } from './ClassroomStage.jsx';
 import { ClassroomPanels } from './ClassroomPanels.jsx';
 import { ConnectionBanner } from './ConnectionBanner.jsx';
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ControlBar, RoomAudioRenderer, StartAudio, useRoomContext, useTracks } from '@livekit/components-react'
+import { ControlBar, LayoutContextProvider, RoomAudioRenderer, StartAudio, useRoomContext, useTracks } from '@livekit/components-react'
 import { RoomEvent, Track } from 'livekit-client'
 import { toast } from 'sonner'
 import { getClassroomErrorMessage, getClassroomParticipants, kickClassroomParticipant, updateClassroomPermissions, readmitStudent, isFeatureDisabledError } from '../../services/classroomApi.js'
@@ -127,24 +127,26 @@ export const TeacherClassroomExperience = ({ joinData, onLeave, onEnded, onDevic
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-950 text-white" data-lk-theme="default">
-      <ConnectionBanner />
-      <header className="flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4">
-        <div><p className="text-xs font-black uppercase text-orange-400">Lớp học trực tuyến</p><h1 className="text-xl font-black">{joinData.className || joinData.room}</h1><p className="text-xs text-slate-400">Realtime {connected ? 'đã kết nối' : 'đang kết nối lại'}</p></div>
-        <EndSessionDialog scheduleId={joinData.scheduleId} enabled={Boolean(joinData.features?.lifecycle && joinData.isHost)} onLeave={onLeave} onEnded={onEnded} />
-      </header>
-      <div className="flex min-h-0 flex-1 flex-col xl:flex-row">
-        <main className="flex min-w-0 flex-1 flex-col">
-          <ClassroomStage tracks={tracks} hostIdentity={joinData.hostIdentity} />
-          <RoomAudioRenderer />
-          <StartAudio label="Bật âm thanh" />
-          <ClassroomBoard socket={socket} scheduleId={joinData.scheduleId} permissions={joinData.permissions} />
-          <div className="flex justify-center border-t border-white/10 p-3">
-            <ControlBar variation="minimal" controls={{ microphone: true, camera: true, screenShare: true, chat: false, settings: true, leave: false }} onDeviceError={({ error }) => onDeviceError(error.message)} />
-          </div>
-        </main>
-        <ClassroomPanels participants={<ParticipantPanel kickBan={joinData.features?.kickBan} onReadmit={readmit} readmitting={readmitting} participants={participants} raisedHands={raisedHands} saving={saving} onPermission={changePermission} kicking={kicking} onKick={kickParticipant} />} />
+      <LayoutContextProvider>
+        <div className="flex min-h-screen flex-col bg-slate-950 text-white" data-lk-theme="default">
+        <ConnectionBanner />
+        <header className="flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4">
+          <div><p className="text-xs font-black uppercase text-orange-400">Lớp học trực tuyến</p><h1 className="text-xl font-black">{joinData.className || joinData.room}</h1><p className="text-xs text-slate-400">Realtime {connected ? 'đã kết nối' : 'đang kết nối lại'}</p></div>
+          <EndSessionDialog scheduleId={joinData.scheduleId} enabled={Boolean(joinData.features?.lifecycle && joinData.isHost)} onLeave={onLeave} onEnded={onEnded} />
+        </header>
+        <div className="flex min-h-0 flex-1 flex-col xl:flex-row">
+          <main className="flex min-w-0 flex-1 flex-col">
+            <ClassroomStage tracks={tracks} hostIdentity={joinData.hostIdentity} />
+            <RoomAudioRenderer />
+            <StartAudio label="Bật âm thanh" />
+            <ClassroomBoard socket={socket} scheduleId={joinData.scheduleId} permissions={joinData.permissions} />
+            <div className="flex justify-center border-t border-white/10 p-3">
+              <ControlBar variation="minimal" controls={{ microphone: true, camera: true, screenShare: true, chat: false, settings: true, leave: false }} onDeviceError={({ error }) => onDeviceError(error.message)} />
+            </div>
+          </main>
+          <ClassroomPanels participants={<ParticipantPanel kickBan={joinData.features?.kickBan} onReadmit={readmit} readmitting={readmitting} participants={participants} raisedHands={raisedHands} saving={saving} onPermission={changePermission} kicking={kicking} onKick={kickParticipant} />} />
+        </div>
       </div>
-    </div>
+      </LayoutContextProvider>
   )
 }

@@ -9,7 +9,8 @@ import { getClassroomParticipants, kickClassroomParticipant, readmitStudent } fr
 
 globalThis.React = React
 const mocks = vi.hoisted(() => ({ room: { on: vi.fn(), off: vi.fn() }, onEvent: null }))
-vi.mock('@livekit/components-react', () => ({
+vi.mock('@livekit/components-react', async (importOriginal) => ({
+  LayoutContextProvider: (await importOriginal()).LayoutContextProvider,
   ControlBar: () => null, GridLayout: () => null, ParticipantTile: () => null,
   RoomAudioRenderer: () => null, StartAudio: () => null,
   useTracks: () => [], useRoomContext: () => mocks.room,
