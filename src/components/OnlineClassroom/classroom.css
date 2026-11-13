@@ -1,0 +1,138 @@
+/* Giới hạn style trong phòng Live để không ảnh hưởng các trang portal. */
+.live-classroom {
+  --lk-accent-bg: #f97316;
+  --lk-accent-fg: #fff;
+  --lk-control-bar-height: auto;
+  --lk-border-radius: 12px;
+  color-scheme: dark;
+  isolation: isolate;
+  border: 1px solid #253148;
+  border-radius: 24px;
+  background: #0b1120;
+  box-shadow: 0 20px 60px #0f172a24;
+}
+.live-header { flex-wrap: wrap; background: #111a2c; }
+.live-eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; color: #fb923c; font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+.live-title { overflow-wrap: anywhere; margin-bottom: 5px; }
+.live-status { display: inline-flex; align-items: center; gap: 6px; color: #94a3b8; }
+.live-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #34d399; }
+.live-status--waiting::before { background: #fbbf24; }
+.live-main { min-height: 0; }
+.live-panel-content[hidden] { display: none; }
+.live-stage { min-height: 340px; width: 100%; }
+.live-stage .lk-grid-layout { min-height: 320px; }
+.live-stage .lk-participant-tile { border-radius: 16px; overflow: hidden; border: 1px solid #334155; background: #182337; }
+.live-stage .lk-participant-metadata { margin: 8px; border-radius: 8px; font-size: 12px; }
+.live-stage-empty { display: flex; flex: 1; min-height: 300px; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 28px; text-align: center; border: 1px dashed #334155; border-radius: 18px; background: radial-gradient(ellipse at top, #1e293b 0%, #0f172a 70%); }
+.live-stage-empty > span { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 18px; background: #ffffff08; color: #fb923c; font-size: 28px; }
+.live-stage-empty h2 { font-size: 18px; font-weight: 700; }
+.live-stage-empty p { max-width: 320px; color: #94a3b8; font-size: 13px; line-height: 1.7; }
+.live-stage nav button { min-height: 40px; padding: 6px 16px; border: 1px solid #334155; border-radius: 10px; font-size: 13px; }
+.live-stage nav button:disabled { opacity: .35; }
+.live-board-workspace { padding: 16px; align-items: flex-start; overflow: auto; }
+.live-board-workspace > section { width: 100%; border-radius: 18px; padding: 16px; }
+.live-board-workspace svg[viewBox] { height: auto; aspect-ratio: 2 / 1; background-color: #fafbfc; background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px; }
+.live-controls { position: sticky; bottom: 0; z-index: 10; flex-shrink: 0; background: #111a2cf5; padding-bottom: max(12px, env(safe-area-inset-bottom)); backdrop-filter: blur(12px); }
+.live-controls .lk-control-bar { flex-wrap: wrap; height: auto; gap: 8px; border: 0; padding: 0; justify-content: center; }
+.live-controls .lk-button, .live-controls .lk-button-group { border-radius: 12px; }
+.live-controls > button:disabled { opacity: .45; cursor: not-allowed; }
+.live-panels { min-height: 0; background: #111a2c; }
+.live-panels > div:first-child { flex-shrink: 0; }
+.live-panels button[aria-pressed] { flex: 1; font-size: 13px; font-weight: 700; color: #94a3b8; background: transparent; }
+.live-panels button[aria-pressed='true'] { color: #fdba74; background: #f973161a; }
+.live-panel-content { min-height: 0; flex: 1; overflow-y: auto; }
+.live-chat { height: 100%; min-height: 320px; display: flex; flex-direction: column; border: 0; }
+.live-chat h2 { font-size: 13px; color: #cbd5e1; }
+.live-messages { flex: 1; min-height: 180px; max-height: none; display: flex; flex-direction: column; gap: 12px; padding: 4px 0; }
+.live-message { padding: 12px; border: 1px solid #ffffff08; border-radius: 4px 14px 14px; background: #1c2940; font-size: 13px; line-height: 1.6; }
+.live-message b { display: block; margin-bottom: 4px; font-size: 11px; color: #fdba74; }
+.live-chat-empty { margin: auto; padding: 32px 8px; color: #cbd5e1; text-align: center; font-size: 14px; }
+.live-chat-empty span { display: block; max-width: 190px; margin: 8px auto 0; color: #94a3b8; font-size: 12px; line-height: 1.7; }
+.live-chat form { flex-shrink: 0; }
+.live-chat input { border: 1px solid #334155; min-height: 44px; font-size: 13px; }
+.live-chat form button { min-width: 48px; font-size: 13px; font-weight: 700; }
+.live-chat-error { margin-top: 10px; font-size: 12px; color: #fda4af; }
+.live-classroom button:focus-visible, .live-classroom input:focus-visible, .live-prejoin button:focus-visible { outline: 2px solid #fb923c; outline-offset: 3px; }
+.live-prejoin { --lk-accent-bg: #ea580c; --lk-accent-fg: #fff; --lk-border-radius: 12px; color-scheme: dark; width: 100%; margin-block: 32px; padding: clamp(20px, 4vw, 36px); border: 1px solid #334155; border-radius: 24px; background: radial-gradient(ellipse at top right, #29364c, #111a2c 60%); color: #f8fafc; box-shadow: 0 24px 64px #0f172a24; }
+.live-prejoin-icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; color: #fb923c; background: #f973161a; border: 1px solid #f973162e; }
+.live-prejoin-eyebrow { color: #fb923c; font-size: 10px; letter-spacing: .14em; font-weight: 800; }
+.live-prejoin-description { color: #cbd5e1; font-size: 14px; line-height: 1.7; }
+.live-prejoin .lk-prejoin { width: 100%; max-width: none; padding: 0; background: transparent; }
+.live-prejoin .lk-video-container { border-radius: 16px; overflow: hidden; }
+.live-prejoin .lk-button { min-height: 44px; }
+.live-prejoin > button { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; border: 1px solid #475569; background: #1e293b; font-size: 13px; }
+.live-prejoin-note { display: flex; align-items: flex-start; justify-content: center; gap: 7px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
+.live-prejoin-note svg { flex-shrink: 0; margin-top: 2px; }
+@media (min-width: 1280px) {
+  .live-classroom { height: calc(100dvh - 32px); min-height: 640px; overflow: hidden; }
+  .live-classroom > div.flex-1 { overflow: hidden; }
+  .live-panels { width: 320px; }
+}
+@media (max-width: 767px) {
+  .live-classroom { border-radius: 16px; min-height: calc(100dvh - 24px); }
+  .live-header { padding: 16px; gap: 12px; }
+  .live-title { font-size: 18px; }
+  .live-stage { padding: 12px; }
+  .live-stage .lk-focus-layout { min-height: 240px; }
+  .live-controls { padding-inline: 8px; }
+  .live-controls .lk-button { min-height: 44px; padding: 10px; font-size: 12px; }
+  .live-prejoin { margin-block: 16px; }
+}
+
+.live-lesson { display: flex; flex-direction: column; gap: 14px; width: 100%; min-width: 0; min-height: 420px; padding: 16px; }
+.live-lesson-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.live-lesson h2 { font-size: 16px; font-weight: 800; }
+.live-lesson-heading p, .live-lesson-list p { margin-top: 5px; color: #94a3b8; font-size: 12px; line-height: 1.6; }
+.live-lesson-heading button, .live-lesson-list button, .live-lesson [role='alert'] button { border: 1px solid #f9731640; border-radius: 10px; padding: 10px 14px; background: #f973161a; color: #fdba74; font-size: 13px; font-weight: 700; }
+.live-lesson button:disabled { opacity: .45; cursor: not-allowed; }
+.live-lesson > p, .live-lesson > [role='alert'] { padding: 16px; border-radius: 12px; background: #1e293b; font-size: 13px; line-height: 1.7; }
+.live-lesson > [role='alert'] { color: #fda4af; }
+.live-lesson-list { display: flex; flex-direction: column; gap: 12px; }
+.live-lesson-list li { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 16px; border: 1px solid #334155; border-radius: 14px; background: #111a2c; }
+.live-lesson-list h3 { font-weight: 700; overflow-wrap: anywhere; }
+.live-lesson > .lp-slides-embedded { flex: 1; }
+@media (max-width: 767px) { .live-lesson { padding: 12px; } }
+
+.live-open-lesson { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 16px; border: 1px solid #fb923c; border-radius: 12px; background: #ea580c; color: white; font-size: 13px; font-weight: 800; }
+.live-open-lesson:hover { background: #c2410c; }
+.live-open-lesson[aria-expanded='true'] { background: #9a3412; }
+/* Slide là sân khấu chính; camera giữ ở cùng một cây component khi đổi bố cục. */
+.live-meeting-stage { display: grid; grid-template-columns: minmax(0, 1fr); flex: 1; min-height: 0; gap: 12px; padding: 14px; overflow: auto; }
+.live-lesson-focus { min-width: 0; min-height: 0; display: flex; border: 1px solid #334155; border-radius: 18px; overflow: hidden; background: #0f172a; }
+.live-lesson-focus[hidden] { display: none; }
+.live-camera-zone { min-height: 0; min-width: 0; display: flex; flex-direction: column; }
+.live-camera-zone > .live-stage { flex: 1; padding: 0; }
+.live-camera-heading { color: #94a3b8; font-size: 11px; font-weight: 700; padding: 0 0 8px 4px; }
+.live-meeting-stage--presenting { grid-template-columns: minmax(0, 1fr) 180px; }
+.live-meeting-stage--presenting .live-lesson { padding: 12px; min-height: 0; }
+.live-meeting-stage--presenting .live-lesson > .lp-slides-embedded { min-height: 380px; }
+.live-stage.live-stage--compact { display: flex; flex-direction: column; min-height: 0; gap: 8px; }
+.live-camera-tiles { display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow-y: auto; }
+.live-camera-tiles > .lk-participant-tile { aspect-ratio: 16 / 10; width: 100%; min-height: 0; flex-shrink: 0; }
+.live-camera-empty { border: 1px dashed #334155; border-radius: 12px; color: #94a3b8; font-size: 12px; text-align: center; line-height: 1.6; padding: 24px 12px; }
+.live-camera-pagination { display: flex; justify-content: center; align-items: center; gap: 12px; font-size: 12px; color: #cbd5e1; }
+.live-stage .live-camera-pagination button { padding: 4px 10px; min-height: 32px; }
+.live-meeting-tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.live-tool-button { display: inline-flex; gap: 8px; align-items: center; justify-content: center; min-height: 44px; padding: 10px 14px; border: 1px solid #334155; border-radius: 12px; background: #1e293b; color: #e2e8f0; font-size: 12px; font-weight: 700; }
+.live-tool-button:hover { background: #334155; }
+.live-tool-button[aria-expanded='true'], .live-tool-button[aria-pressed='true'] { color: #fdba74; border-color: #fb923c80; background: #f973161a; }
+.live-presentation-badge { padding: 7px 10px; border-radius: 8px; background: #10b9811a; color: #6ee7b7; font-size: 11px; font-weight: 700; }
+.live-whiteboard-dialog { position: fixed; inset: 0; margin: auto; width: min(1100px, calc(100vw - 32px)); max-width: none; max-height: calc(100dvh - 32px); padding: 0; border: 1px solid #475569; border-radius: 20px; background: #111a2c; color: #f8fafc; box-shadow: 0 32px 100px #0009; }
+.live-whiteboard-dialog:not([open]) { display: none; }
+.live-whiteboard-dialog[open] { display: flex; flex-direction: column; }
+.live-whiteboard-dialog::backdrop { background: #020617ba; backdrop-filter: blur(5px); }
+.live-whiteboard-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #334155; flex-shrink: 0; }
+.live-whiteboard-header h2 { display: flex; gap: 10px; align-items: center; font-size: 17px; font-weight: 800; }
+.live-whiteboard-header p { margin-top: 6px; color: #94a3b8; font-size: 12px; }
+.live-whiteboard-header > button { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; background: #1e293b; border-radius: 12px; }
+.live-whiteboard-header > button:hover { background: #334155; }
+.live-whiteboard-dialog .live-board-workspace { min-height: 0; overflow: auto; }
+.live-whiteboard-dialog button:focus-visible { outline: 2px solid #fb923c; outline-offset: 3px; }
+@media (max-width: 767px) {
+  .live-meeting-stage { padding: 10px; gap: 10px; }
+  .live-meeting-stage--presenting { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(380px, auto) auto; }
+  .live-camera-tiles { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(130px, 1fr); overflow-x: auto; overflow-y: hidden; }
+  .live-whiteboard-dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); border-radius: 14px; }
+  .live-whiteboard-header { padding: 14px; }
+  .live-tool-button { padding: 10px; }
+}

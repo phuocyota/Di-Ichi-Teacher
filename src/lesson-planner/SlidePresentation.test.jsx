@@ -114,3 +114,36 @@ it("allows empty slideshows to close and falls back when fullscreen is unavailab
   fireEvent.click(screen.getByRole("button", { name: "Đóng trình chiếu" }));
   expect(close).toHaveBeenCalledOnce();
 });
+it("embeds controlled slides in Live without locking page scrolling or moving focus", () => {
+  const before = document.body.style.overflow;
+  const p = plan();
+  const change = vi.fn();
+  const view = render(
+    <SlidePresentation
+      plan={p}
+      embedded
+      slideIndex={0}
+      onSlideChange={change}
+    />,
+  );
+  expect(
+    view.container.querySelector('[aria-label="Trình chiếu bài học"]'),
+  ).toBeInTheDocument();
+  expect(screen.queryByRole("dialog")).toBeNull();
+  expect(document.body.style.overflow).toBe(before);
+  fireEvent.click(screen.getByRole("button", { name: "Slide sau →" }));
+  expect(change).toHaveBeenCalledWith(1);
+  expect(screen.getByText("Slide 1/2")).toBeInTheDocument();
+  view.rerender(
+    <SlidePresentation
+      plan={p}
+      embedded
+      slideIndex={1}
+      onSlideChange={change}
+      navigationLocked
+    />,
+  );
+  expect(screen.getByRole("heading", { name: "Ghi nhớ" })).toBeVisible();
+  expect(screen.getByRole("button", { name: "← Slide trước" })).toBeDisabled();
+  expect(screen.queryByRole("button", { name: "Đóng trình chiếu" })).toBeNull();
+});

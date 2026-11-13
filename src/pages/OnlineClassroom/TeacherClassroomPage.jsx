@@ -19,7 +19,7 @@ export const TeacherClassroomPage = () => {
   if (['ended', 'removed', 'duplicate', 'disconnected'].includes(flow.state)) return <SessionEndedScreen state={flow.state} onBack={back} />;
   if (flow.state === 'left') return null;
   if (flow.state === 'live' && flow.joinData) {
-    const data = { ...flow.joinData, features: flow.detail?.features || {}, isHost: flow.detail?.me?.isHost ?? flow.joinData.isHost };
+    const data = { ...flow.joinData, classId: flow.detail?.classId ?? flow.joinData.classId, features: flow.detail?.features || {}, isHost: flow.detail?.me?.isHost ?? flow.joinData.isHost };
     const choices = flow.choices || {};
     return <LiveKitRoom serverUrl={data.serverUrl} token={data.token} options={roomOptions} connect
       audio={choices.audioEnabled && data.permissions?.canUseMic !== false ? { deviceId: choices.audioDeviceId } : false}

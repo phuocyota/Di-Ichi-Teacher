@@ -16,15 +16,16 @@ export function ClassroomChat() {
     catch { setError('Không gửi được tin nhắn. Vui lòng thử lại.'); }
     finally { pending.current = false; }
   }
-  return <section aria-label="Trò chuyện" className="border-t border-white/10 p-4">
+  return <section aria-label="Trò chuyện" className="live-chat border-t border-white/10 p-4">
     <h2 className="font-bold">Trò chuyện</h2>
-    <ol data-i18n-skip aria-live="polite" className="my-3 max-h-48 overflow-y-auto">
-      {chatMessages.map((item, index) => <li key={item.id || `${item.timestamp}-${index}`} className="break-words whitespace-pre-wrap"><b>{item.from?.name || item.from?.identity}: </b>{item.message}</li>)}
+    <ol data-i18n-skip aria-live="polite" className="live-messages my-3 max-h-48 overflow-y-auto">
+      {chatMessages.length === 0 && <li className="live-chat-empty"><p>Chưa có tin nhắn</p><span>Trao đổi và đặt câu hỏi cùng lớp tại đây.</span></li>}
+        {chatMessages.map((item, index) => <li key={item.id || `${item.timestamp}-${index}`} className="live-message break-words whitespace-pre-wrap"><b>{item.from?.name || item.from?.identity}: </b>{item.message}</li>)}
     </ol>
     <form onSubmit={submit} className="flex gap-2">
-      <input aria-label="Tin nhắn" maxLength={500} value={message} onChange={event => setMessage(event.target.value)} className="min-w-0 flex-1 rounded-lg bg-slate-800 p-2 text-white" />
+      <input aria-label="Tin nhắn" placeholder="Nhắn tin cho lớp…" autoComplete="off" maxLength={500} value={message} onChange={event => setMessage(event.target.value)} className="min-w-0 flex-1 rounded-lg bg-slate-800 p-2 text-white" />
       <button type="submit" disabled={isSending || !message.trim() || message.trim().length > 500} className="rounded-lg bg-orange-600 p-2 disabled:opacity-50">Gửi</button>
     </form>
-    {error && <p role="alert">{error}</p>}
+    {error && <p role="alert" className="live-chat-error">{error}</p>}
   </section>;
 }

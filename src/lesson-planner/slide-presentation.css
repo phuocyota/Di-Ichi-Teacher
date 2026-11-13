@@ -189,3 +189,21 @@
     padding: 0;
   }
 }
+
+/* Player nhúng trong Live, giữ camera và thanh điều khiển của phòng học. */
+.lesson-planner.lp-slides.lp-slides-embedded {
+  position: relative;
+  inset: auto;
+  z-index: auto;
+  height: 100%;
+  min-height: 420px;
+  min-width: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  color-scheme: light;
+}
+.lp-slides-embedded .lp-slides-toolbar { padding: 12px 16px; flex-wrap: wrap; }
+.lp-slides-embedded .lp-slides-toolbar h1 { max-width: 100%; }
+.lp-slides-embedded .lp-slides-navigation { padding: 10px 12px; gap: 8px; }
+.lp-slides-embedded .lp-slide-viewport { min-height: 280px; }
+.lp-slides-embedded:fullscreen { height: 100dvh; border-radius: 0; }

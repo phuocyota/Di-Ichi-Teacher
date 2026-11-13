@@ -4,7 +4,15 @@ import { LessonScene } from "./LessonAppearance.jsx";
 import BlockPlayer from "./BlockPlayer.jsx";
 import "./slide-presentation.css";
 
-export default function SlidePresentation({ plan, onClose, startIndex = 0 }) {
+export default function SlidePresentation({
+  plan,
+  onClose,
+  startIndex = 0,
+  embedded = false,
+  slideIndex,
+  onSlideChange,
+  navigationLocked = false,
+}) {
   const canvasMode = Boolean(plan.pages?.length);
   const slides = canvasMode ? plan.pages : plan.blocks;
   const [index, setIndex] = useState(
@@ -18,8 +26,14 @@ export default function SlidePresentation({ plan, onClose, startIndex = 0 }) {
     viewport = useRef(null),
     close = useRef(onClose);
   close.current = onClose;
-  const active = Math.min(index, Math.max(0, slides.length - 1));
+  const active = Math.min(slideIndex ?? index, Math.max(0, slides.length - 1));
+  const changeIndex = (next) => {
+    if (navigationLocked) return;
+    if (onSlideChange) onSlideChange(next);
+    else setIndex(next);
+  };
   useEffect(() => {
+    if (embedded) return;
     const previous = document.activeElement,
       overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -73,7 +87,7 @@ export default function SlidePresentation({ plan, onClose, startIndex = 0 }) {
       document.body.style.overflow = overflow;
       previous?.focus?.();
     };
-  }, [slides.length]);
+  }, [slides.length, embedded]);
   useEffect(() => {
     const el = viewport.current;
     if (!canvasMode || !el) return;
@@ -91,6 +105,17 @@ export default function SlidePresentation({ plan, onClose, startIndex = 0 }) {
       window.removeEventListener("resize", measure);
     };
   }, [canvasMode]);
+  useEffect(() => {
+    if (!embedded) return;
+    const node = root.current;
+    const changed = () => setFullscreen(document.fullscreenElement === node);
+    document.addEventListener("fullscreenchange", changed);
+    return () => {
+      document.removeEventListener("fullscreenchange", changed);
+      if (document.fullscreenElement === node)
+        document.exitFullscreen?.().catch(() => {});
+    };
+  }, [embedded]);
   const toggleFullscreen = async () => {
     setMessage("");
     try {
@@ -105,11 +130,11 @@ export default function SlidePresentation({ plan, onClose, startIndex = 0 }) {
       );
     }
   };
-  return createPortal(
+  const presentation = (
     <section
-      className="lesson-planner lp-slides"
-      role="dialog"
-      aria-modal="true"
+      className={`lesson-planner lp-slides${embedded ? " lp-slides-embedded" : ""}`}
+      role={embedded ? "region" : "dialog"}
+      aria-modal={embedded ? undefined : true}
       aria-label="Trình chiếu bài học"
       tabIndex={-1}
       ref={root}
@@ -126,7 +151,7 @@ export default function SlidePresentation({ plan, onClose, startIndex = 0 }) {
           <button onClick={toggleFullscreen}>
             {fullscreen ? "Thoát toàn màn hình" : "Toàn màn hình"}
           </button>
-          <button onClick={onClose}>Đóng trình chiếu</button>
+          {!embedded && <button onClick={onClose}>Đóng trình chiếu</button>}
         </div>
       </header>
       {message && (
@@ -198,8 +223,8 @@ export default function SlidePresentation({ plan, onClose, startIndex = 0 }) {
       </div>
       <footer className="lp-slides-navigation">
         <button
-          disabled={active === 0 || !slides.length}
-          onClick={() => setIndex((i) => i - 1)}
+          disabled={navigationLocked || active === 0 || !slides.length}
+          onClick={() => changeIndex(active - 1)}
         >
           ← Slide trước
         </button>
@@ -210,13 +235,15 @@ export default function SlidePresentation({ plan, onClose, startIndex = 0 }) {
           <span>{slides[active]?.title || ""}</span>
         </div>
         <button
-          disabled={active >= slides.length - 1 || !slides.length}
-          onClick={() => setIndex((i) => i + 1)}
+          disabled={
+            navigationLocked || active >= slides.length - 1 || !slides.length
+          }
+          onClick={() => changeIndex(active + 1)}
         >
           Slide sau →
         </button>
       </footer>
-    </section>,
-    document.body,
+    </section>
   );
+  return embedded ? presentation : createPortal(presentation, document.body);
 }

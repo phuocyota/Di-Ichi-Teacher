@@ -19,3 +19,13 @@ it('preserves chat drafts while switching tabs or closing the mobile panel', () 
   fireEvent.click(screen.getByRole('button', { name: 'Trò chuyện / Học sinh' }));
   expect(screen.getByRole('textbox')).toHaveValue('Unsent');
 });
+
+it('closes the mobile panel with Escape and returns focus to its trigger', () => {
+  render(<ClassroomPanels />);
+  const trigger = screen.getByRole('button', { name: 'Trò chuyện lớp học' });
+  fireEvent.click(trigger);
+  expect(screen.getByRole('button', { name: 'Đóng' })).toHaveFocus();
+  fireEvent.keyDown(document, { key: 'Escape' });
+  expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  expect(trigger).toHaveFocus();
+});
