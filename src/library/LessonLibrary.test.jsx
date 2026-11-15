@@ -281,3 +281,29 @@ it('guides creation into My lessons and validates publication access before the 
   expect(within(dialog).getByRole('alert')).toHaveTextContent('Chọn lớp và đối tượng trước khi xuất bản')
   expect(libraryRequest.mock.calls.some(([path, options]) => path === '' && options?.method === 'POST')).toBe(false)
 })
+
+it('shows the AI description to the owner while editing without sending it back on save', async () => {
+  manager = true; records = [lesson]
+  const fallback = libraryRequest.getMockImplementation()
+  libraryRequest.mockImplementation(async (path, options) => path === '/lesson-1' && !options?.method ? { ...lesson, canEdit: true, aiDescription: 'Tóm tắt AI: phân số cơ bản' } : fallback(path, options))
+  render(<LessonLibrary />)
+  fireEvent.click(await screen.findByRole('button', { name: /Phân số/ }))
+  const dialog = await screen.findByRole('dialog', { name: 'Quản lý bài giảng' })
+  expect(within(dialog).getByLabelText('Tên bài giảng *')).toBeInTheDocument()
+  expect(within(dialog).getByText('Tóm tắt AI: phân số cơ bản')).not.toBeVisible()
+  fireEvent.click(within(dialog).getByText('Xem mô tả AI'))
+  expect(within(dialog).getByText('Tóm tắt AI: phân số cơ bản')).toBeVisible()
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Lưu thay đổi' }))
+  await waitFor(() => expect(libraryRequest).toHaveBeenCalledWith('/lesson-1', expect.objectContaining({ method: 'PUT' })))
+  const body = libraryRequest.mock.calls.find(([path, options]) => path === '/lesson-1' && options?.method === 'PUT')[1].body
+  expect(body).not.toHaveProperty('aiDescription')
+})
+
+it('tells a reader when the lesson has no AI description', async () => {
+  records = [lesson]
+  render(<LessonLibrary />)
+  fireEvent.click(await screen.findByRole('button', { name: /Phân số/ }))
+  const dialog = await screen.findByRole('dialog', { name: 'Chi tiết bài giảng' })
+  fireEvent.click(within(dialog).getByText('Xem mô tả AI'))
+  expect(within(dialog).getByText('Chưa có mô tả AI cho bài giảng này.')).toBeVisible()
+})

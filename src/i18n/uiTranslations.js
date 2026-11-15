@@ -383,6 +383,8 @@ export const uiExact = {
   'Tệp và liên kết': 'Files and links',
   'Tạo bài giảng trước để thêm tệp và liên kết.': 'Create the lesson before adding files and links.',
   'Chưa có tệp hoặc liên kết.': 'No files or links yet.',
+  'Xem mô tả AI': 'View AI description',
+  'Chưa có mô tả AI cho bài giảng này.': 'No AI description for this lesson yet.',
   'Liên kết': 'Link',
   'Mở liên kết ↗': 'Open link ↗',
   'Gỡ': 'Remove',

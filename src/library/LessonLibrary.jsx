@@ -160,6 +160,7 @@ export default function LessonLibrary({ manage = false }) {
         {form.status === 'published' && <p className="ll-hint">Học sinh của các lớp đã chọn sẽ thấy bài giảng ngay sau khi lưu.</p>}
         <button className="ll-primary" disabled={busy}>{busy ? 'Đang xử lý…' : selected ? 'Lưu thay đổi' : 'Tạo bài giảng'}</button>
       </form> : <div className="ll-detail"><p>{selected.description}</p><div className="ll-tags">{[selected.subject,selected.grade,selected.topic].filter(Boolean).map((v,i) => <span key={i}>{v}</span>)}</div></div>}
+      {selected && <details className="ll-ai" key={selected.id}><summary>Xem mô tả AI</summary>{selected.aiDescription?.trim() ? <p data-i18n-skip>{selected.aiDescription}</p> : <p className="ll-hint">Chưa có mô tả AI cho bài giảng này.</p>}</details>}
       <section className="ll-assets"><div className="ll-assets-heading"><h3>Tệp và liên kết</h3>{canEdit && selected && <span className="ll-file-count"><span data-i18n-skip>{selected.assets?.length || 0} / 20</span> <span>tệp</span></span>}</div>
         {!selected ? <p className="ll-hint">Tạo bài giảng trước để tải PDF lên.</p> : <>
           {!selected.assets?.length && <p className="ll-hint">Chưa có tệp hoặc liên kết.</p>}
