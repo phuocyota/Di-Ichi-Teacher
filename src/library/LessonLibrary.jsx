@@ -9,15 +9,23 @@ const toggle = (values, value) => values.includes(value) ? values.filter(v => v 
 
 export default function LessonLibrary({ manage = false }) {
   const [options, setOptions] = useState(null), [items, setItems] = useState([]), [total, setTotal] = useState(0)
-  const [query, setQuery] = useState({ page: 1, search: '', subject: '', grade: '', status: '' })
+  const [query, setQuery] = useState({ page: 1, search: '', subject: '', grade: '', status: '', mine: false })
   const [filters, setFilters] = useState({ search: '', subject: '', grade: '', status: '' })
   const [loading, setLoading] = useState(true), [error, setError] = useState(''), [revision, setRevision] = useState(0)
   const [selected, setSelected] = useState(null), [form, setForm] = useState(null), [busy, setBusy] = useState(false)
-  const [actionError, setActionError] = useState(''), [link, setLink] = useState({ name: '', url: '' })
+  const [actionError, setActionError] = useState('')
   const [preview, setPreview] = useState(null), [notice, setNotice] = useState(''), [confirmDelete, setConfirmDelete] = useState(null)
-  const previewUrl = useRef(null), serial = useRef(0)
-  useResourceUpdates(() => setRevision(v => v + 1), ['lesson-library', 'class', 'class-staff', 'enrollment'], !selected && !busy);
+  const [uploadProgress, setUploadProgress] = useState(null), [needsAssetReload, setNeedsAssetReload] = useState(false)
+  const previewUrl = useRef(null), serial = useRef(0), actionLock = useRef(false)
+  useResourceUpdates(() => setRevision(v => v + 1), ['lesson-library', 'class', 'class-staff', 'enrollment'], !form && !preview && !busy);
   const canManage = manage && options?.canManage
+  const canCreate = options?.canCreate
+  const canEdit = selected ? selected.canEdit === true : canCreate
+  const switchTab = mine => {
+    setFilters(v => ({ ...v, status: '' }))
+    setQuery(v => ({ ...v, mine, status: '', page: 1 }))
+    setNotice('')
+  }
   useEffect(() => {
     const controller = new AbortController()
     setLoading(true); setError('')
@@ -34,7 +42,7 @@ export default function LessonLibrary({ manage = false }) {
   }, [query, revision])
   useEffect(() => () => { if (previewUrl.current) URL.revokeObjectURL(previewUrl.current) }, [])
   const change = e => setForm(v => ({ ...v, [e.target.name]: e.target.value }))
-  const close = () => { serial.current++; setSelected(null); setForm(null); setActionError(''); setConfirmDelete(null); setLink({ name: '', url: '' }) }
+  const close = () => { serial.current++; setSelected(null); setForm(null); setActionError(''); setConfirmDelete(null); setNeedsAssetReload(false) }
   const open = async item => {
     const current = ++serial.current
     setBusy(true); setActionError(''); setNotice('')
@@ -45,26 +53,54 @@ export default function LessonLibrary({ manage = false }) {
     } catch (e) { setNotice(e.message) } finally { setBusy(false) }
   }
   const act = async work => {
+    if (actionLock.current) return
+    actionLock.current = true
     setBusy(true); setActionError(''); setNotice('')
-    try { await work(); setRevision(v => v + 1) } catch(e) { setActionError(e.message) } finally { setBusy(false) }
+    try { await work(); setRevision(v => v + 1) } catch(e) { setActionError(e.message) } finally { actionLock.current = false; setBusy(false) }
   }
   const save = e => {
     e.preventDefault()
+    if (form.status === 'published' && (!form.classIds.length || !form.audiences.length)) { setActionError('Chọn lớp và đối tượng trước khi xuất bản'); return }
     act(async () => {
       const payload = Object.fromEntries(Object.keys(blank).map(key => [key, form[key]]))
       const saved = await libraryRequest(selected ? '/' + selected.id : '', { method: selected ? 'PUT' : 'POST', body: payload })
       setSelected(saved); setForm({ ...blank, ...saved }); setNotice('Đã lưu bài giảng')
     })
   }
-  const refreshDetail = async () => { const data = await libraryRequest('/' + selected.id); setSelected(data) }
+  const refreshDetail = async () => { const data = await libraryRequest('/' + selected.id); setSelected(data); setNeedsAssetReload(false) }
   const upload = e => {
-    const file = e.target.files?.[0]; e.target.value = ''
-    if (!file) return
-    if (file.size > 100 * 1024 * 1024) { setActionError('Tệp vượt quá 100 MB'); return }
+    const files = Array.from(e.target.files || []); e.target.value = ''
+    if (!files.length || actionLock.current || needsAssetReload) return
+    setActionError(''); setNotice('')
+    if ((selected.assets?.length || 0) + files.length > 20) { setActionError('Mỗi bài giảng tối đa 20 tệp'); return }
+    for (const file of files) {
+      if (!/\.pdf$/i.test(file.name)) { setActionError('Giáo viên chỉ tải lên được tệp PDF'); return }
+      if (!file.size) { setActionError('Tệp PDF không được rỗng'); return }
+      if (file.size > 100 * 1024 * 1024) { setActionError('Tệp vượt quá 100 MB'); return }
+    }
     act(async () => {
-      const body = new FormData(); body.append('file', file)
-      await libraryRequest('/' + selected.id + '/files', { method: 'POST', body })
-      await refreshDetail(); setNotice('Đã tải tệp lên')
+      let uploaded = 0
+      setUploadProgress({ current: 1, total: files.length })
+      try {
+        for (const file of files) {
+          setUploadProgress({ current: uploaded + 1, total: files.length })
+          const body = new FormData(); body.append('file', file)
+          try {
+            await libraryRequest('/' + selected.id + '/files', { method: 'POST', body })
+            uploaded++
+          } catch (e) {
+            setActionError(file.name + ': ' + e.message)
+            break
+          }
+        }
+        if (uploaded) {
+          setNotice(uploaded === files.length ? 'Đã tải tệp lên' : 'Đã giữ các tệp tải thành công. Chọn lại tệp chưa tải để thử lại.')
+          try { await refreshDetail() } catch {
+            setNeedsAssetReload(true)
+            setActionError(v => [v, 'Tệp đã tải lên nhưng chưa cập nhật được danh sách. Tải lại danh sách tệp trước khi tải thêm.'].filter(Boolean).join(' '))
+          }
+        }
+      } finally { setUploadProgress(null) }
     })
   }
   const assetAction = async (asset, view = false) => {
@@ -83,53 +119,63 @@ export default function LessonLibrary({ manage = false }) {
   }
   return <section className="lesson-library">
     <header className="ll-heading"><div><p className="ll-eyebrow">HỌC LIỆU DÙNG CHUNG</p><h1>Thư viện bài giảng</h1><p>{canManage ? 'Quản lý nội dung, xuất bản và cấp quyền theo lớp.' : 'Bài giảng và tài liệu được chia sẻ cho lớp của bạn.'}</p></div>
-      {canManage && <button className="ll-primary" disabled={busy} onClick={() => { close(); setForm({ ...blank, classIds: [], audiences: ['TEACHER', 'STUDENT'] }); setNotice('') }}>+ Thêm bài giảng</button>}</header>
-    <form className="ll-filters" onSubmit={e => { e.preventDefault(); setQuery({ ...filters, page: 1 }) }}>
+      {canCreate && <button className="ll-primary" disabled={busy} onClick={() => { close(); setForm({ ...blank, classIds: [], audiences: ['TEACHER', 'STUDENT'] }); setQuery(v => ({ ...v, mine: true, status: '', page: 1 })); setFilters(v => ({ ...v, status: '' })); setNotice('') }}>+ Tạo bài giảng PDF</button>}</header>
+    {canCreate && <nav className="ll-tabs" aria-label="Danh sách bài giảng">
+      <button type="button" aria-pressed={!query.mine} onClick={() => switchTab(false)}>Được chia sẻ</button>
+      <button type="button" aria-pressed={query.mine} onClick={() => switchTab(true)}>Bài giảng của tôi</button>
+    </nav>}
+    <form className="ll-filters" onSubmit={e => { e.preventDefault(); setQuery({ ...filters, status: query.mine || canManage ? filters.status : '', mine: query.mine, page: 1 }) }}>
       <label>Tìm kiếm<input value={filters.search} placeholder="Tên bài giảng, chủ đề…" onChange={e => setFilters({ ...filters, search: e.target.value })}/></label>
       <label>Môn học<input value={filters.subject} placeholder="Tất cả môn học" onChange={e => setFilters({ ...filters, subject: e.target.value })}/></label>
       <label>Khối lớp<input value={filters.grade} placeholder="Tất cả khối" onChange={e => setFilters({ ...filters, grade: e.target.value })}/></label>
-      {canManage && <label>Trạng thái<select value={filters.status} onChange={e => setFilters({ ...filters, status: e.target.value })}><option value="">Tất cả</option>{Object.entries(statuses).map(([k,v]) => <option key={k} value={k}>{v}</option>)}</select></label>}
+      {(query.mine || canManage) && <label>Trạng thái<select value={filters.status} onChange={e => setFilters({ ...filters, status: e.target.value })}><option value="">Tất cả</option>{Object.entries(statuses).map(([k,v]) => <option key={k} value={k}>{v}</option>)}</select></label>}
       <button className="ll-primary">Tìm kiếm</button>
     </form>
     {notice && <p role="status" className="ll-notice">{notice}</p>}
     {loading ? <p role="status" className="ll-empty">Đang tải thư viện…</p> : error ? <div role="alert" className="ll-error">{error} <button onClick={() => setRevision(v => v + 1)}>Thử lại</button></div> : <>
       <p className="ll-count">{total} bài giảng</p>
-      {!items.length ? <div className="ll-empty"><h2>Chưa có bài giảng</h2><p>{canManage ? 'Thêm bài giảng đầu tiên hoặc thay đổi bộ lọc.' : 'Nội dung sẽ xuất hiện khi quản trị xuất bản và cấp quyền cho lớp của bạn.'}</p></div> :
+      {!items.length ? <div className="ll-empty"><h2>{query.mine ? 'Bạn chưa tạo bài giảng nào.' : 'Chưa có bài giảng'}</h2><p>{canCreate ? 'Thêm bài giảng đầu tiên hoặc thay đổi bộ lọc.' : 'Nội dung sẽ xuất hiện khi bài giảng được xuất bản và cấp quyền cho lớp của bạn.'}</p></div> :
         <div className="ll-grid">{items.map(item => <button disabled={busy} className="ll-card" key={item.id} onClick={() => open(item)}>
           <div className="ll-cover"><span aria-hidden="true">▤</span><span>{item.subject || 'Bài giảng'}</span></div>
           <div className="ll-card-body"><span className={'ll-badge ll-' + item.status}>{statuses[item.status]}</span><h2>{item.title}</h2><p>{item.description || 'Chưa có mô tả'}</p><div className="ll-tags">{[item.grade, item.topic].filter(Boolean).map((v,i) => <span key={i}>{v}</span>)}</div><small>{item.assets?.length || 0} tệp / liên kết · Xem bài giảng →</small></div>
         </button>)}</div>}
       {total > 12 && <div className="ll-pages"><button disabled={query.page <= 1} onClick={() => setQuery({ ...query, page: query.page - 1 })}>Trang trước</button><span>Trang {query.page} / {Math.max(1, Math.ceil(total / 12))}</span><button disabled={query.page * 12 >= total} onClick={() => setQuery({ ...query, page: query.page + 1 })}>Trang sau</button></div>}
     </>}
-    {form && <div className="ll-overlay"><section className="ll-dialog" role="dialog" aria-modal="true" aria-label={canManage ? 'Quản lý bài giảng' : 'Chi tiết bài giảng'}>
+    {form && <div className="ll-overlay"><section className="ll-dialog" role="dialog" aria-modal="true" aria-label={canEdit ? 'Quản lý bài giảng' : 'Chi tiết bài giảng'}>
       <header><h2>{selected ? selected.title : 'Thêm bài giảng'}</h2><button aria-label="Đóng" disabled={busy} onClick={close}>✕</button></header>
+      {canEdit && <ol className="ll-steps" aria-label="Các bước tạo bài giảng">
+        <li className={selected ? 'll-step-done' : 'll-step-current'}><span aria-hidden="true">1</span><div><strong>Thông tin bài giảng</strong><small>Tên bài, lớp và quyền xem</small></div></li>
+        <li className={selected ? 'll-step-current' : ''}><span aria-hidden="true">2</span><div><strong>Tải PDF lên</strong><small>{selected ? 'Có thể chọn nhiều PDF một lần' : 'Lưu bài giảng để tiếp tục'}</small></div></li>
+      </ol>}
       {notice && <p className="ll-notice" role="status">{notice}</p>}
       {actionError && <p className="ll-error" role="alert">{actionError}</p>}
-      {canManage ? <form onSubmit={save} className="ll-edit">
+      {canEdit ? <form onSubmit={save} className="ll-edit">
         <label>Tên bài giảng *<input required maxLength={300} name="title" value={form.title} onChange={change}/></label>
         <label>Mô tả<textarea name="description" maxLength={20000} rows={3} value={form.description} onChange={change}/></label>
         <div className="ll-columns">{[['subject','Môn học'],['grade','Khối lớp'],['topic','Chủ đề']].map(([key,label]) => <label key={key}>{label}<input name={key} maxLength={key === 'grade' ? 100 : 200} value={form[key]} onChange={change}/></label>)}</div>
         <label>Trạng thái<select name="status" value={form.status} onChange={change}>{Object.entries(statuses).map(([k,v]) => <option key={k} value={k}>{v}</option>)}</select></label>
         <fieldset><legend>Đối tượng được xem</legend>{[['TEACHER','Giáo viên'],['STUDENT','Học sinh']].map(([value,label]) => <label className="ll-check" key={value}><input type="checkbox" checked={form.audiences.includes(value)} onChange={() => setForm({ ...form, audiences: toggle(form.audiences, value) })}/>{label}</label>)}</fieldset>
-        <fieldset><legend>Lớp được cấp quyền</legend><div className="ll-class-list">{options.classes.length ? options.classes.map(c => <label className="ll-check" key={c.id}><input type="checkbox" checked={form.classIds.includes(c.id)} onChange={() => setForm({ ...form, classIds: toggle(form.classIds, c.id) })}/>{c.name}</label>) : <p>Chưa có lớp trong chi nhánh.</p>}</div></fieldset>
+        <fieldset><legend>Lớp được cấp quyền</legend><div className="ll-class-list">{options.classes.length ? options.classes.map(c => <label className="ll-check" key={c.id}><input type="checkbox" checked={form.classIds.includes(c.id)} onChange={() => setForm({ ...form, classIds: toggle(form.classIds, c.id) })}/>{c.name}</label>) : <p>Bạn chưa được phân công lớp nào.</p>}</div></fieldset>
         <p className="ll-hint">Chỉ bài giảng đã xuất bản mới hiển thị cho đối tượng và lớp được chọn.</p>
+        {form.status === 'published' && <p className="ll-hint">Học sinh của các lớp đã chọn sẽ thấy bài giảng ngay sau khi lưu.</p>}
         <button className="ll-primary" disabled={busy}>{busy ? 'Đang xử lý…' : selected ? 'Lưu thay đổi' : 'Tạo bài giảng'}</button>
       </form> : <div className="ll-detail"><p>{selected.description}</p><div className="ll-tags">{[selected.subject,selected.grade,selected.topic].filter(Boolean).map((v,i) => <span key={i}>{v}</span>)}</div></div>}
-      <section className="ll-assets"><h3>Tệp và liên kết</h3>
-        {!selected ? <p className="ll-hint">Tạo bài giảng trước để thêm tệp và liên kết.</p> : <>
+      <section className="ll-assets"><div className="ll-assets-heading"><h3>Tệp và liên kết</h3>{canEdit && selected && <span className="ll-file-count"><span data-i18n-skip>{selected.assets?.length || 0} / 20</span> <span>tệp</span></span>}</div>
+        {!selected ? <p className="ll-hint">Tạo bài giảng trước để tải PDF lên.</p> : <>
           {!selected.assets?.length && <p className="ll-hint">Chưa có tệp hoặc liên kết.</p>}
           {selected.assets?.map(asset => <div className="ll-asset" key={asset.id}><div><strong>{asset.name}</strong><small>{asset.kind === 'link' ? 'Liên kết' : asset.kind.toUpperCase() + ' · ' + (asset.sizeBytes / 1024 / 1024).toFixed(1) + ' MB'}</small></div><div className="ll-asset-actions">
             {asset.kind === 'link' ? <a href={/^https?:\/\//i.test(asset.url) ? asset.url : '#'} target="_blank" rel="noopener noreferrer">Mở liên kết ↗</a> : <>
               {['pdf','video'].includes(asset.kind) && <button disabled={busy} onClick={() => assetAction(asset,true)}>Xem</button>}<button disabled={busy} onClick={() => assetAction(asset)}>Tải về</button></>}
-            {canManage && <button disabled={busy} className="ll-danger" onClick={() => setConfirmDelete({ assetId: asset.id, name: asset.name })}>Gỡ</button>}
+            {canEdit && <button disabled={busy} className="ll-danger" onClick={() => setConfirmDelete({ assetId: asset.id, name: asset.name })}>Gỡ</button>}
           </div></div>)}
-          {canManage && <div className="ll-add-assets"><label className="ll-upload">+ Tải tệp lên<input type="file" disabled={busy} accept=".pdf,.doc,.docx,.ppt,.pptx,.mp4,.webm,.mov" onChange={upload}/></label><p className="ll-hint">PDF, Word, PowerPoint, MP4, WebM, MOV · Tối đa 100 MB/tệp</p>
-            <form className="ll-link-form" onSubmit={e => { e.preventDefault(); act(async () => { await libraryRequest('/' + selected.id + '/links', { method: 'POST', body: link }); setLink({ name: '', url: '' }); await refreshDetail() }) }}>
-              <label>Tên liên kết<input required maxLength={300} value={link.name} onChange={e => setLink({ ...link, name: e.target.value })}/></label><label>URL<input required type="url" placeholder="https://…" maxLength={4000} value={link.url} onChange={e => setLink({ ...link, url: e.target.value })}/></label><button disabled={busy}>Thêm liên kết</button>
-            </form></div>}
+          {canEdit && <div className="ll-add-assets"><label className="ll-upload">+ Tải tệp lên<input type="file" multiple disabled={busy || needsAssetReload || selected.assets?.length >= 20} accept=".pdf,application/pdf" onChange={upload}/></label><p className="ll-hint">Chỉ PDF · Tối đa 100 MB/tệp · 20 tệp/bài</p>
+            {needsAssetReload && <button type="button" disabled={busy} onClick={() => act(refreshDetail)}>Tải lại danh sách tệp</button>}
+            {uploadProgress && <div className="ll-upload-progress" role="status" aria-live="polite"><span>Đang tải PDF…</span> <span data-i18n-skip>{uploadProgress.current} / {uploadProgress.total}</span><progress aria-label="Tiến độ tải PDF" value={uploadProgress.current - 1} max={uploadProgress.total}/></div>}
+            {selected.assets?.length >= 20 && <p className="ll-hint">Đã đủ 20 tệp. Gỡ tệp trước khi tải thêm.</p>}
+          </div>}
         </>}
       </section>
-      {canManage && selected && <footer><button className="ll-danger" disabled={busy} onClick={() => setConfirmDelete({ name: selected.title })}>Xóa bài giảng</button></footer>}
+      {canEdit && selected && <footer><button className="ll-danger" disabled={busy} onClick={() => setConfirmDelete({ name: selected.title })}>Xóa bài giảng</button></footer>}
       {confirmDelete && <div className="ll-confirm" role="alertdialog" aria-label="Xác nhận xóa"><p>{confirmDelete.assetId ? 'Gỡ tệp / liên kết' : 'Xóa bài giảng'} “{confirmDelete.name}”?</p><button disabled={busy} onClick={() => setConfirmDelete(null)}>Hủy</button><button disabled={busy} className="ll-danger" onClick={() => act(async () => {
         if (confirmDelete.assetId) { await libraryRequest('/' + selected.id + '/assets/' + confirmDelete.assetId, { method: 'DELETE' }); await refreshDetail(); setConfirmDelete(null) }
         else { await libraryRequest('/' + selected.id, { method: 'DELETE' }); close() }
