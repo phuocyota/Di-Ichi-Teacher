@@ -307,3 +307,23 @@ it('tells a reader when the lesson has no AI description', async () => {
   fireEvent.click(within(dialog).getByText('Xem mô tả AI'))
   expect(within(dialog).getByText('Chưa có mô tả AI cho bài giảng này.')).toBeVisible()
 })
+
+it('opens the AI description straight from the list without loading the detail', async () => {
+  records = [{ ...lesson, aiDescription: 'Tóm tắt AI: phân số cơ bản' }]
+  render(<LessonLibrary />)
+  fireEvent.click(await screen.findByRole('button', { name: 'Xem mô tả AI' }))
+  const dialog = await screen.findByRole('dialog', { name: 'Mô tả AI' })
+  expect(within(dialog).getByText('Phân số')).toBeInTheDocument()
+  expect(within(dialog).getByText('Tóm tắt AI: phân số cơ bản')).toBeVisible()
+  expect(libraryRequest.mock.calls.some(([path]) => path === '/lesson-1')).toBe(false)
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Đóng mô tả AI' }))
+  expect(screen.queryByRole('dialog', { name: 'Mô tả AI' })).not.toBeInTheDocument()
+})
+
+it('shows an empty AI description message from the list', async () => {
+  records = [lesson]
+  render(<LessonLibrary />)
+  fireEvent.click(await screen.findByRole('button', { name: 'Xem mô tả AI' }))
+  const dialog = await screen.findByRole('dialog', { name: 'Mô tả AI' })
+  expect(within(dialog).getByText('Chưa có mô tả AI cho bài giảng này.')).toBeVisible()
+})

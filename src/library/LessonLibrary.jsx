@@ -16,6 +16,7 @@ export default function LessonLibrary({ manage = false }) {
   const [actionError, setActionError] = useState('')
   const [preview, setPreview] = useState(null), [notice, setNotice] = useState(''), [confirmDelete, setConfirmDelete] = useState(null)
   const [uploadProgress, setUploadProgress] = useState(null), [needsAssetReload, setNeedsAssetReload] = useState(false)
+  const [aiPreview, setAiPreview] = useState(null)
   const previewUrl = useRef(null), serial = useRef(0), actionLock = useRef(false)
   useResourceUpdates(() => setRevision(v => v + 1), ['lesson-library', 'class', 'class-staff', 'enrollment'], !form && !preview && !busy);
   const canManage = manage && options?.canManage
@@ -135,10 +136,10 @@ export default function LessonLibrary({ manage = false }) {
     {loading ? <p role="status" className="ll-empty">Đang tải thư viện…</p> : error ? <div role="alert" className="ll-error">{error} <button onClick={() => setRevision(v => v + 1)}>Thử lại</button></div> : <>
       <p className="ll-count">{total} bài giảng</p>
       {!items.length ? <div className="ll-empty"><h2>{query.mine ? 'Bạn chưa tạo bài giảng nào.' : 'Chưa có bài giảng'}</h2><p>{canCreate ? 'Thêm bài giảng đầu tiên hoặc thay đổi bộ lọc.' : 'Nội dung sẽ xuất hiện khi bài giảng được xuất bản và cấp quyền cho lớp của bạn.'}</p></div> :
-        <div className="ll-grid">{items.map(item => <button disabled={busy} className="ll-card" key={item.id} onClick={() => open(item)}>
+        <div className="ll-grid">{items.map(item => <div className="ll-card-wrap" key={item.id}><button disabled={busy} className="ll-card" onClick={() => open(item)}>
           <div className="ll-cover"><span aria-hidden="true">▤</span><span>{item.subject || 'Bài giảng'}</span></div>
           <div className="ll-card-body"><span className={'ll-badge ll-' + item.status}>{statuses[item.status]}</span><h2>{item.title}</h2><p>{item.description || 'Chưa có mô tả'}</p><div className="ll-tags">{[item.grade, item.topic].filter(Boolean).map((v,i) => <span key={i}>{v}</span>)}</div><small>{item.assets?.length || 0} tệp / liên kết · Xem bài giảng →</small></div>
-        </button>)}</div>}
+        </button><button type="button" className="ll-card-ai" onClick={() => setAiPreview(item)}><span aria-hidden="true">✦</span> Xem mô tả AI</button></div>)}</div>}
       {total > 12 && <div className="ll-pages"><button disabled={query.page <= 1} onClick={() => setQuery({ ...query, page: query.page - 1 })}>Trang trước</button><span>Trang {query.page} / {Math.max(1, Math.ceil(total / 12))}</span><button disabled={query.page * 12 >= total} onClick={() => setQuery({ ...query, page: query.page + 1 })}>Trang sau</button></div>}
     </>}
     {form && <div className="ll-overlay"><section className="ll-dialog" role="dialog" aria-modal="true" aria-label={canEdit ? 'Quản lý bài giảng' : 'Chi tiết bài giảng'}>
@@ -181,6 +182,9 @@ export default function LessonLibrary({ manage = false }) {
         if (confirmDelete.assetId) { await libraryRequest('/' + selected.id + '/assets/' + confirmDelete.assetId, { method: 'DELETE' }); await refreshDetail(); setConfirmDelete(null) }
         else { await libraryRequest('/' + selected.id, { method: 'DELETE' }); close() }
       })}>Xác nhận xóa</button></div>}
+    </section></div>}
+    {aiPreview && <div className="ll-overlay" onClick={e => { if (e.target === e.currentTarget) setAiPreview(null) }}><section className="ll-dialog ll-ai-dialog" role="dialog" aria-modal="true" aria-label="Mô tả AI"><header><div><p className="ll-eyebrow">MÔ TẢ AI</p><h2 data-i18n-skip>{aiPreview.title}</h2></div><button aria-label="Đóng mô tả AI" onClick={() => setAiPreview(null)}>✕</button></header>
+      {aiPreview.aiDescription?.trim() ? <p className="ll-ai-text" data-i18n-skip>{aiPreview.aiDescription}</p> : <p className="ll-hint">Chưa có mô tả AI cho bài giảng này.</p>}
     </section></div>}
     {preview && <div className="ll-overlay ll-preview"><section className="ll-dialog" role="dialog" aria-modal="true" aria-label={preview.name}><header><h2>{preview.name}</h2><button aria-label="Đóng xem trước" onClick={() => { setPreview(null); URL.revokeObjectURL(previewUrl.current); previewUrl.current = null }}>✕</button></header>{preview.kind === 'video' ? <video controls src={preview.url}/> : <iframe title={preview.name} src={preview.url}/>}</section></div>}
   </section>
