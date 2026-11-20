@@ -77,6 +77,22 @@ export const TeacherClassroomExperience = ({
         });
     }
   }, [joinData.scheduleId]);
+  // Gom nhiều sự kiện vào/ra liên tiếp thành một lần tải lại danh sách.
+  const reloadTimer = useRef(undefined);
+  const scheduleReload = useCallback(() => {
+    if (reloadTimer.current !== undefined) return;
+    reloadTimer.current = window.setTimeout(() => {
+      reloadTimer.current = undefined;
+      void loadParticipants();
+    }, 300);
+  }, [loadParticipants]);
+  useEffect(
+    () => () => {
+      window.clearTimeout(reloadTimer.current);
+      reloadTimer.current = undefined;
+    },
+    [],
+  );
   const onEvent = useCallback(
     (eventName, event) => {
       if (eventName === 'classroom:ended') {
@@ -112,9 +128,10 @@ export const TeacherClassroomExperience = ({
           'classroom:participant-joined',
           'classroom:participant-left',
           'classroom:participant-kicked',
+          'classroom:admission-changed',
         ].includes(eventName)
       )
-        void loadParticipants();
+        scheduleReload();
       if (eventName === 'classroom:permission-changed') {
         setParticipants((current) =>
           current.map((item) =>
@@ -125,7 +142,7 @@ export const TeacherClassroomExperience = ({
         );
       }
     },
-    [loadParticipants, onEnded, joinData.features?.kickBan],
+    [scheduleReload, onEnded, joinData.features?.kickBan],
   );
   const { socket, connected } = useClassroomSocket({
     scheduleId: joinData.scheduleId,
@@ -141,24 +158,40 @@ export const TeacherClassroomExperience = ({
 
   useEffect(() => {
     void loadParticipants();
-    const timer = window.setInterval(loadParticipants, 15000);
-    const refresh = () => {
-      void loadParticipants();
+    // LiveKit báo trực tiếp người vào/ra: cập nhật ngay dòng tương ứng rồi đối soát với backend.
+    const setConnected = (identity, value) =>
+      setParticipants((current) =>
+        current.map((item) =>
+          item.identity === identity ? { ...item, connected: value } : item,
+        ),
+      );
+    const connectedHandler = (participant) => {
+      if (participant?.identity) setConnected(participant.identity, true);
+      scheduleReload();
     };
-    const events = [
-      RoomEvent.ParticipantConnected,
-      RoomEvent.ParticipantDisconnected,
-      RoomEvent.Reconnected,
+    const disconnectedHandler = (participant) => {
+      if (participant?.identity) setConnected(participant.identity, false);
+      scheduleReload();
+    };
+    const handlers = [
+      [RoomEvent.ParticipantConnected, connectedHandler],
+      [RoomEvent.ParticipantDisconnected, disconnectedHandler],
+      [RoomEvent.Reconnected, scheduleReload],
     ];
-    events.forEach((event) => room.on(event, refresh));
+    handlers.forEach(([event, handler]) => room.on(event, handler));
     return () => {
-      window.clearInterval(timer);
-      events.forEach((event) => room.off(event, refresh));
+      handlers.forEach(([event, handler]) => room.off(event, handler));
       // This is a request counter, not a DOM ref: invalidate outstanding fetches on cleanup.
       // eslint-disable-next-line react-hooks/exhaustive-deps
       rosterRequest.current++;
     };
-  }, [loadParticipants, room]);
+  }, [loadParticipants, scheduleReload, room]);
+  // Chỉ polling dự phòng khi socket lớp học mất kết nối (có thể lỡ sự kiện).
+  useEffect(() => {
+    if (connected) return undefined;
+    const timer = window.setInterval(loadParticipants, 15000);
+    return () => window.clearInterval(timer);
+  }, [connected, loadParticipants]);
 
   const kickParticipant = async (participant) => {
     const { identity } = participant;

@@ -89,7 +89,7 @@ describe('Teacher LiveKit participant management', () => {
       const callback = mocks.room.on.mock.calls.find(([name]) => name === event)[1]
       const count = getClassroomParticipants.mock.calls.length
       await act(async () => callback())
-      expect(getClassroomParticipants).toHaveBeenCalledTimes(count + 1)
+      await waitFor(() => expect(getClassroomParticipants).toHaveBeenCalledTimes(count + 1))
     }
     view.unmount()
     for (const [event, callback] of mocks.room.on.mock.calls) expect(mocks.room.off).toHaveBeenCalledWith(event, callback)
@@ -157,7 +157,9 @@ describe('Teacher classroom permission management', () => {
     const micButton = await screen.findByRole('button', { name: 'Mic' })
     const stale = deferred()
     getClassroomParticipants.mockReturnValueOnce(stale.promise)
+    const count = getClassroomParticipants.mock.calls.length
     await act(async () => mocks.onEvent('classroom:participant-joined', {}))
+    await waitFor(() => expect(getClassroomParticipants).toHaveBeenCalledTimes(count + 1))
     updateClassroomPermissions.mockResolvedValue({ permissions: { ...allowed, canUseMic: false } })
     fireEvent.click(micButton)
     await waitFor(() => expect(screen.getByRole('button', { name: 'Mic' })).toHaveAttribute('aria-pressed', 'false'))
@@ -187,5 +189,30 @@ describe('Teacher classroom permission management', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Mời ra khỏi lớp' }))
     await screen.findByText('Đã mời ra')
     expect(screen.getByRole('button', { name: 'Mic' })).toBeDisabled()
+  })
+})
+
+describe('Teacher roster cập nhật theo sự kiện', () => {
+  it('đánh dấu học sinh vào/ra ngay từ sự kiện LiveKit và không polling khi socket đang kết nối', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    try {
+      getClassroomParticipants.mockResolvedValue([{ ...student, connected: false, permissions: {} }])
+      mount()
+      await screen.findByText('Chưa vào lớp')
+      const count = getClassroomParticipants.mock.calls.length
+      await act(async () => { vi.advanceTimersByTime(60000) })
+      expect(getClassroomParticipants).toHaveBeenCalledTimes(count)
+
+      const connected = mocks.room.on.mock.calls.find(([name]) => name === RoomEvent.ParticipantConnected)[1]
+      getClassroomParticipants.mockResolvedValue([{ ...student, connected: true, permissions: {} }])
+      act(() => connected({ identity: student.identity }))
+      expect(screen.getByText('Đang trong lớp')).toBeInTheDocument()
+      // Nhiều sự kiện liên tiếp chỉ gây một lần đối soát.
+      act(() => { mocks.onEvent('classroom:participant-joined', {}); mocks.onEvent('classroom:admission-changed', {}) })
+      await act(async () => { vi.advanceTimersByTime(400) })
+      expect(getClassroomParticipants).toHaveBeenCalledTimes(count + 1)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

@@ -1,3 +1,4 @@
+import { useScheduleBoundaryRefresh } from '../../hooks/useScheduleBoundaryRefresh.js'
 import { useOnlineScheduleWatcher } from '../../hooks/useOnlineScheduleWatcher.js';
 import { useResourceUpdates } from '../../services/realtime.js';
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -43,11 +44,11 @@ export const OnlineClassesPage = () => {
   useEffect(() => {
     void load()
     const refresh = () => { if (!document.hidden) void load() }
-    // Availability also changes when the clock reaches the lesson window.
-    const timer = setInterval(refresh, 30000)
     window.addEventListener('focus', refresh)
-    return () => { clearInterval(timer); window.removeEventListener('focus', refresh); invalidateLoad() }
+    return () => { window.removeEventListener('focus', refresh); invalidateLoad() }
   }, [load, invalidateLoad])
+  // Trạng thái mở lớp đổi theo đồng hồ: hẹn giờ đúng mốc, chỉ polling khi socket không live.
+  useScheduleBoundaryRefresh(classes, load)
 
   const start = async (item) => {
     if (startPending.current) return

@@ -24,6 +24,18 @@ export function createRealtimeSocket(namespace) {
   });
   return bindSocketSession(client, getAccessToken);
 }
+// Trạng thái gần nhất của kênh /updates để màn hình mở sau vẫn biết có cần polling dự phòng không.
+let lastStatus = "connecting";
+export function useRealtimeStatus() {
+  const [status, setStatus] = useState(lastStatus);
+  useEffect(() => {
+    const changed = (event) => setStatus(event.detail);
+    window.addEventListener(REALTIME_STATUS_EVENT, changed);
+    setStatus(lastStatus);
+    return () => window.removeEventListener(REALTIME_STATUS_EVENT, changed);
+  }, []);
+  return status;
+}
 export function startResourceUpdates() {
   const client = createRealtimeSocket("updates");
   const stop = startUpdates({
@@ -32,14 +44,17 @@ export function startResourceUpdates() {
     document,
     eventName: RESOURCE_EVENT,
     canConnect: () => Boolean(getAccessToken()),
-    onStatus: (status) =>
+    onStatus: (status) => {
+      lastStatus = status;
       window.dispatchEvent(
         new CustomEvent(REALTIME_STATUS_EVENT, { detail: status }),
-      ),
+      );
+    },
   });
   return () => {
     stop();
     disposeRealtimeSocket(client);
+    lastStatus = "connecting";
   };
 }
 export function useUpdatesConnection() {
