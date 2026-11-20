@@ -1,7 +1,8 @@
 import HomeworkLessonAssign from './homework/HomeworkLessonAssign.jsx';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "../routes/localizedRouter.jsx";
-import { usePortal } from "./portalStore.js";
+import { usePortal, usePortalSections } from "./portalStore.js";
+import { sectionsForMode } from "./portalSections.js";
 import { TeacherTimetable } from './TeacherTimetable.jsx';
 import i18n from '../i18n/i18n.js';
 import { translateText } from '../i18n/translateText.js';
@@ -71,6 +72,14 @@ export function PortalScreen({ mode = "dashboard" }) {
     if (classId && !data.classes.some((item) => item.id === classId))
       setClassId("");
   }, [classId, data.classes]);
+  // Mỗi màn chỉ tải và đồng bộ phần dữ liệu nó hiển thị.
+  const ready = usePortalSections(sectionsForMode(mode, teacher));
+  if (!ready)
+    return (
+      <p className="portal-loading" role="status">
+        Đang tải dữ liệu…
+      </p>
+    );
   const title =
     mode === "dashboard" && teacher ? "Tổng quan giảng dạy" : titles[mode];
   const className = (id) => data.classes.find((c) => c.id === id)?.name || "—";
@@ -89,16 +98,18 @@ export function PortalScreen({ mode = "dashboard" }) {
             .toLocaleLowerCase()
             .includes(search.toLocaleLowerCase())),
     );
+  // records chỉ có khi màn hiện tại yêu cầu phần "records".
+  const allRecords = data.records ?? [];
   const records = (kind) =>
     filtered(
-      data.records.filter(
+      allRecords.filter(
         (r) => r.kind === kind || (kind === "quiz" && r.kind === "exam"),
       ),
     );
-  const completed = data.records.filter(
+  const completed = allRecords.filter(
     (r) => r.kind === "progress" && r.content.percent === 100,
   ).length;
-  const attempts = data.records.filter(
+  const attempts = allRecords.filter(
     (r) => r.kind === "attempt" && r.content.submittedAt,
   );
   const routes = teacher

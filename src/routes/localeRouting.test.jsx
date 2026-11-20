@@ -12,6 +12,17 @@ import { localizedLoginPath, localizedPath } from '../i18n/localeRouting.js';
 
 let router;
 globalThis.React = React;
+// Dữ liệu cổng giáo viên: các loader gọi route GET riêng; test điều hướng chỉ cần dữ liệu rỗng.
+vi.mock('../portal/portalLoaders.js', () => {
+  const sections = ['courses', 'students', 'enrollments', 'schedules', 'homework', 'submissions', 'scores', 'certificates', 'records', 'notifications'];
+  return {
+    loadBase: async () => ({ profile: { id: 't1', userId: 'u1', name: 'Teacher Demo', userType: 'TEACHER' }, classes: [] }),
+    SECTION_LOADERS: {
+      ...Object.fromEntries(sections.map((section) => [section, async () => ({ [section]: [] })])),
+      documents: async () => ({ documents: [], classDocuments: [] }),
+    },
+  };
+});
 const snapshot = {
   profile: { id: 't1', userId: 'u1', name: 'Teacher Demo', userType: 'TEACHER' },
   classes: [], courses: [], students: [], enrollments: [], schedules: [], homework: [],

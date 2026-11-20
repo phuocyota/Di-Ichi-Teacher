@@ -72,8 +72,16 @@ export async function portalRequest(
   }
 }
 
-export function validateSnapshot(data) {
-  const arrays = [
+/** Kiểm tra snapshot; truyền `sections` khi chỉ yêu cầu một phần (profile, classes luôn có). */
+export function validateSnapshot(data, sections) {
+  const requested = sections
+    ? [
+        "classes",
+        ...sections,
+        ...(sections.includes("documents") ? ["classDocuments"] : []),
+      ]
+    : null;
+  const arrays = requested ?? [
     "classes",
     "courses",
     "students",
@@ -101,7 +109,9 @@ export function validateSnapshot(data) {
         ),
     ) ||
     data.classes.some((row) => typeof row.name !== "string") ||
-    data.records.some((row) => !row.content || typeof row.content !== "object")
+    (data.records ?? []).some(
+      (row) => !row.content || typeof row.content !== "object",
+    )
   ) {
     throw new Error(
       "Dữ liệu portal không đúng định dạng. Vui lòng thử lại hoặc liên hệ quản trị viên.",

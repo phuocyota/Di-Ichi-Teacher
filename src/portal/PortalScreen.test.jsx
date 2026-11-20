@@ -13,6 +13,25 @@ import { PortalProvider } from "./PortalContext.jsx";
 import { PortalScreen } from "./PortalScreen.jsx";
 import { CLOSED_TIMEKEEPING_MESSAGE, dayVN, readTimekeeping, saveTimekeeping, timekeepingBlockReason } from './teachingTimekeeping.js';
 
+// Loader thật gọi từng route GET; ở đây đọc chung một fixture qua fetch để giữ các kịch bản hiện có.
+vi.mock("./portalLoaders.js", async () => {
+  const { portalRequest } = await import("../services/portalApi.js");
+  const pick = (keys) => async (signal) => {
+    const data = await portalRequest("/snapshot", { signal });
+    return Object.fromEntries([
+      ...keys.map((key) => [key, data[key]]),
+      ["files", data.files ?? []],
+    ]);
+  };
+  const sections = ["courses", "students", "enrollments", "schedules", "homework", "submissions", "scores", "certificates", "records", "notifications"];
+  return {
+    loadBase: pick(["profile", "classes"]),
+    SECTION_LOADERS: {
+      ...Object.fromEntries(sections.map((section) => [section, pick([section])])),
+      documents: pick(["documents", "classDocuments"]),
+    },
+  };
+});
 const empty = () => ({
   profile: {
     id: "student-1",
@@ -117,7 +136,6 @@ describe("API portal screens", () => {
       await waitFor(() =>
         expect(screen.queryByText("Đang tải dữ liệu…")).not.toBeInTheDocument(),
       );
-      expect(fetch.mock.calls[0][0]).toMatch(/\/portal\/snapshot$/);
       expect(
         screen.queryByText(
           /Minh Anh|Cô Linh|Explorer English|Past Simple Story/,
