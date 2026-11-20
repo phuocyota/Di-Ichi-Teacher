@@ -51,7 +51,9 @@ export const TeacherClassroomExperience = ({
   const readmitPending = useRef(false);
   const [participants, setParticipants] = useState([]);
   const [raisedHands, setRaisedHands] = useState(new Set());
-  const [saving, setSaving] = useState('');
+  const [saving, setSaving] = useState(new Set());
+  const savingRequests = useRef(new Set());
+  const [mutingAll, setMutingAll] = useState(false);
   const [kicking, setKicking] = useState(new Set());
   const kickRequests = useRef(new Set());
   const rosterRequest = useRef(0);
@@ -232,15 +234,28 @@ export const TeacherClassroomExperience = ({
     }
   };
 
-  const changePermission = async (participant, key, value) => {
-    const savingKey = `${participant.studentId}:${key}`;
-    setSaving(savingKey);
+  const markSaving = (key, active) => {
+    if (active) savingRequests.current.add(key);
+    else savingRequests.current.delete(key);
+    setSaving(new Set(savingRequests.current));
+  };
+
+  // Gửi một thay đổi quyền; trả về true khi backend đã lưu.
+  const savePermissions = async (participant, patch) => {
+    const keys = Object.keys(patch).map(
+      (key) => `${participant.studentId}:${key}`,
+    );
+    if (keys.some((key) => savingRequests.current.has(key))) return false;
+    keys.forEach((key) => markSaving(key, true));
+    // Bỏ kết quả các lần tải danh sách đang chạy để không đè quyền mới bằng dữ liệu cũ.
+    rosterRequest.current++;
     try {
       const result = await updateClassroomPermissions(
         joinData.scheduleId,
         participant.studentId,
-        { [key]: value },
+        patch,
       );
+      rosterRequest.current++;
       setParticipants((current) =>
         current.map((item) =>
           item.studentId === participant.studentId
@@ -248,12 +263,42 @@ export const TeacherClassroomExperience = ({
             : item,
         ),
       );
+      return true;
     } catch (error) {
       toast.error('Không thể cập nhật quyền', {
         description: getClassroomErrorMessage(error),
       });
+      return false;
     } finally {
-      setSaving('');
+      keys.forEach((key) => markSaving(key, false));
+    }
+  };
+
+  const changePermission = (participant, key, value) =>
+    savePermissions(participant, { [key]: value });
+
+  const grantMic = (participant) =>
+    savePermissions(participant, { canUseMic: true });
+
+  const muteAll = async () => {
+    const targets = participants.filter(
+      (item) =>
+        item.identity &&
+        item.admissionStatus !== 'removed' &&
+        item.permissions?.canUseMic !== false,
+    );
+    if (!targets.length || mutingAll) return;
+    setMutingAll(true);
+    try {
+      const results = await Promise.all(
+        targets.map((item) => savePermissions(item, { canUseMic: false })),
+      );
+      const done = results.filter(Boolean).length;
+      if (done === targets.length) toast.success('Đã tắt mic cả lớp');
+      else
+        toast.error(`Đã tắt mic ${done}/${targets.length} học sinh`);
+    } finally {
+      setMutingAll(false);
     }
   };
 
@@ -352,6 +397,9 @@ export const TeacherClassroomExperience = ({
                   raisedHands={raisedHands}
                   saving={saving}
                   onPermission={changePermission}
+                  onGrantMic={grantMic}
+                  onMuteAll={muteAll}
+                  mutingAll={mutingAll}
                   kicking={kicking}
                   onKick={kickParticipant}
                 />

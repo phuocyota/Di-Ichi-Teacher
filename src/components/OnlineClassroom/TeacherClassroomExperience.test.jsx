@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { RoomEvent } from 'livekit-client'
 import { toast } from 'sonner'
 import { TeacherClassroomExperience } from './TeacherClassroomExperience.jsx'
-import { getClassroomParticipants, kickClassroomParticipant, readmitStudent } from '../../services/classroomApi.js'
+import { getClassroomParticipants, kickClassroomParticipant, readmitStudent, updateClassroomPermissions } from '../../services/classroomApi.js'
 
 globalThis.React = React
 const mocks = vi.hoisted(() => ({ room: { on: vi.fn(), off: vi.fn() }, onEvent: null }))
@@ -25,7 +25,7 @@ vi.mock('./ConnectionBanner.jsx', () => ({ ConnectionBanner: () => null }))
 vi.mock('./ClassroomBoard.jsx', () => ({ ClassroomBoard: () => null }))
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }))
 vi.mock('../../services/classroomApi.js', async (importOriginal) => ({
-  ...await importOriginal(), getClassroomParticipants: vi.fn(), kickClassroomParticipant: vi.fn(), readmitStudent: vi.fn(),
+  ...await importOriginal(), getClassroomParticipants: vi.fn(), kickClassroomParticipant: vi.fn(), readmitStudent: vi.fn(), updateClassroomPermissions: vi.fn(),
 }))
 
 const student = { studentId: 'student-id', identity: 'user-account-id', displayName: 'Học sinh A', connected: true, permissions: {} }
@@ -124,3 +124,68 @@ it('forwards a classroom:ended event to the page', async () => {
   act(() => mocks.onEvent('classroom:ended', { scheduleId: 'schedule-id' }));
   expect(ended).toHaveBeenCalledOnce();
 });
+
+const deferred = () => {
+  let resolve
+  const promise = new Promise((done) => { resolve = done })
+  return { promise, resolve }
+}
+const allowed = { canUseMic: true, canUseCamera: true, canShareScreen: false, canWriteBoard: false, canControlBoard: false }
+
+describe('Teacher classroom permission management', () => {
+  it('khóa riêng từng nút quyền đang lưu, không mở khóa nhầm nút khác', async () => {
+    getClassroomParticipants.mockResolvedValue([{ ...student, permissions: allowed }])
+    const mic = deferred(), camera = deferred()
+    updateClassroomPermissions.mockImplementation((_id, _student, patch) => ('canUseMic' in patch ? mic.promise : camera.promise))
+    mount()
+    const micButton = await screen.findByRole('button', { name: 'Mic' })
+    const cameraButton = screen.getByRole('button', { name: 'Camera' })
+    fireEvent.click(micButton)
+    fireEvent.click(cameraButton)
+    await act(async () => camera.resolve({ permissions: { ...allowed, canUseCamera: false } }))
+    expect(screen.getByRole('button', { name: 'Mic' })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: 'Mic' }))
+    expect(updateClassroomPermissions).toHaveBeenCalledTimes(2)
+    await act(async () => mic.resolve({ permissions: { ...allowed, canUseCamera: false, canUseMic: false } }))
+    expect(screen.getByRole('button', { name: 'Mic' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: 'Camera' })).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  it('không để lần tải danh sách cũ đè quyền vừa lưu', async () => {
+    getClassroomParticipants.mockResolvedValueOnce([{ ...student, permissions: allowed }])
+    mount()
+    const micButton = await screen.findByRole('button', { name: 'Mic' })
+    const stale = deferred()
+    getClassroomParticipants.mockReturnValueOnce(stale.promise)
+    await act(async () => mocks.onEvent('classroom:participant-joined', {}))
+    updateClassroomPermissions.mockResolvedValue({ permissions: { ...allowed, canUseMic: false } })
+    fireEvent.click(micButton)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Mic' })).toHaveAttribute('aria-pressed', 'false'))
+    await act(async () => stale.resolve([{ ...student, permissions: allowed }]))
+    expect(screen.getByRole('button', { name: 'Mic' })).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  it('tắt mic cả lớp và cho học sinh giơ tay phát biểu', async () => {
+    const second = { ...student, studentId: 'student-2', identity: 'user-2', displayName: 'Học sinh B', permissions: { ...allowed, canUseMic: false } }
+    getClassroomParticipants.mockResolvedValue([{ ...student, permissions: allowed }, second])
+    updateClassroomPermissions.mockImplementation(async (_id, studentId, patch) => ({ permissions: { ...allowed, ...patch } }))
+    mount()
+    fireEvent.click(await screen.findByRole('button', { name: 'Tắt mic cả lớp' }))
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Đã tắt mic cả lớp'))
+    expect(updateClassroomPermissions).toHaveBeenCalledExactlyOnceWith('schedule-id', student.studentId, { canUseMic: false })
+
+    await act(async () => mocks.onEvent('classroom:raise-hand', { studentId: second.studentId }))
+    fireEvent.click(screen.getByRole('button', { name: 'Cho phát biểu' }))
+    await waitFor(() => expect(updateClassroomPermissions).toHaveBeenLastCalledWith('schedule-id', second.studentId, { canUseMic: true }))
+  })
+
+  it('khóa chỉnh quyền với học sinh đã bị mời ra', async () => {
+    kickClassroomParticipant.mockResolvedValue({ removed: true, admissionStatus: 'removed' })
+    getClassroomParticipants.mockResolvedValue([{ ...student, permissions: allowed }])
+    render(<TeacherClassroomExperience joinData={{ scheduleId: 'schedule-id', features: { kickBan: true } }} onLeave={vi.fn()} onEnded={vi.fn()} onDeviceError={vi.fn()} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Học sinh', exact: true }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Mời ra khỏi lớp' }))
+    await screen.findByText('Đã mời ra')
+    expect(screen.getByRole('button', { name: 'Mic' })).toBeDisabled()
+  })
+})

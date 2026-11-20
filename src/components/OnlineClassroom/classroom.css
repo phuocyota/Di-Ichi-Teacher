@@ -34,7 +34,8 @@
 .live-stage nav button:disabled { opacity: .35; }
 .live-board-workspace { padding: 16px; align-items: flex-start; overflow: auto; }
 .live-board-workspace > section { width: 100%; border-radius: 18px; padding: 16px; }
-.live-board-workspace svg[viewBox] { height: auto; aspect-ratio: 2 / 1; background-color: #fafbfc; background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px; }
+/* Nền chấm vẽ trong SVG để di chuyển theo khi phóng to/kéo bảng; phần ngoài vùng bảng có màu xám. */
+.live-board-workspace svg[viewBox] { height: auto; aspect-ratio: 2 / 1; background-color: #e2e8f0; }
 .live-controls { position: sticky; bottom: 0; z-index: 10; flex-shrink: 0; background: #111a2cf5; padding-bottom: max(12px, env(safe-area-inset-bottom)); backdrop-filter: blur(12px); }
 .live-controls .lk-control-bar { flex-wrap: wrap; height: auto; gap: 8px; border: 0; padding: 0; justify-content: center; }
 .live-controls .lk-button, .live-controls .lk-button-group { border-radius: 12px; }
